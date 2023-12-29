@@ -232,7 +232,7 @@ class Snake():
         self.body = []
         self.health = 100
         self.ate_food = False
-        self.color = color if color else COLORS["red"]
+        self.color = color if color else snakes.COLORS["red"]
         self.id = id if id else str(uuid.uuid4())
         self.name = name if name else self.id
         self._move = move

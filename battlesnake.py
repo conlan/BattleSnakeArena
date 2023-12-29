@@ -354,7 +354,7 @@ def _run_game_from_args(args):
 def parse_args(sysargs=None):
     parser = argparse.ArgumentParser()
     parser.add_argument("-f", "--food", help="Rate of food spawning", type=float, default=0.02)
-    parser.add_argument("-s", "--snakes", nargs='+', help="Snakes to battle", type=str, default=["simpleJake2019", "battleJake2019"])
+    parser.add_argument("-s", "--snakes", nargs='+', help="Snakes to battle", type=str, default=["simpleJake", "battleJake2019"])
     parser.add_argument("-d", "--dims", nargs='+', help="Dimensions of the board in x,y", type=int, default=[11,11])
     parser.add_argument("-p", "--silent", help="Print information about the game", action="store_true", default=False)
     parser.add_argument("-g", "--games", help="Number of games to play", type=int, default=1)

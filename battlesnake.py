@@ -116,10 +116,10 @@ class BattleSnake():
         return spot
 
 
-    def _move_snakes(self, debug=False):
-        json = self._get_board_json()
+    def _move_snakes(self, debug=False):        
         threads = []
         for snake in self.snakes:
+            json = self._get_board_json()
             process = Thread(target=snake.move, args=(json,))
             process.start()
             threads.append(process)

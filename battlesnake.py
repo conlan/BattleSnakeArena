@@ -368,9 +368,9 @@ def parse_args(sysargs=None):
         args = parser.parse_args()
 
     if len(args.dims) == 1:
-        dims = (args.dims[0], args.dims[0])
+        args.dims = (args.dims[0], args.dims[0])
     elif len(args.dims) == 2:
-        dims = tuple(args.dims)
+        args.dims = tuple(args.dims)
 
     battle_snakes = []
     for input_snake in args.snakes:

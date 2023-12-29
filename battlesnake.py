@@ -16,6 +16,8 @@ FOOD_COLOR = snakes.COLORS["green"]
 BORDER_COLOR = snakes.COLORS["grey"]
 DEFAULT_COLOR = snakes.COLORS["default"]
 
+SNAKE_START_SIZE = 3
+
 VERBOSE = False
 
 class BattleSnake():
@@ -32,11 +34,54 @@ class BattleSnake():
         self.food_prob = 0
         self.food_rate = food_rate
 
+    def place_snakes(self, snakes):
+        # Place According to Standard Rules
+        # https://github.com/BattlesnakeOfficial/rules/blob/main/board.go#L130
+        mn, md, mx = 1, (self.width-1) // 2, self.width - 2
 
-    def add_snake(self, snake):
-        snake.body.append(self._empty_spot())
-        self.snakes.append(snake)
+        cornerPoints = [
+		    [mn, mn],
+		    [mn, mx],
+		    [mx, mn],
+		    [mx, mx]
+        ]
 
+        cardinalPoints = [
+		    [mn, md],
+		    [md, mn],
+		    [md, mx],
+		    [mx, md]
+        ]
+
+        if (len(snakes) > (len(cornerPoints) + len(cardinalPoints))):
+            raise ValueError("Too many snakes for the board size")
+        
+        def shufflePair(pair):
+            pair[0], pair[1] = pair[1], pair[0]
+
+        for i in range(len(cornerPoints)):
+            random_idx = random.randint(0, len(cornerPoints)-1)
+            shufflePair(cornerPoints[random_idx])
+        
+        for i in range(len(cardinalPoints)):
+            random_idx = random.randint(0, len(cardinalPoints)-1)
+            shufflePair(cardinalPoints[random_idx])
+
+        startPoints = []
+
+        if (random.random() < 0.5):
+            startPoints = cornerPoints + cardinalPoints
+        else:
+            startPoints = cardinalPoints + cornerPoints
+
+        for i in range(len(snakes)):
+            snake = snakes[i]
+
+            spot = tuple(startPoints[i])
+
+            snake.body.append(spot)
+
+            self.snakes.append(snake)
 
     def start_game(self, speed=50, output_board=True, debug=False):
         is_solo = (len(self.snakes) == 1)
@@ -304,7 +349,7 @@ class Snake():
             self.body = [(head[0], head[1]-1)] + self.body
 
 
-        if len(self.body) > 3 and not self.ate_food:
+        if len(self.body) > SNAKE_START_SIZE and not self.ate_food:
             self.body = self.body[:-1]
         self.ate_food = False
         self.health = self.health -1
@@ -328,8 +373,8 @@ def verbose_print(*args, **kwargs):
 
 
 def run_game(snakes, food=0.005, dims=(11,11), suppress_board=False, speed=80, quiet=False, seed=None):
-    game = BattleSnake(food_start=len(snakes), food_rate=food, dims=dims, seed=seed)
-    for s in snakes: game.add_snake(s)
+    game = BattleSnake(food_start=len(snakes), food_rate=food, dims=dims, seed=seed)    
+    game.place_snakes(snakes)    
 
     game_results = {}
     game_results["winner"] = game.start_game(speed=speed, output_board=suppress_board, debug=True)

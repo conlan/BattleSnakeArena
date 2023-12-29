@@ -16,13 +16,16 @@ FOOD_COLOR = snakes.COLORS["green"]
 BORDER_COLOR = snakes.COLORS["grey"]
 DEFAULT_COLOR = snakes.COLORS["default"]
 
+# TOOD make constants
 SNAKE_START_SIZE = 3
+BOARD_SIZE_SMALL = 7
+BOARD_SIZE_MEDIUM = 11
 
 VERBOSE = False
 
 class BattleSnake():
 
-    def __init__(self, dims=(11,11), food_start=5, food_rate=0.02, seed=None):
+    def __init__(self, dims=(BOARD_SIZE_MEDIUM,BOARD_SIZE_MEDIUM), food_start=5, food_rate=0.02, seed=None):
         self.seed = seed if seed else int(time.time()*10000)
         random.seed(self.seed)
         self.width = dims[0]
@@ -364,7 +367,7 @@ def verbose_print(*args, **kwargs):
         print(*args, **kwargs)
 
 
-def run_game(snakes, food=0.005, dims=(11,11), suppress_board=False, speed=80, quiet=False, seed=None):
+def run_game(snakes, food=0.005, dims=(BOARD_SIZE_MEDIUM,BOARD_SIZE_MEDIUM), suppress_board=False, speed=80, quiet=False, seed=None):
     game = BattleSnake(food_start=len(snakes), food_rate=food, dims=dims, seed=seed)    
     game.place_snakes(snakes)    
 
@@ -394,7 +397,7 @@ def parse_args(sysargs=None):
     parser = argparse.ArgumentParser()
     parser.add_argument("-f", "--food", help="Rate of food spawning", type=float, default=0.02)
     parser.add_argument("-s", "--snakes", nargs='+', help="Snakes to battle", type=str, default=["simpleJake", "battleJake2019"])
-    parser.add_argument("-d", "--dims", nargs='+', help="Dimensions of the board in x,y", type=int, default=[11,11])
+    parser.add_argument("-d", "--dims", nargs='+', help="Dimensions of the board in x,y", type=int, default=[BOARD_SIZE_MEDIUM,BOARD_SIZE_MEDIUM])
     parser.add_argument("-p", "--silent", help="Print information about the game", action="store_true", default=False)
     parser.add_argument("-g", "--games", help="Number of games to play", type=int, default=1)
     parser.add_argument("-b", "--suppress-board", help="Don't print the board", action="store_false", default=True)

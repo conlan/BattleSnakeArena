@@ -43,7 +43,7 @@ SNAKES = [
     {
         "move": test_snakes.simpleJake.main.move,
         "name": "simpleJake",
-        "color": COLORS["black"]
+        "color": COLORS["blue"]
     },
     {
         "move": test_snakes.hungryJake.main.move,

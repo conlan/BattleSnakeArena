@@ -54,18 +54,10 @@ class BattleSnake():
         ]
 
         if (len(snakes) > (len(cornerPoints) + len(cardinalPoints))):
-            raise ValueError("Too many snakes for the board size")
-        
-        def shufflePair(pair):
-            pair[0], pair[1] = pair[1], pair[0]
+            raise ValueError("Too many snakes for the board size")                
 
-        for i in range(len(cornerPoints)):
-            random_idx = random.randint(0, len(cornerPoints)-1)
-            shufflePair(cornerPoints[random_idx])
-        
-        for i in range(len(cardinalPoints)):
-            random_idx = random.randint(0, len(cardinalPoints)-1)
-            shufflePair(cardinalPoints[random_idx])
+        random.shuffle(cornerPoints)
+        random.shuffle(cardinalPoints)        
 
         startPoints = []
 

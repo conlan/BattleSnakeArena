@@ -1,7 +1,6 @@
 import random
 import time
 import traceback
-import copy
 import uuid
 import argparse
 import tqdm
@@ -18,8 +17,11 @@ DEFAULT_COLOR = snakes.COLORS["default"]
 
 # TOOD make constants
 SNAKE_START_SIZE = 3
+
 BOARD_SIZE_SMALL = 7
 BOARD_SIZE_MEDIUM = 11
+
+MAX_SNAKE_HEALTH = 100
 
 VERBOSE = False
 
@@ -235,7 +237,7 @@ class BattleSnake():
         for f in self.food:
             for s in self.snakes:
                 if f in s.body:
-                    s.health = 100
+                    s.health = MAX_SNAKE_HEALTH
                     s.ate_food = True
                     if f in self.food:
                         self.food.remove(f)
@@ -272,7 +274,7 @@ class Snake():
 
     def __init__(self, name=None, id=None, color=None, move=None, end=None, start=None, server=None, **kwargs):
         self.body = []
-        self.health = 100
+        self.health = MAX_SNAKE_HEALTH
         self.ate_food = False
         self.color = color if color else snakes.COLORS["red"]
         self.id = id if id else str(uuid.uuid4())
@@ -352,7 +354,7 @@ class Snake():
 
     def reset(self):
         self.body = []
-        self.health = 100
+        self.health = MAX_SNAKE_HEALTH
         self.ate_food = False
 
 

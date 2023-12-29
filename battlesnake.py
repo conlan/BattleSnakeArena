@@ -39,7 +39,7 @@ class BattleSnake():
 
 
     def start_game(self, speed=50, output_board=True, debug=False):
-        solo = (len(self.snakes) == 1)
+        is_solo = (len(self.snakes) == 1)
 
         json = self._get_board_json()
         for s in self.snakes: s.start(json)
@@ -55,10 +55,12 @@ class BattleSnake():
 
             if output_board: self.print_board()
 
-            if self._check_winner(solo):
+            if self._check_winner(is_solo):
                 break
 
             while(time.time()-t1 <= float(100-speed)/float(100)): pass
+        
+        return self.snakes[0].name if not is_solo else None
 
 
     def print_board(self):
@@ -217,8 +219,8 @@ class BattleSnake():
         self._resolve_head_collisions()
 
 
-    def _check_winner(self, solo):
-        return (len(self.snakes) == 1 and not solo) or (len(self.snakes) == 0)
+    def _check_winner(self, is_solo):
+        return (len(self.snakes) == 1 and not is_solo) or (len(self.snakes) == 0)
 
 
 

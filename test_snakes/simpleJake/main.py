@@ -50,7 +50,6 @@ def start():
 
 @bottle.post('/move')
 def move(data=None):
-    global ate_food_last_turn
     random.seed(1)
     if not data:
         data = bottle.request.json
@@ -176,7 +175,7 @@ def get_food(moves, head, food, dist):
             elif ydist < 0 and 'up' in moves:
                 validMoves.append('up')
 
-    return list(set(validMoves))
+    return validMoves
 
 
 def dont_hit_wall(moves, head, walls):

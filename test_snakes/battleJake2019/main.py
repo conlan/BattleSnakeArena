@@ -497,7 +497,7 @@ def get_food(moves, head, food, dist):
 
     if validMoves == []:
         return moves
-    return list(set(validMoves))
+    return validMoves
 
 
 def dont_hit_wall(moves, head, walls):

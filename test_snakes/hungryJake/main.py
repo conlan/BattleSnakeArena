@@ -174,7 +174,7 @@ def get_food(moves, head, food, dist):
             elif ydist < 0 and 'up' in moves:
                 validMoves.append('up')
 
-    return list(set(validMoves))
+    return validMoves
 
 
 def dont_hit_wall(moves, head, walls):

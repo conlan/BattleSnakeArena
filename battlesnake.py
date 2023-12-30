@@ -23,6 +23,8 @@ BOARD_SIZE_MEDIUM = 11
 
 MAX_SNAKE_HEALTH = 100
 
+GAME_RESULT_DRAW = "DRAW"
+
 VERBOSE = False
 
 class BattleSnake():
@@ -103,7 +105,7 @@ class BattleSnake():
             while(time.time()-t1 <= float(100-speed)/float(100)): pass
         
         if (len(self.snakes) == 0):
-            return "DRAW"
+            return GAME_RESULT_DRAW
         
         return self.snakes[0].name if not is_solo else None
 
@@ -446,7 +448,10 @@ def main():
         winners = [d["winner"] for d in outputs]
 
         for winner in set(winners):
-            print("{}, Games Won: {}".format(winner, sum([1 for s in winners if s == winner])))
+            if (winner == GAME_RESULT_DRAW):
+                print("Games Tied: {}".format(sum([1 for s in winners if s == winner])))
+            else:
+                print("{}, Games Won: {}".format(winner, sum([1 for s in winners if s == winner])))
 
 
 if __name__ == "__main__":

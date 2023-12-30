@@ -102,6 +102,9 @@ class BattleSnake():
 
             while(time.time()-t1 <= float(100-speed)/float(100)): pass
         
+        if (len(self.snakes) == 0):
+            return "DRAW"
+        
         return self.snakes[0].name if not is_solo else None
 
 

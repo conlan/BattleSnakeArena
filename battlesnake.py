@@ -41,14 +41,11 @@ class BattleSnake():
         self.food_rate = food_rate
 
     def get_unoccupied_points(self, includePossibleMoves):
-        unoccupiedPoints = []
-
-        pointIsOccupied = {}
-
-        for food in self.food:
-            pointIsOccupied[food] = True
+        occupied_points = list(self.food)
 
         for snake in self.snakes:
+            occupied_points.extend(snake.body)
+
             # if we're including possible moves then look at where this snake can go
             if (includePossibleMoves):
                 head_point = snake.body[0]
@@ -60,20 +57,17 @@ class BattleSnake():
                     (head_point[0], head_point[1] - 1)
                 ]
 
-                for possible_next_move in nextMovePoints:
-                    pointIsOccupied[possible_next_move] = True
-            
-            for b in snake.body:
-                pointIsOccupied[b] = True
+                occupied_points.extend(nextMovePoints)
+
+        unoccupiedPoints = []
 
         for y in range(self.height):
             for x in range(self.width):
                 point = (x, y)
 
-                if (point not in pointIsOccupied):
+                if (point not in occupied_points):
                     unoccupiedPoints.append(point)
                 
-
         return unoccupiedPoints
 
     def place_food(self):
@@ -182,7 +176,7 @@ class BattleSnake():
 
         while(True):
             t1 = time.time()
-            self._move_snakes(debug=debug)
+            self._move_snakes()
             self._detect_death()
             self._check_food()
             self._add_food()
@@ -236,21 +230,17 @@ class BattleSnake():
         else:
             self.food_prob += self.food_rate
 
-
     def _empty_spot(self):
-        taken = list(self.food)
-        for s in self.snakes:
-            taken.extend(s.body)
+        unoccupied_points = self.get_unoccupied_points(False)        
 
         spot = (random.choice(range(self.width)),
                 random.choice(range(self.height)))
-        while spot in taken:
+        while spot not in unoccupied_points:
             spot = (random.choice(range(self.width)),
                     random.choice(range(self.height)))
         return spot
 
-
-    def _move_snakes(self, debug=False):        
+    def _move_snakes(self):        
         threads = []
         for snake in self.snakes:
             json = self._get_board_json()
@@ -260,7 +250,6 @@ class BattleSnake():
 
         for process in threads:
             process.join()
-
 
     def _delete_snakes(self, snakes, reason=None):
         if not snakes == []:

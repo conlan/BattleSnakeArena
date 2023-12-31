@@ -27,6 +27,7 @@ COLORS = {
 
 SNAKES = [
     {
+        "start":conlan_snakes.reinforcedConlan2024.main.start,
         "move": conlan_snakes.reinforcedConlan2024.main.move,
         "name": "reinforcedConlan2024",
         "color": COLORS["red"]

@@ -166,7 +166,7 @@ class BattleSnake():
 
             self.snakes.append(snake)
 
-    def start_game(self, speed=50, output_board=True):
+    def start_game(self, speed=50, output_board=True, train_reinforcement=False):
         isSolo = (len(self.snakes) == 1)
 
         json = self._get_board_json()
@@ -441,13 +441,13 @@ def verbose_print(*args, **kwargs):
     if VERBOSE:
         print(*args, **kwargs)
 
-def run_game(snakes, food_spawn_chance, min_food, dims=(BOARD_SIZE_MEDIUM,BOARD_SIZE_MEDIUM), suppress_board=False, speed=80, quiet=False, seed=None):
+def run_game(snakes, food_spawn_chance, min_food, dims=(BOARD_SIZE_MEDIUM,BOARD_SIZE_MEDIUM), suppress_board=False, train_reinforcement=False, speed=80, quiet=False, seed=None):
     game = BattleSnake(food_spawn_chance=food_spawn_chance, min_food=min_food, dims=dims, seed=seed)    
     game.place_snakes(snakes)    
     game.place_food()
 
     game_results = {}
-    game_results["winner"] = game.start_game(speed=speed, output_board=suppress_board)
+    game_results["winner"] = game.start_game(speed=speed, output_board=suppress_board, train_reinforcement=train_reinforcement)
     game_results["turns"] = game.turn
     game_results["seed"] = game.seed
 
@@ -463,6 +463,7 @@ def _run_game_from_args(args):
         min_food=args.min_food,
         dims=args.dims,
         suppress_board=args.suppress_board,
+        train_reinforcement=args.train_reinforcement,
         speed=args.speed,
         quiet=args.silent,
         seed=args.seed)
@@ -471,11 +472,12 @@ def parse_args(sysargs=None):
     parser = argparse.ArgumentParser()
     parser.add_argument("-f", "--food_spawn_chance", help="Chance of food spawning", type=float, default=0.15)
     parser.add_argument("-mf", "--min_food", help="Minimum number of food", type=float, default=1)
-    parser.add_argument("-s", "--snakes", nargs='+', help="Snakes to battle", type=str, default=["simpleJake", "battleJake2019"])    
+    parser.add_argument("-s", "--snakes", nargs='+', help="Snakes to battle", type=str, default=["simpleJake", "battleJake2019", "reinforcedConlan2024"])    
     parser.add_argument("-d", "--dims", nargs='+', help="Dimensions of the board in x,y", type=int, default=[BOARD_SIZE_MEDIUM,BOARD_SIZE_MEDIUM])
     parser.add_argument("-p", "--silent", help="Print information about the game", action="store_true", default=False)
     parser.add_argument("-g", "--games", help="Number of games to play", type=int, default=1)
     parser.add_argument("-b", "--suppress-board", help="Don't print the board", action="store_false", default=True)
+    parser.add_argument("-rl", "--train_reinforcement", help="Whether we should run in RL mode", action="store_false", default=False)
     parser.add_argument("-t", "--threads", help="Number of threads to run multiple games on", type=int, default=4)
     parser.add_argument("-i", "--seed", help="Game seed", type=int, default=None)
     parser.add_argument("-sp", "--speed", help="Speed of the game", type=int, default=90)

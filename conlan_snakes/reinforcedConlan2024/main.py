@@ -24,13 +24,16 @@ def end():
     return {}
 
 @bottle.post('/start')
-def start():
+def start(data=None):
     headUrl = '%s://%s/static/head.png' % (
         bottle.request.urlparts.scheme,
         bottle.request.urlparts.netloc
     )
 
-    print("\n\n\n\n\n\n")
+    # TODO load network weights from file
+    # import json
+    # print(json.dumps(data))
+    # exit()
 
     return {
         'color': '#EADA50',
@@ -43,6 +46,7 @@ def move(data=None):
     # make a random generator that we use here so the seed doesn't get overriden in the main game
     rand = random.Random()
     # rand.seed(1)
+    
     
     if not data:
         data = bottle.request.json

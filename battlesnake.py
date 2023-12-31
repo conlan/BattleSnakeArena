@@ -28,7 +28,7 @@ GAME_RESULT_DRAW = "DRAW"
 VERBOSE = False
 
 class BattleSnake():
-    def __init__(self, dims=(BOARD_SIZE_MEDIUM,BOARD_SIZE_MEDIUM), food_rate=0.02, seed=None):
+    def __init__(self, dims=(BOARD_SIZE_MEDIUM,BOARD_SIZE_MEDIUM), food_spawn_chance=0, min_food=1, seed=None):
         self.seed = seed if seed else int(time.time()*10000)
         random.seed(self.seed)
         self.width = dims[0]
@@ -36,8 +36,8 @@ class BattleSnake():
         self.snakes = []
         self.turn = 0
         self.food = []
-        self.food_prob = 0
-        self.food_rate = food_rate
+        self.min_food = min_food
+        self.food_spawn_chance = food_spawn_chance
 
     def get_unoccupied_points(self, includePossibleMoves):
         occupied_points = list(self.food)
@@ -172,12 +172,12 @@ class BattleSnake():
         json = self._get_board_json()
         for s in self.snakes: s.start(json)
 
-        while(True):
+        while (True):
             t1 = time.time()
             self._move_snakes()
             self._detect_death()
-            self._check_food()
-            self._add_food()
+            self._check_for_eaten_food()
+            self._spawn_food()
 
             self.turn += 1
 
@@ -221,12 +221,24 @@ class BattleSnake():
         print(f"{BORDER_COLOR}{ywall}{DEFAULT_COLOR}") # Y Border
 
 
-    def _add_food(self):
-        if random.random() < self.food_prob:
-            self.food.append(self._empty_spot())
-            self.food_prob = self.food_rate
-        else:
-            self.food_prob += self.food_rate
+    def _spawn_food(self):
+        # Following Standard rules at
+        # https://github.com/BattlesnakeOfficial/rules/blob/main/standard.go#L368
+        numCurrFood = len(self.food)
+
+        if (numCurrFood < self.min_food):
+            self._place_food_randomly(self.min_food - numCurrFood)
+        elif (self.food_spawn_chance > 0):            
+            if (random.random() < self.food_spawn_chance):
+                self._place_food_randomly(1)
+
+    def _place_food_randomly(self, num_food):
+        for _ in range(num_food):
+            unoccupiedPoints = self.get_unoccupied_points(False)
+
+            if (len(unoccupiedPoints) > 0):
+                spot = random.choice(unoccupiedPoints)
+                self.food.append(spot)
 
     def _empty_spot(self):
         unoccupied_points = self.get_unoccupied_points(False)        
@@ -311,7 +323,7 @@ class BattleSnake():
         self._delete_snakes(del_snakes, reason="STARVATION")
 
 
-    def _check_food(self):
+    def _check_for_eaten_food(self):
         removed_food = []
 
         for f in self.food:
@@ -429,8 +441,8 @@ def verbose_print(*args, **kwargs):
     if VERBOSE:
         print(*args, **kwargs)
 
-def run_game(snakes, food_rate=0.005, dims=(BOARD_SIZE_MEDIUM,BOARD_SIZE_MEDIUM), suppress_board=False, speed=80, quiet=False, seed=None):
-    game = BattleSnake(food_rate=food_rate, dims=dims, seed=seed)    
+def run_game(snakes, food_spawn_chance, min_food, dims=(BOARD_SIZE_MEDIUM,BOARD_SIZE_MEDIUM), suppress_board=False, speed=80, quiet=False, seed=None):
+    game = BattleSnake(food_spawn_chance=food_spawn_chance, min_food=min_food, dims=dims, seed=seed)    
     game.place_snakes(snakes)    
     game.place_food()
 
@@ -447,7 +459,8 @@ def run_game(snakes, food_rate=0.005, dims=(BOARD_SIZE_MEDIUM,BOARD_SIZE_MEDIUM)
 def _run_game_from_args(args):
     return run_game(
         snakes=args.snakes,
-        food_rate=args.food_rate,
+        food_spawn_chance=args.food_spawn_chance,
+        min_food=args.min_food,
         dims=args.dims,
         suppress_board=args.suppress_board,
         speed=args.speed,
@@ -456,8 +469,9 @@ def _run_game_from_args(args):
 
 def parse_args(sysargs=None):
     parser = argparse.ArgumentParser()
-    parser.add_argument("-f", "--food_rate", help="Rate of food spawning", type=float, default=0.02)
-    parser.add_argument("-s", "--snakes", nargs='+', help="Snakes to battle", type=str, default=["simpleJake", "battleJake2019"])
+    parser.add_argument("-f", "--food_spawn_chance", help="Chance of food spawning", type=float, default=0.15)
+    parser.add_argument("-mf", "--min_food", help="Minimum number of food", type=float, default=1)
+    parser.add_argument("-s", "--snakes", nargs='+', help="Snakes to battle", type=str, default=["simpleJake", "battleJake2019"])    
     parser.add_argument("-d", "--dims", nargs='+', help="Dimensions of the board in x,y", type=int, default=[BOARD_SIZE_MEDIUM,BOARD_SIZE_MEDIUM])
     parser.add_argument("-p", "--silent", help="Print information about the game", action="store_true", default=False)
     parser.add_argument("-g", "--games", help="Number of games to play", type=int, default=1)

@@ -360,7 +360,7 @@ def get_restrictions(head, mySize, walls, snakes, heads, size, op=True):
     if not op:
         directions = directions2
 
-    moves = [k for k in directions.keys() if directions[k] is 1]
+    moves = [k for k in directions.keys() if directions[k] == 1]
 
     return moves
 

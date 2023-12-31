@@ -28,7 +28,6 @@ GAME_RESULT_DRAW = "DRAW"
 VERBOSE = False
 
 class BattleSnake():
-
     def __init__(self, dims=(BOARD_SIZE_MEDIUM,BOARD_SIZE_MEDIUM), food_rate=0.02, seed=None):
         self.seed = seed if seed else int(time.time()*10000)
         random.seed(self.seed)
@@ -126,7 +125,6 @@ class BattleSnake():
         if (centerCoord in self.get_unoccupied_points(True)):
             self.food.append(centerCoord)
             
-
     def place_snakes(self, snakes):
         # Place According to Standard Rules
         # https://github.com/BattlesnakeOfficial/rules/blob/main/board.go#L130
@@ -168,8 +166,8 @@ class BattleSnake():
 
             self.snakes.append(snake)
 
-    def start_game(self, speed=50, output_board=True, debug=False):
-        is_solo = (len(self.snakes) == 1)
+    def start_game(self, speed=50, output_board=True):
+        isSolo = (len(self.snakes) == 1)
 
         json = self._get_board_json()
         for s in self.snakes: s.start(json)
@@ -185,7 +183,7 @@ class BattleSnake():
 
             if output_board: self.print_board()
 
-            if self._check_winner(is_solo):
+            if self._check_winner(isSolo):
                 break
 
             while(time.time()-t1 <= float(100-speed)/float(100)): pass
@@ -193,7 +191,7 @@ class BattleSnake():
         if (len(self.snakes) == 0):
             return GAME_RESULT_DRAW
         
-        return self.snakes[0].name if not is_solo else None
+        return self.snakes[0].name if not isSolo else None
 
 
     def print_board(self):
@@ -345,18 +343,10 @@ class BattleSnake():
         self._detect_snake_collision()
         self._resolve_head_collisions()
 
-
     def _check_winner(self, is_solo):
         return (len(self.snakes) == 1 and not is_solo) or (len(self.snakes) == 0)
 
-
-
-
-
-
-
 class Snake():
-
     def __init__(self, name=None, id=None, color=None, move=None, end=None, start=None, server=None, **kwargs):
         self.body = []
         self.health = MAX_SNAKE_HEALTH
@@ -370,7 +360,6 @@ class Snake():
         self.server = server
         self.kwargs = kwargs
 
-
     def jsonize(self):
         jsonobj = {}
         jsonobj["health"] = self.health
@@ -378,7 +367,6 @@ class Snake():
         jsonobj["id"] = self.id
         jsonobj["name"] = self.name
         return jsonobj
-
 
     def move(self, data):
         data["you"] = self.jsonize()
@@ -393,7 +381,6 @@ class Snake():
             r = {"move": "up"}
         self._move_snake(r["move"])
 
-
     def start(self, data):
         data["you"] = self.jsonize()
         try:
@@ -405,7 +392,6 @@ class Snake():
         except Exception as e:
             traceback.print_exc()
 
-
     def end(self, data):
         data["you"] = self.jsonize()
         try:
@@ -416,7 +402,6 @@ class Snake():
                 requests.post(url, json=data)
         except Exception as e:
             traceback.print_exc()
-
 
     def _move_snake(self, mv):
         head = self.body[0]
@@ -430,29 +415,19 @@ class Snake():
         else:
             self.body = [(head[0], head[1]-1)] + self.body
 
-
         if len(self.body) > SNAKE_START_SIZE and not self.ate_food:
             self.body = self.body[:-1]
         self.ate_food = False
         self.health = self.health -1
-
 
     def reset(self):
         self.body = []
         self.health = MAX_SNAKE_HEALTH
         self.ate_food = False
 
-
-
-
-
-
-
-
 def verbose_print(*args, **kwargs):
     if VERBOSE:
         print(*args, **kwargs)
-
 
 def run_game(snakes, food_rate=0.005, dims=(BOARD_SIZE_MEDIUM,BOARD_SIZE_MEDIUM), suppress_board=False, speed=80, quiet=False, seed=None):
     game = BattleSnake(food_rate=food_rate, dims=dims, seed=seed)    
@@ -460,7 +435,7 @@ def run_game(snakes, food_rate=0.005, dims=(BOARD_SIZE_MEDIUM,BOARD_SIZE_MEDIUM)
     game.place_food()
 
     game_results = {}
-    game_results["winner"] = game.start_game(speed=speed, output_board=suppress_board, debug=True)
+    game_results["winner"] = game.start_game(speed=speed, output_board=suppress_board)
     game_results["turns"] = game.turn
     game_results["seed"] = game.seed
 
@@ -468,7 +443,6 @@ def run_game(snakes, food_rate=0.005, dims=(BOARD_SIZE_MEDIUM,BOARD_SIZE_MEDIUM)
         print("Winner: {}, Turns: {}, Seed: {}".format(game_results["winner"], game_results["turns"], game_results["seed"] ))
 
     return game_results
-
 
 def _run_game_from_args(args):
     return run_game(
@@ -479,7 +453,6 @@ def _run_game_from_args(args):
         speed=args.speed,
         quiet=args.silent,
         seed=args.seed)
-
 
 def parse_args(sysargs=None):
     parser = argparse.ArgumentParser()
@@ -513,7 +486,6 @@ def parse_args(sysargs=None):
     args.snakes = battle_snakes
 
     return args
-
 
 def main():
     args = parse_args()

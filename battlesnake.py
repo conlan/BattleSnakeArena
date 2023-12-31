@@ -29,7 +29,7 @@ VERBOSE = False
 
 class BattleSnake():
 
-    def __init__(self, dims=(BOARD_SIZE_MEDIUM,BOARD_SIZE_MEDIUM), food_start=5, food_rate=0.02, seed=None):
+    def __init__(self, dims=(BOARD_SIZE_MEDIUM,BOARD_SIZE_MEDIUM), food_rate=0.02, seed=None):
         self.seed = seed if seed else int(time.time()*10000)
         random.seed(self.seed)
         self.width = dims[0]
@@ -37,27 +37,119 @@ class BattleSnake():
         self.snakes = []
         self.turn = 0
         self.food = []
-        self.food = self._init_food(food_start)
         self.food_prob = 0
         self.food_rate = food_rate
+
+    def get_unoccupied_points(self, includePossibleMoves):
+        unoccupiedPoints = []
+
+        pointIsOccupied = {}
+
+        for food in self.food:
+            pointIsOccupied[food] = True
+
+        for snake in self.snakes:
+            # if we're including possible moves then look at where this snake can go
+            if (includePossibleMoves):
+                head_point = snake.body[0]
+
+                nextMovePoints = [
+                    (head_point[0] - 1, head_point[1]),
+                    (head_point[0] + 1, head_point[1]),
+                    (head_point[0], head_point[1] + 1),
+                    (head_point[0], head_point[1] - 1)
+                ]
+
+                for possible_next_move in nextMovePoints:
+                    pointIsOccupied[possible_next_move] = True
+            
+            for b in snake.body:
+                pointIsOccupied[b] = True
+
+        for y in range(self.height):
+            for x in range(self.width):
+                point = (x, y)
+
+                if (point not in pointIsOccupied):
+                    unoccupiedPoints.append(point)
+                
+
+        return unoccupiedPoints
+
+    def place_food(self):
+        # Follow standard placement rules at
+        # https://github.com/BattlesnakeOfficial/rules/blob/main/board.go#L387
+        centerCoord = ((self.width - 1) // 2, (self.height - 1) // 2)
+
+        isSmallBoard = (self.width * self.height) < (BOARD_SIZE_MEDIUM * BOARD_SIZE_MEDIUM)
+
+        if (len(self.snakes) <= 4) or not isSmallBoard:
+            # place 1 food within exactly 2 moves of each snake, but never towards the center or in a corner
+            for snake in self.snakes:
+                snakeHead = snake.body[0]
+
+                possibleFoodLocations = [
+                    (snakeHead[0] - 1, snakeHead[1] - 1),
+                    (snakeHead[0] - 1, snakeHead[1] + 1),
+                    (snakeHead[0] + 1, snakeHead[1] - 1),
+                    (snakeHead[0] + 1, snakeHead[1] + 1)
+                ]
+
+                availableFoodLocations = []
+
+                for possibleFoodLocation in possibleFoodLocations:
+                    # don't place food on center
+                    if (possibleFoodLocation == centerCoord):
+                        continue
+                    # or on top of existing food
+                    if (possibleFoodLocation in self.food):
+                        continue
+
+                    isAwayFromCenter = False
+
+                    if (possibleFoodLocation[0] < snakeHead[0] and snakeHead[0] < centerCoord[0]):
+                        isAwayFromCenter = True
+                    elif (centerCoord[0] < snakeHead[0] and snakeHead[0] < possibleFoodLocation[0]):
+                        isAwayFromCenter = True
+                    elif (possibleFoodLocation[1] < snakeHead[1] and snakeHead[1] < centerCoord[1]):
+                        isAwayFromCenter = True
+                    elif (centerCoord[1] < snakeHead[1] and snakeHead[1] < possibleFoodLocation[1]):
+                        isAwayFromCenter = True
+                    
+                    if not isAwayFromCenter:
+                        continue
+                        
+                    # Don't spawn food in corners
+                    if (possibleFoodLocation[0] == 0 or possibleFoodLocation[0] == (self.width-1)) and (possibleFoodLocation[1] == 0 or possibleFoodLocation[1] == (self.height-1)):
+                        continue
+                    
+                    availableFoodLocations.append(possibleFoodLocation)
+
+                # put 1 food on one of the available locations
+                self.food.append(random.choice(availableFoodLocations))                                        
+    
+        # Place 1 food in center for dramatic purposes        
+        if (centerCoord in self.get_unoccupied_points(True)):
+            self.food.append(centerCoord)
+            
 
     def place_snakes(self, snakes):
         # Place According to Standard Rules
         # https://github.com/BattlesnakeOfficial/rules/blob/main/board.go#L130
-        mn, md, mx = 1, (self.width-1) // 2, self.width - 2
+        min, mid, max = 1, (self.width-1) // 2, self.width - 2
 
         cornerPoints = [
-		    [mn, mn],
-		    [mn, mx],
-		    [mx, mn],
-		    [mx, mx]
+		    [min, min],
+		    [min, max],
+		    [max, min],
+		    [max, max]
         ]
 
         cardinalPoints = [
-		    [mn, md],
-		    [md, mn],
-		    [md, mx],
-		    [mx, md]
+		    [min, mid],
+		    [mid, min],
+		    [mid, max],
+		    [max, mid]
         ]
 
         if (len(snakes) > (len(cornerPoints) + len(cardinalPoints))):
@@ -135,13 +227,6 @@ class BattleSnake():
                         print(f"{DEFAULT_COLOR}  {DEFAULT_COLOR}", end="") # Empty
             print(f"{BORDER_COLOR} {DEFAULT_COLOR}") # X Border
         print(f"{BORDER_COLOR}{ywall}{DEFAULT_COLOR}") # Y Border
-
-
-    def _init_food(self, food):
-        places = []
-        for i in range(food):
-            places.append(self._empty_spot())
-        return places
 
 
     def _add_food(self):
@@ -231,6 +316,7 @@ class BattleSnake():
 
     def _detect_starvation(self):
         del_snakes = []
+        
         for s in self.snakes:
             if(s.health <= 0):
                 del_snakes.append(s)
@@ -239,13 +325,18 @@ class BattleSnake():
 
 
     def _check_food(self):
+        removed_food = []
+
         for f in self.food:
             for s in self.snakes:
                 if f in s.body:
                     s.health = MAX_SNAKE_HEALTH
                     s.ate_food = True
-                    if f in self.food:
-                        self.food.remove(f)
+
+                    removed_food.append(f)
+                    break
+
+        self.food = [f for f in self.food if f not in removed_food]
 
 
     def _get_board_json(self):
@@ -374,9 +465,10 @@ def verbose_print(*args, **kwargs):
         print(*args, **kwargs)
 
 
-def run_game(snakes, food=0.005, dims=(BOARD_SIZE_MEDIUM,BOARD_SIZE_MEDIUM), suppress_board=False, speed=80, quiet=False, seed=None):
-    game = BattleSnake(food_start=len(snakes), food_rate=food, dims=dims, seed=seed)    
+def run_game(snakes, food_rate=0.005, dims=(BOARD_SIZE_MEDIUM,BOARD_SIZE_MEDIUM), suppress_board=False, speed=80, quiet=False, seed=None):
+    game = BattleSnake(food_rate=food_rate, dims=dims, seed=seed)    
     game.place_snakes(snakes)    
+    game.place_food()
 
     game_results = {}
     game_results["winner"] = game.start_game(speed=speed, output_board=suppress_board, debug=True)
@@ -392,7 +484,7 @@ def run_game(snakes, food=0.005, dims=(BOARD_SIZE_MEDIUM,BOARD_SIZE_MEDIUM), sup
 def _run_game_from_args(args):
     return run_game(
         snakes=args.snakes,
-        food=args.food,
+        food_rate=args.food_rate,
         dims=args.dims,
         suppress_board=args.suppress_board,
         speed=args.speed,
@@ -402,7 +494,7 @@ def _run_game_from_args(args):
 
 def parse_args(sysargs=None):
     parser = argparse.ArgumentParser()
-    parser.add_argument("-f", "--food", help="Rate of food spawning", type=float, default=0.02)
+    parser.add_argument("-f", "--food_rate", help="Rate of food spawning", type=float, default=0.02)
     parser.add_argument("-s", "--snakes", nargs='+', help="Snakes to battle", type=str, default=["simpleJake", "battleJake2019"])
     parser.add_argument("-d", "--dims", nargs='+', help="Dimensions of the board in x,y", type=int, default=[BOARD_SIZE_MEDIUM,BOARD_SIZE_MEDIUM])
     parser.add_argument("-p", "--silent", help="Print information about the game", action="store_true", default=False)

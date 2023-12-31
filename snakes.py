@@ -3,6 +3,7 @@ import test_snakes.battleJake2019.main
 import test_snakes.battleJake2018.main
 import test_snakes.simpleJake.main
 import test_snakes.hungryJake.main
+import conlan_snakes.reinforcedConlan2024.main
 
 COLORS = {
     "black": "\033[1;37;40m",
@@ -25,11 +26,11 @@ COLORS = {
 """
 
 SNAKES = [
-    # {
-    #     "move": test_snakes.battleJake2020.main.move,
-    #     "name": "battleJake2020",
-    #     "color": COLORS["purple"]
-    # },
+    {
+        "move": conlan_snakes.reinforcedConlan2024.main.move,
+        "name": "reinforcedConlan2024",
+        "color": COLORS["red"]
+    },
     {
         "move": test_snakes.battleJake2019.main.move,
         "name": "battleJake2019",

@@ -1,8 +1,6 @@
 import bottle
 import os
 import random
-import time
-
 
 @bottle.route('/')
 def static():
@@ -33,7 +31,10 @@ def start():
 
 @bottle.post('/move')
 def move(data=None):
-    random.seed(1)
+    # make a random generator that we use here so the seed doesn't get overriden in the main game
+    rand = random.Random()
+    rand.seed(1)
+
     if not data:
         data = bottle.request.json
 
@@ -90,7 +91,7 @@ def move(data=None):
 
             # Make a random choice if there's no other preference
             if(move == None):
-                move = random.choice(moves)
+                move = rand.choice(moves)
 
             # If the move is going to result in future death, choose another
             nextHead = get_future_head(head, move)
@@ -101,7 +102,7 @@ def move(data=None):
                     move = None
 
     except:
-        move = random.choice(moves)
+        move = rand.choice(moves)
 
     if not move:
         move = "up"

@@ -5,10 +5,8 @@ hungryJake is simpleJake but always looking for food.
 """
 import os
 import random
-import time
 import bottle
 import traceback
-import json
 
 DEBUG = False
 
@@ -48,8 +46,10 @@ def start():
 
 @bottle.post('/move')
 def move(data=None):
-    global ate_food_last_turn
-    random.seed(1)
+    # make a random generator that we use here so the seed doesn't get overriden in the main game
+    rand = random.Random()
+    rand.seed(1)
+
     if not data:
         data = bottle.request.json
     # Get all the data
@@ -106,7 +106,7 @@ def move(data=None):
         if previous_move in moves:
             move = previous_move
         elif moves != []:
-            move = random.choice(moves)
+            move = rand.choice(moves)
         else:
             move = 'up'
 
@@ -115,7 +115,7 @@ def move(data=None):
         if moves == []:
             move = "up"
         else:
-            move = random.choice(moves)
+            move = rand.choice(moves)
 
     return {
         'move': move,

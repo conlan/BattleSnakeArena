@@ -5,10 +5,8 @@ battleJake2019 is Josh Hartmann's entry into the Battle Snake 2019 competition.
 """
 import os
 import random
-import time
 import bottle
 import traceback
-import json
 
 DEBUG = False
 
@@ -23,7 +21,7 @@ FOOD_MAX = 40
 
 SIZE_THRESHOLD = 0
 
-ate_food_last_turn = False;
+ate_food_last_turn = False
 
 @bottle.route('/')
 def index():
@@ -59,7 +57,10 @@ def start():
 @bottle.post('/move')
 def move(data=None):
     global ate_food_last_turn
-    random.seed(1)
+    # make a random generator that we use here so the seed doesn't get overriden in the main game
+    rand = random.Random()
+    rand.seed(1)
+    
     if not data:
         data = bottle.request.json
     debug_print('-'*50)
@@ -172,7 +173,7 @@ def move(data=None):
             debug_print("Flee Choice:  ", moves)
 
         if have_choice(move, moves):
-            move = random.choice(moves)
+            move = rand.choice(moves)
             debug_print("Random Choice:", move)
 
         # No suggested moves
@@ -202,7 +203,7 @@ def move(data=None):
                         move = 'up'
                         debug_print("Death:        ", move)
                     else:
-                        move = random.choice(moves)
+                        move = rand.choice(moves)
 
 
     except Exception as e:
@@ -212,7 +213,7 @@ def move(data=None):
             move = "up"
             debug_print("ERROR: Going up")
         else:
-            move = random.choice(moves)
+            move = rand.choice(moves)
             debug_print("ERROR: Random choice")
 
     debug_print("MOVE: ", move)

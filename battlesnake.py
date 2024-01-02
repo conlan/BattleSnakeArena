@@ -441,17 +441,17 @@ def verbose_print(*args, **kwargs):
     if VERBOSE:
         print(*args, **kwargs)
 
-def run_game(snakes, food_spawn_chance, min_food, dims=(BOARD_SIZE_MEDIUM,BOARD_SIZE_MEDIUM), suppress_board=False, train_reinforcement=False, speed=80, quiet=False, seed=None):
+def run_game(snakes, food_spawn_chance, min_food, dims=(BOARD_SIZE_MEDIUM,BOARD_SIZE_MEDIUM), suppress_board=False, train_reinforcement=False, speed=80, silent=False, seed=None):
     game = BattleSnake(food_spawn_chance=food_spawn_chance, min_food=min_food, dims=dims, seed=seed)    
     game.place_snakes(snakes)    
     game.place_food()
 
     game_results = {}
-    game_results["winner"] = game.start_game(speed=speed, output_board=suppress_board, train_reinforcement=train_reinforcement)
+    game_results["winner"] = game.start_game(speed=speed, output_board=(not suppress_board), train_reinforcement=train_reinforcement)
     game_results["turns"] = game.turn
     game_results["seed"] = game.seed
 
-    if not quiet:
+    if not silent:
         print("Winner: {}, Turns: {}, Seed: {}".format(game_results["winner"], game_results["turns"], game_results["seed"] ))
 
     return game_results
@@ -465,7 +465,7 @@ def _run_game_from_args(args):
         suppress_board=args.suppress_board,
         train_reinforcement=args.train_reinforcement,
         speed=args.speed,
-        quiet=args.silent,
+        silent=args.silent,
         seed=args.seed)
 
 def parse_args(sysargs=None):
@@ -490,7 +490,7 @@ def parse_args(sysargs=None):
         args.dims = (args.dims[0], args.dims[0])
     elif len(args.dims) == 2:
         args.dims = tuple(args.dims)
-
+    
     battle_snakes = []
     for input_snake in args.snakes:
         snek = [k for k in snakes.SNAKES if input_snake == k['name']]

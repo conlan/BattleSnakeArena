@@ -441,8 +441,10 @@ def verbose_print(*args, **kwargs):
     if VERBOSE:
         print(*args, **kwargs)
 
-def run_game(snakes, food_spawn_chance, min_food, dims=(BOARD_SIZE_MEDIUM,BOARD_SIZE_MEDIUM), suppress_board=False, train_reinforcement=False, speed=80, silent=False, seed=None):
-    game = BattleSnake(food_spawn_chance=food_spawn_chance, min_food=min_food, dims=dims, seed=seed)    
+def run_game(snake_types, food_spawn_chance, min_food, dims=(BOARD_SIZE_MEDIUM,BOARD_SIZE_MEDIUM), suppress_board=False, train_reinforcement=False, speed=80, silent=False, seed=None):
+    snakes = [Snake(**snake_type) for snake_type in snake_types]
+
+    game = BattleSnake(food_spawn_chance=food_spawn_chance, min_food=min_food, dims=dims, seed=seed)
     game.place_snakes(snakes)    
     game.place_food()
 
@@ -458,7 +460,7 @@ def run_game(snakes, food_spawn_chance, min_food, dims=(BOARD_SIZE_MEDIUM,BOARD_
 
 def _run_game_from_args(args):
     return run_game(
-        snakes=args.snakes,
+        snake_types=args.snake_types,
         food_spawn_chance=args.food_spawn_chance,
         min_food=args.min_food,
         dims=args.dims,
@@ -491,15 +493,15 @@ def parse_args(sysargs=None):
     elif len(args.dims) == 2:
         args.dims = tuple(args.dims)
     
-    battle_snakes = []
+    snake_types = []
     for input_snake in args.snakes:
         snek = [k for k in snakes.SNAKES if input_snake == k['name']]
         if len(snek) == 1:
             s = snek[0]
-            battle_snakes.append(Snake(**s))
+            snake_types.append(s)            
         else:
             verbose_print("Malformed snakes.py file or snakes input argument.")
-    args.snakes = battle_snakes
+    args.snake_types = snake_types
 
     return args
 

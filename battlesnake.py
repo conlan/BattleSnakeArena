@@ -251,14 +251,20 @@ class BattleSnake():
                     self.random.choice(range(self.height)))
         return spot
 
-    def _move_snakes(self):        
+    def _move_snakes(self):
         threads = []
+        
         for snake in self.snakes:
             json = self._get_board_json()
             process = Thread(target=snake.move, args=(json,))
-            process.start()
             threads.append(process)
 
+        # Start these threads outside of the setup loop, otherwise
+        # they may get called early and effect the board json for
+        # subsequent snakes which throws off their move calcaluations
+        for process in threads:
+            process.start()
+            
         for process in threads:
             process.join()
 

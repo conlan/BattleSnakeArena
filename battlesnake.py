@@ -30,7 +30,8 @@ VERBOSE = False
 class BattleSnake():
     def __init__(self, dims=(BOARD_SIZE_MEDIUM,BOARD_SIZE_MEDIUM), food_spawn_chance=0, min_food=1, seed=None):
         self.seed = seed if seed else int(time.time()*10000)
-        random.seed(self.seed)
+        self.random = random.Random(self.seed)
+        
         self.width = dims[0]
         self.height = dims[1]
         self.snakes = []
@@ -119,7 +120,7 @@ class BattleSnake():
                     availableFoodLocations.append(possibleFoodLocation)
 
                 # put 1 food on one of the available locations
-                self.food.append(random.choice(availableFoodLocations))                                        
+                self.food.append(self.random.choice(availableFoodLocations))                                        
     
         # Place 1 food in center for dramatic purposes        
         if (centerCoord in self.get_unoccupied_points(True)):
@@ -147,12 +148,12 @@ class BattleSnake():
         if (len(snakes) > (len(cornerPoints) + len(cardinalPoints))):
             raise ValueError("Too many snakes for the board size")                
 
-        random.shuffle(cornerPoints)
-        random.shuffle(cardinalPoints)        
+        self.random.shuffle(cornerPoints)
+        self.random.shuffle(cardinalPoints)        
 
         startPoints = []
 
-        if (random.random() < 0.5):
+        if (self.random.random() < 0.5):
             startPoints = cornerPoints + cardinalPoints
         else:
             startPoints = cardinalPoints + cornerPoints
@@ -166,7 +167,7 @@ class BattleSnake():
 
             self.snakes.append(snake)
 
-    def start_game(self, speed=50, output_board=True, train_reinforcement=False):
+    def start_game(self, speed=90, output_board=True, train_reinforcement=False):
         isSolo = (len(self.snakes) == 1)
 
         json = self._get_board_json()
@@ -229,7 +230,7 @@ class BattleSnake():
         if (numCurrFood < self.min_food):
             self._place_food_randomly(self.min_food - numCurrFood)
         elif (self.food_spawn_chance > 0):            
-            if (random.random() < self.food_spawn_chance):
+            if (self.random.random() < self.food_spawn_chance):
                 self._place_food_randomly(1)
 
     def _place_food_randomly(self, num_food):
@@ -237,17 +238,17 @@ class BattleSnake():
             unoccupiedPoints = self.get_unoccupied_points(False)
 
             if (len(unoccupiedPoints) > 0):
-                spot = random.choice(unoccupiedPoints)
+                spot = self.random.choice(unoccupiedPoints)
                 self.food.append(spot)
 
     def _empty_spot(self):
         unoccupied_points = self.get_unoccupied_points(False)        
 
-        spot = (random.choice(range(self.width)),
-                random.choice(range(self.height)))
+        spot = (self.random.choice(range(self.width)),
+                self.random.choice(range(self.height)))
         while spot not in unoccupied_points:
-            spot = (random.choice(range(self.width)),
-                    random.choice(range(self.height)))
+            spot = (self.random.choice(range(self.width)),
+                    self.random.choice(range(self.height)))
         return spot
 
     def _move_snakes(self):        
@@ -474,7 +475,7 @@ def parse_args(sysargs=None):
     parser = argparse.ArgumentParser()
     parser.add_argument("-f", "--food_spawn_chance", help="Chance of food spawning", type=float, default=0.15)
     parser.add_argument("-mf", "--min_food", help="Minimum number of food", type=float, default=1)
-    parser.add_argument("-s", "--snakes", nargs='+', help="Snakes to battle", type=str, default=["simpleJake", "battleJake2019", "reinforcedConlan2024"])    
+    parser.add_argument("-s", "--snakes", nargs='+', help="Snakes to battle", type=str, default=["simpleJake", "battleJake2019", "reinforcedConlan2024"])
     parser.add_argument("-d", "--dims", nargs='+', help="Dimensions of the board in x,y", type=int, default=[BOARD_SIZE_MEDIUM,BOARD_SIZE_MEDIUM])
     parser.add_argument("-p", "--silent", help="Print information about the game", action="store_true", default=False)
     parser.add_argument("-g", "--games", help="Number of games to play", type=int, default=1)

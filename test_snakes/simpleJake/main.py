@@ -7,10 +7,8 @@ of this is achieved with just a few if statements.
 """
 import os
 import random
-import time
 import bottle
 import traceback
-import json
 
 DEBUG = False
 

@@ -19,6 +19,7 @@ def static(path):
 def ping():
     return {}
 
+
 @bottle.post('/end')
 def end():
     return {}
@@ -43,15 +44,34 @@ def start(data=None):
 
 @bottle.post('/move')
 def move(data=None):
-    # make a random generator that we use here so the seed doesn't get overriden in the main game
-    rand = random.Random()
-    # rand.seed(1)
-    
-    
     if not data:
         data = bottle.request.json
+
+    # make a random generator that we use here so the seed doesn't get overriden in the main game
+    rand = random.Random(1)
+    # rand.seed(1)
+    # Get all the data
+    you = data['you']
+
+    snakeHead = you['body'][0]
+    snakeHead = (snakeHead['x'], snakeHead['y'])
+    
+    snakeNext = you['body'][0] if len(you['body']) == 1 else you['body'][1]
+    snakeNext = (snakeNext['x'], snakeNext['y'])
     
     moves = ['up', 'down', 'left', 'right']
+    
+    # just don't move back into body
+    if (snakeHead[0] == snakeNext[0] + 1):
+        moves.remove('left')
+    elif (snakeHead[0] == snakeNext[0] - 1):
+        moves.remove('right')
+
+    if (snakeHead[1] == snakeNext[1] + 1):
+        moves.remove('up')
+    elif (snakeHead[1] == snakeNext[1] - 1):
+        moves.remove('down')
+    
     
     return {
         'move': rand.choice(moves)

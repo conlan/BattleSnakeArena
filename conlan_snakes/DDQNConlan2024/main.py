@@ -1,7 +1,7 @@
 """
-reinforcedConlan2024
+DDQNConlan2024
 
-reinforcedConlan2024 is Conlan Rios' reinforcement learning snake for Standard 11x11
+DDQNConlan2024 is Conlan Rios' reinforcement learning snake for Standard 11x11
 """
 import os
 import random
@@ -9,7 +9,7 @@ import bottle
 
 @bottle.route('/')
 def index():
-	return "<h1>ReinforcedConlan2024</h1>"
+	return "<h1>DDQNConlan2024</h1>"
 
 @bottle.route('/static/<path:path>')
 def static(path):

@@ -66,13 +66,11 @@ def move(data=None):
         moves.remove('left')
     elif (snakeHead[0] == snakeNext[0] - 1):
         moves.remove('right')
-
     if (snakeHead[1] == snakeNext[1] + 1):
         moves.remove('up')
     elif (snakeHead[1] == snakeNext[1] - 1):
         moves.remove('down')
-    
-    
+        
     return {
         'move': rand.choice(moves)
     }

@@ -10,6 +10,7 @@ from threading import Thread
 from multiprocessing import Pool
 
 import snakes
+import rl_utils
 
 FOOD_COLOR = snakes.COLORS["green"]
 BORDER_COLOR = snakes.COLORS["grey"]
@@ -173,12 +174,22 @@ class BattleSnake():
         json = self._get_board_json()
         for s in self.snakes: s.start(json)
 
-        while (True):
+        boardImageFrames = []
+
+        while (True):            
+            if (train_reinforcement):
+                state = rl_utils.convertBoardToImage(self.width, self.height, self.snakes, self.food, boardImageFrames)
+
             t1 = time.time()
             self._move_snakes()
             self._detect_death()
             self._check_for_eaten_food()
             self._spawn_food()
+
+            if (train_reinforcement):
+                new_state = rl_utils.convertBoardToImage(self.width, self.height, self.snakes, self.food)
+
+            # TODO pass in state, new_state, action, reward to each snake
 
             self.turn += 1
 
@@ -188,6 +199,9 @@ class BattleSnake():
                 break
 
             while(time.time()-t1 <= float(100-speed)/float(100)): pass
+
+        if (train_reinforcement):
+            rl_utils.outputToVideo(boardImageFrames)
         
         if (len(self.snakes) == 0):
             return GAME_RESULT_DRAW
@@ -481,12 +495,12 @@ def parse_args(sysargs=None):
     parser = argparse.ArgumentParser()
     parser.add_argument("-f", "--food_spawn_chance", help="Chance of food spawning", type=float, default=0.15)
     parser.add_argument("-mf", "--min_food", help="Minimum number of food", type=float, default=1)
-    parser.add_argument("-s", "--snakes", nargs='+', help="Snakes to battle", type=str, default=["simpleJake", "battleJake2019", "reinforcedConlan2024"])
+    parser.add_argument("-s", "--snakes", nargs='+', help="Snakes to battle", type=str, default=["simpleJake", "battleJake2019", "DDQNConlan2024"])
     parser.add_argument("-d", "--dims", nargs='+', help="Dimensions of the board in x,y", type=int, default=[BOARD_SIZE_MEDIUM,BOARD_SIZE_MEDIUM])
     parser.add_argument("-p", "--silent", help="Print information about the game", action="store_true", default=False)
     parser.add_argument("-g", "--games", help="Number of games to play", type=int, default=1)
     parser.add_argument("-b", "--suppress-board", help="Don't print the board", action="store_false", default=True)
-    parser.add_argument("-rl", "--train_reinforcement", help="Whether we should run in RL mode", action="store_false", default=False)
+    parser.add_argument("-rl", "--train_reinforcement", help="Whether we should run in RL mode", action="store_true", default=False)
     parser.add_argument("-t", "--threads", help="Number of threads to run multiple games on", type=int, default=4)
     parser.add_argument("-i", "--seed", help="Game seed", type=int, default=None)
     parser.add_argument("-sp", "--speed", help="Speed of the game", type=int, default=90)

@@ -29,7 +29,7 @@ SNAKES = [
     {
         "start":conlan_snakes.DDQNConlan2024.main.start,
         "move": conlan_snakes.DDQNConlan2024.main.move,
-        "name": "reinforcedConlan2024",
+        "name": "DDQNConlan2024",
         "color": COLORS["red"]
     },
     {

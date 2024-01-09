@@ -1,5 +1,8 @@
 from PIL import Image, ImageDraw, ImageFont
 
+import imageio
+import numpy as np
+
 GRID_IMAGE = Image.open("assets/grid.png")
 GRID_SIZE = GRID_IMAGE.size[0]
 
@@ -12,7 +15,7 @@ FOOD_IMAGE = Image.open("assets/food.png")
 def tupleToXY(tuple):
     return (tuple[0] * (GRID_SIZE - 1), tuple[1] * (GRID_SIZE - 1))
 
-def convertBoardToImage(board_width, board_height, snakes, food):    
+def convertBoardToImage(board_width, board_height, snakes, food, boardHistoryFrames = None):    
     board_image = Image.new("RGBA", (board_width * (GRID_SIZE - 1) + 1, board_height * (GRID_SIZE - 1) + 1), (255, 255, 255, 255))
     
     x = 0
@@ -134,4 +137,17 @@ def convertBoardToImage(board_width, board_height, snakes, food):
 
             prev_body_x, prev_body_y = body_x, body_y
     
-    board_image.show()
+    if (boardHistoryFrames != None):
+        boardHistoryFrames.append(board_image)
+    
+    return board_image
+
+def outputToVideo(boardHistoryFrames):   
+    output_file = "output_video.mp4"
+
+    with imageio.get_writer(output_file, fps=8) as writer:  # Adjust the fps as needed
+        for img in boardHistoryFrames:
+            img_array = np.array(img)
+            writer.append_data(img_array)
+
+    print("Video saved to: " + output_file)

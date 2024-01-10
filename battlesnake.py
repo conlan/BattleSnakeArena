@@ -169,14 +169,18 @@ class BattleSnake():
             self.snakes.append(snake)
 
     def start_game(self, speed=90, output_board=True, train_reinforcement=False):
-        isSolo = (len(self.snakes) == 1)
+        is_solo = (len(self.snakes) == 1)
 
         json = self._get_board_json()
         for s in self.snakes: s.start(json)
 
         boardImageFrames = []
 
-        while (True):            
+        # keep a reference to the training snake it case it gets killed
+        snake_in_training = self.snakes[0] if train_reinforcement else None
+
+        while (True):   
+            # if we're training RL then convert the current board to an image         
             if (train_reinforcement):
                 state = rl_utils.convertBoardToImage(self.width, self.height, self.snakes, self.food, boardImageFrames)
 
@@ -186,16 +190,24 @@ class BattleSnake():
             self._check_for_eaten_food()
             self._spawn_food()
 
-            if (train_reinforcement):
-                new_state = rl_utils.convertBoardToImage(self.width, self.height, self.snakes, self.food)
+            is_game_over = self._check_winner(is_solo)
 
-            # TODO pass in state, new_state, action, reward to each snake
+            # if we're training RL then grab an updated board image as the next state
+            if (train_reinforcement):
+                # pass in state, new_state, action, reward to the training snake
+                new_state = rl_utils.convertBoardToImage(self.width, self.height, self.snakes, self.food)
+                # TODO determine reward for snake
+                training_reward = 0
+                # if game is over OR if the training snake was killed
+                training_is_done = is_game_over or (snake_in_training not in self.snakes)
+                # send to snake in training
+                snake_in_training.cache_learning(state, new_state, training_reward, training_is_done)
 
             self.turn += 1
 
             if output_board: self.print_board()
 
-            if self._check_winner(isSolo):
+            if (is_game_over):
                 break
 
             while(time.time()-t1 <= float(100-speed)/float(100)): pass
@@ -206,7 +218,7 @@ class BattleSnake():
         if (len(self.snakes) == 0):
             return GAME_RESULT_DRAW
         
-        return self.snakes[0].name if not isSolo else None
+        return self.snakes[0].name if not is_solo else None
 
 
     def print_board(self):
@@ -384,10 +396,11 @@ class Snake():
         self.body = []
         self.health = MAX_SNAKE_HEALTH
         self.ate_food = False
+        self.last_action = None
         self.color = color if color else snakes.COLORS["red"]
         self.id = id if id else str(uuid.uuid4())
         self.name = name if name else self.id
-        self._move = move
+        self._move = move        
         self._start = start
         self._end = end
         self.server = server
@@ -425,6 +438,11 @@ class Snake():
         except Exception as e:
             traceback.print_exc()
 
+    def cache_learning(self, state, next_state, reward, done):
+        # TODO implement
+        print(f'Learning Update: {state}, {next_state}, {reward}, {self.last_action}, {done}')
+        pass
+
     def end(self, data):
         data["you"] = self.jsonize()
         try:
@@ -437,6 +455,8 @@ class Snake():
             traceback.print_exc()
 
     def _move_snake(self, mv):
+        self.last_action = mv
+
         head = self.body[0]
 
         if(mv == "left"):
@@ -495,7 +515,7 @@ def parse_args(sysargs=None):
     parser = argparse.ArgumentParser()
     parser.add_argument("-f", "--food_spawn_chance", help="Chance of food spawning", type=float, default=0.15)
     parser.add_argument("-mf", "--min_food", help="Minimum number of food", type=float, default=1)
-    parser.add_argument("-s", "--snakes", nargs='+', help="Snakes to battle", type=str, default=["simpleJake", "battleJake2019", "DDQNConlan2024"])
+    parser.add_argument("-s", "--snakes", nargs='+', help="Snakes to battle", type=str, default=["simpleJake", "battleJake2019", "battleJake2019", "battleJake2019", "DDQNConlan2024"])
     parser.add_argument("-d", "--dims", nargs='+', help="Dimensions of the board in x,y", type=int, default=[BOARD_SIZE_MEDIUM,BOARD_SIZE_MEDIUM])
     parser.add_argument("-p", "--silent", help="Print information about the game", action="store_true", default=False)
     parser.add_argument("-g", "--games", help="Number of games to play", type=int, default=1)

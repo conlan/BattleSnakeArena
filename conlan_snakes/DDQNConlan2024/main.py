@@ -6,6 +6,7 @@ DDQNConlan2024 is Conlan Rios' reinforcement learning snake for Standard 11x11
 import os
 import random
 import bottle
+import rl_utils
 
 @bottle.route('/')
 def index():
@@ -48,32 +49,30 @@ def move(data=None):
         data = bottle.request.json
 
     # make a random generator that we use here so the seed doesn't get overriden in the main game
-    rand = random.Random(1)
+    rand = random.Random()
     # rand.seed(1)
+    
+    # Move randomly the first turn since we don't have a direction
+    # TODO move toward closest food instead
+    if (data['turn'] == 0):
+         return {
+              'move' : rand.choice(['up', 'down', 'left', 'right'])
+         }
+    
     # Get all the data
     you = data['you']
 
     snakeHead = you['body'][0]
     snakeHead = (snakeHead['x'], snakeHead['y'])
     
-    snakeNext = you['body'][0] if len(you['body']) == 1 else you['body'][1]
-    snakeNext = (snakeNext['x'], snakeNext['y'])
-    
-    moves = ['up', 'down', 'left', 'right']
-    
-    # just don't move back into body
-    if (snakeHead[0] == snakeNext[0] + 1):
-        moves.remove('left')
-    elif (snakeHead[0] == snakeNext[0] - 1):
-        moves.remove('right')
-    if (snakeHead[1] == snakeNext[1] + 1):
-        moves.remove('up')
-    elif (snakeHead[1] == snakeNext[1] - 1):
-        moves.remove('down')
-        
+    snakeNeck = you['body'][1]
+    snakeNeck = (snakeNeck['x'], snakeNeck['y'])
+
+    dir = rand.choice([rl_utils.LocalDirection.STRAIGHT, rl_utils.LocalDirection.LEFT, rl_utils.LocalDirection.RIGHT])
+
     return {
-        'move': rand.choice(moves)
-    }
+         'move' : rl_utils.getLocalDirectionAsMove(dir, snakeHead, snakeNeck)
+    }    
 
 # Expose WSGI app (so gunicorn can find it)
 application = bottle.default_app()

@@ -1,4 +1,5 @@
 from PIL import Image, ImageDraw, ImageFont
+from enum import Enum
 
 import imageio
 import numpy as np
@@ -11,6 +12,50 @@ ME_BODY_IMAGE_STRAIGHT = Image.open("assets/me_body_straight.png")
 ME_BODY_IMAGE_CURVE = Image.open("assets/me_body_curve.png")
 
 FOOD_IMAGE = Image.open("assets/food.png")
+
+class LocalDirection(Enum):
+    STRAIGHT = 0,
+    LEFT = 1,
+    RIGHT = 2
+
+# Take head and neck coordinates and convert a local direction to 
+# actual BattleSnake move
+def getLocalDirectionAsMove(dir, snakeHead, snakeNeck):
+    head_x, head_y = snakeHead[0], snakeHead[1]
+    neck_x, neck_y = snakeNeck[0], snakeNeck[1]
+
+    if (dir == LocalDirection.STRAIGHT):
+         # Go straight         
+        if (neck_y == (head_y + 1)): # snake is facing UP
+            return 'up'
+        elif (neck_y == (head_y - 1)): # snake is facing DOWN
+             return 'down'
+        elif (neck_x == (head_x - 1)): # snake is facing RIGHT
+             return 'right'
+        else: # snake is facing LEFT
+            return 'left'
+    elif (dir == LocalDirection.LEFT):
+        # Turn Left
+        if (neck_y == (head_y + 1)): # snake is facing UP
+            return 'left'
+        elif (neck_y == (head_y - 1)): # snake is facing DOWN
+             return 'right'
+        elif (neck_x == (head_x - 1)): # snake is facing RIGHT
+             return 'up'
+        else: # snake is facing LEFT
+            return 'down'
+    elif (dir == LocalDirection.RIGHT):
+         # Turn Left
+        if (neck_y == (head_y + 1)): # snake is facing UP
+            return 'right'
+        elif (neck_y == (head_y - 1)): # snake is facing DOWN
+             return 'left'
+        elif (neck_x == (head_x - 1)): # snake is facing RIGHT
+             return 'down'
+        else: # snake is facing LEFT
+            return 'up'
+    
+    return 'up'
 
 def tupleToXY(tuple):
     return (tuple[0] * (GRID_SIZE - 1), tuple[1] * (GRID_SIZE - 1))

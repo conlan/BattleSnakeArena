@@ -196,12 +196,27 @@ class BattleSnake():
             if (train_reinforcement):
                 # pass in state, new_state, action, reward to the training snake
                 new_state = rl_utils.convertBoardToImage(self.width, self.height, self.snakes, self.food)
-                # TODO determine reward for snake
+                # if the training snake was killed
+                training_snake_was_killed = (snake_in_training not in self.snakes)
+                # determine reward for snake
                 training_reward = 0
+
+                if (training_snake_was_killed):
+                    training_reward = rl_utils.REWARD_FOR_DEATH
+                else:
+                    training_reward = rl_utils.REWARD_FOR_SURVIVAL
+
+                    # if food eaten
+                    if (snake_in_training.ate_food):
+                        training_reward += rl_utils.REWARD_FOR_FOOD                        
+
+                    # TODO add training reward if snake wins (not applicable in solo games)                    
                 # if game is over OR if the training snake was killed
-                training_is_done = is_game_over or (snake_in_training not in self.snakes)
+                training_is_done = is_game_over or training_snake_was_killed
                 # send to snake in training
                 snake_in_training.cache_learning(state, new_state, training_reward, training_is_done)
+
+                # TODO when multiple snakes, end game if training_snake_was_killed
 
             self.turn += 1
 
@@ -212,6 +227,7 @@ class BattleSnake():
 
             while(time.time()-t1 <= float(100-speed)/float(100)): pass
 
+        # TODO put behind a command line flag
         if (train_reinforcement):
             rl_utils.outputToVideo(boardImageFrames)
         

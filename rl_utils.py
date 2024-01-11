@@ -13,6 +13,11 @@ ME_BODY_IMAGE_CURVE = Image.open("assets/me_body_curve.png")
 
 FOOD_IMAGE = Image.open("assets/food.png")
 
+REWARD_FOR_DEATH = -500
+REWARD_FOR_VICTORY = 500
+REWARD_FOR_SURVIVAL = 1
+REWARD_FOR_FOOD = 25
+
 class LocalDirection(Enum):
     STRAIGHT = 0,
     LEFT = 1,

@@ -43,6 +43,9 @@ def start(data=None):
         'head_url': headUrl
     }
 
+def remember(state, next_state, reward, action, done):
+    print("Remembering...")
+
 @bottle.post('/move')
 def move(data=None):
     if not data:

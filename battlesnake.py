@@ -214,7 +214,7 @@ class BattleSnake():
                 # if game is over OR if the training snake was killed
                 training_is_done = is_game_over or training_snake_was_killed
                 # send to snake in training
-                snake_in_training.cache_learning(state, new_state, training_reward, training_is_done)
+                snake_in_training.remember(state, new_state, training_reward, training_is_done)
 
                 # TODO when multiple snakes, end game if training_snake_was_killed
 
@@ -408,7 +408,7 @@ class BattleSnake():
         return (len(self.snakes) == 1 and not is_solo) or (len(self.snakes) == 0)
 
 class Snake():
-    def __init__(self, name=None, id=None, color=None, move=None, end=None, start=None, server=None, **kwargs):
+    def __init__(self, name=None, id=None, color=None, move=None, end=None, start=None, remember=None, server=None, **kwargs):
         self.body = []
         self.health = MAX_SNAKE_HEALTH
         self.ate_food = False
@@ -416,7 +416,8 @@ class Snake():
         self.color = color if color else snakes.COLORS["red"]
         self.id = id if id else str(uuid.uuid4())
         self.name = name if name else self.id
-        self._move = move        
+        self._move = move
+        self._remember = remember
         self._start = start
         self._end = end
         self.server = server
@@ -454,10 +455,12 @@ class Snake():
         except Exception as e:
             traceback.print_exc()
 
-    def cache_learning(self, state, next_state, reward, done):
-        # TODO implement
-        print(f'Learning Update: {state}, {next_state}, {reward}, {self.last_action}, {done}')
-        pass
+    def remember(self, state, next_state, reward, done):
+        try:
+            if (self._remember):
+                self._remember(state, next_state, reward, self.last_action, done)
+        except Exception as e:
+            traceback.print_exc()        
 
     def end(self, data):
         data["you"] = self.jsonize()

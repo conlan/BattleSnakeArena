@@ -2,3 +2,4 @@ bottle
 Pillow
 imageio-ffmpeg
 tensordict
+torchrl

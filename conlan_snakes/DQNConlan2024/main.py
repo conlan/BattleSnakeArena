@@ -182,7 +182,7 @@ model = DQNSnakeModel()
 
 @bottle.route('/')
 def index():
-	return "<h1>DDQNConlan2024</h1>"
+	return "<h1>DQNConlan2024</h1>"
 
 @bottle.route('/static/<path:path>')
 def static(path):

@@ -44,9 +44,10 @@ class DQNSnakeModel():
 
         # make a random generator that we use here so the seed doesn't get overriden in the main game
         self.random = random.Random()
-
-        # TODO load network weights from file?
-        self.load_network()
+        
+        # TODO make save path a parameter
+        self.model_save_path = 'saved/snake_net.chkpt'
+        self.load_network(self.model_save_path)
 
     def act(self, stateImage):
         if (self.random.random() < self.exploration_rate):
@@ -117,7 +118,7 @@ class DQNSnakeModel():
         loss = self.criterion(target, pred)
         # back propagate to determine gradients
         loss.backward()
-        print(f'    Loss: {loss.item()}')
+        print(f'    Loss: {loss.item():.4f}')
         # take a step in the direction of the gradients
         self.optimizer.step()        
 
@@ -129,28 +130,23 @@ class DQNSnakeModel():
         return state, next_state, action.squeeze(), reward.squeeze(), done.squeeze()
     
     def save_network(self):
-        save_path = (
-            f'saved/snake_net.chkpt'
-        )
         torch.save(
             dict(model=self.network.state_dict(), 
                  exploration_rate=self.exploration_rate,
                  curr_step=self.curr_step),
-            save_path,
+            self.model_save_path
         )
-        print(f"SnakeNet saved to {save_path} at step {self.curr_step}")
+        print(f"SnakeNet saved to {self.model_save_path} at step {self.curr_step}")
 
-    def load_network(self):
-        save_path = (
-            f'saved/snake_net.chkpt'
-        )
-        saved_dict = torch.load(save_path)
+    def load_network(self, path=None):        
+        # TODO check if file exists first
+        saved_dict = torch.load(path)
         
         self.network.load_state_dict(saved_dict['model'])
         self.exploration_rate = saved_dict['exploration_rate']
         self.curr_step = saved_dict['curr_step']
 
-        print(f"Loaded SnakeNet from {save_path} at step {self.curr_step}")
+        print(f"Loaded SnakeNet from {path} at step {self.curr_step}")
 
 class NeuralNetwork(nn.Module):
     def __init__(self, output_size):

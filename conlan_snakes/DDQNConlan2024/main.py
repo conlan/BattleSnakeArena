@@ -1,7 +1,7 @@
 """
-DDQNConlan2024
+DQNConlan2024
 
-DDQNConlan2024 is Conlan Rios' reinforcement learning snake for Standard 11x11
+DQNConlan2024 is Conlan Rios' reinforcement learning snake for Standard 11x11
 """
 import os
 import random
@@ -35,7 +35,6 @@ class DQNSnakeModel():
         self.gamma = 0.9 # discount rate
         
         self.exploration_rate = 1
-        # self.exploration_rate_decay = 0.99999975 TODO
         self.exploration_rate_decay = 0.99999
         self.exploration_rate_min = 0.1
 
@@ -217,7 +216,7 @@ def cache(state, next_state, reward, action, done):
     model.cache(state, next_state, reward, action, done)
 
 @bottle.post('/move')
-def move(data=None, rl_state=None):
+def move(data=None):
     if not data:
         data = bottle.request.json
     
@@ -228,6 +227,8 @@ def move(data=None, rl_state=None):
               'move' : model.random.choice(['up', 'down', 'left', 'right']),
               'local_direction' : None
          }
+    
+    rl_state = rl_utils.convertBoardToImage(data)
     
     # Get all the data
     you = data['you']

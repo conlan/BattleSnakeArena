@@ -63,9 +63,16 @@ def getLocalDirectionAsMove(dir, snakeHead, snakeNeck):
     return 'up'
 
 def tupleToXY(tuple):
-    return (tuple[0] * (GRID_SIZE - 1), tuple[1] * (GRID_SIZE - 1))
+    x = tuple['x']
+    y = tuple['y']
+    return (x * (GRID_SIZE - 1), y * (GRID_SIZE - 1))
 
-def convertBoardToImage(board_width, board_height, snakes, food, boardHistoryFrames = None):    
+def convertBoardToImage(json):    
+    board_width = json['board']['width']
+    board_height = json['board']['height']
+    snakes = json['board']['snakes']
+    food = json['board']['food']
+
     board_image = Image.new("RGBA", (board_width * (GRID_SIZE - 1) + 1, board_height * (GRID_SIZE - 1) + 1), (255, 255, 255, 255))
     
     x = 0
@@ -76,8 +83,8 @@ def convertBoardToImage(board_width, board_height, snakes, food, boardHistoryFra
 
         for x_index in range(board_width):                            
             board_image.paste(GRID_IMAGE, (x, y), GRID_IMAGE)
-
-            if ((x_index, y_index) in food):
+            
+            if ({'x': x_index, 'y': y_index} in food):            
                 board_image.paste(FOOD_IMAGE, (x, y), FOOD_IMAGE)
 
             x += GRID_SIZE - 1
@@ -85,8 +92,10 @@ def convertBoardToImage(board_width, board_height, snakes, food, boardHistoryFra
         y += GRID_SIZE - 1
 
     for snake in snakes:
-        snake_head = snake.body[0]
-        snake_neck = snake.body[1] if len(snake.body) > 1 else snake_head
+        snake_body = snake['body']
+
+        snake_head = snake_body[0]
+        snake_neck = snake_body[1] if len(snake_body) > 1 else snake_head
 
         head_x, head_y = tupleToXY(snake_head)
         neck_x, neck_y = tupleToXY(snake_neck)
@@ -108,8 +117,8 @@ def convertBoardToImage(board_width, board_height, snakes, food, boardHistoryFra
 
         prev_body_x, prev_body_y = head_x, head_y
 
-        for body_index in range(1, len(snake.body)):
-            body_x, body_y = tupleToXY(snake.body[body_index])
+        for body_index in range(1, len(snake_body)):
+            body_x, body_y = tupleToXY(snake_body[body_index])
 
             # don't draw body if it's the last one
             if (body_x == prev_body_x) and (body_y == prev_body_y):
@@ -118,8 +127,8 @@ def convertBoardToImage(board_width, board_height, snakes, food, boardHistoryFra
             image_to_use = None
             image_rotation = 0
 
-            if (body_index < len(snake.body) - 1):
-                next_body_x, next_body_y = tupleToXY(snake.body[body_index + 1])
+            if (body_index < len(snake_body) - 1):
+                next_body_x, next_body_y = tupleToXY(snake_body[body_index + 1])
             else:
                 next_body_x, next_body_y = None, None
 
@@ -186,9 +195,6 @@ def convertBoardToImage(board_width, board_height, snakes, food, boardHistoryFra
             board_image.paste(image_to_use, (body_x, body_y), image_to_use)
 
             prev_body_x, prev_body_y = body_x, body_y
-    
-    if (boardHistoryFrames != None):
-        boardHistoryFrames.append(board_image)
 
     # Convert to greyscale
     board_image = board_image.convert("L")

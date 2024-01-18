@@ -183,20 +183,23 @@ class BattleSnake():
             rl_state = None
             # if we're training RL then convert the current board to an image
             if (train_reinforcement):
-                rl_state = rl_utils.convertBoardToImage(self.width, self.height, self.snakes, self.food, boardImageFrames)
+                rl_state = rl_utils.convertBoardToImage(self._get_board_json())
+                
+                boardImageFrames.append(rl_state)
 
             t1 = time.time()
-            self._move_snakes(rl_state)
+            self._move_snakes()            
             self._detect_death()
             self._check_for_eaten_food()
             self._spawn_food()
 
             is_game_over = self._check_winner(is_solo)
+            
 
             # if we're training RL then grab an updated board image as the next state
             if (train_reinforcement):
                 # pass in state, new_state, action, reward to the training snake
-                new_rl_state = rl_utils.convertBoardToImage(self.width, self.height, self.snakes, self.food)
+                new_rl_state = rl_utils.convertBoardToImage(self._get_board_json())
                 # if the training snake was killed
                 training_snake_was_killed = (snake_in_training not in self.snakes)
                 # determine reward for snake
@@ -229,8 +232,8 @@ class BattleSnake():
             while(time.time()-t1 <= float(100-speed)/float(100)): pass
 
         # TODO put behind a command line flag
-        # if (train_reinforcement):
-        #     rl_utils.outputToVideo(boardImageFrames)
+        if (train_reinforcement):
+            rl_utils.outputToVideo(boardImageFrames)
         
         if (len(self.snakes) == 0):
             return GAME_RESULT_DRAW
@@ -294,12 +297,12 @@ class BattleSnake():
                     self.random.choice(range(self.height)))
         return spot
 
-    def _move_snakes(self, rl_state=None):
+    def _move_snakes(self):
         threads = []
         
         for snake in self.snakes:
             json = self._get_board_json()
-            process = Thread(target=snake.move, args=(json, rl_state))
+            process = Thread(target=snake.move, args=(json,))
             threads.append(process)
 
         # Start these threads outside of the setup loop, otherwise
@@ -432,19 +435,22 @@ class Snake():
         jsonobj["name"] = self.name
         return jsonobj
 
-    def move(self, data, rl_state=None):
+    def move(self, data):
         data["you"] = self.jsonize()
         try:
             if self._move:
-                r = self._move(data, rl_state)
+                r = self._move(data)
             elif self.server:
                 url = self.server + "/move"
-                r = requests.post(url, json=data, rl_state=rl_state).json()
+                r = requests.post(url, json=data).json()
         except Exception as e:
             traceback.print_exc()
             r = {"move": "up"}
+
+        snake_move = r["move"]
+        snake_move_local_direction = r["local_direction"] if "local_direction" in r else None
         
-        self._move_snake(r["move"], r["local_direction"])
+        self._move_snake(snake_move, snake_move_local_direction)
 
     def start(self, data):
         data["you"] = self.jsonize()

@@ -29,7 +29,7 @@ SNAKES = [
     {
         "start":conlan_snakes.DDQNConlan2024.main.start,
         "move": conlan_snakes.DDQNConlan2024.main.move,
-        "remember" : conlan_snakes.DDQNConlan2024.main.remember,
+        "cache" : conlan_snakes.DDQNConlan2024.main.cache,
         "name": "DDQNConlan2024",
         "color": COLORS["red"]
     },

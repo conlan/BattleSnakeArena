@@ -1,5 +1,5 @@
 from PIL import Image, ImageDraw, ImageFont
-from enum import Enum
+from enum import IntEnum
 
 import imageio
 import numpy as np
@@ -18,7 +18,7 @@ REWARD_FOR_VICTORY = 500
 REWARD_FOR_SURVIVAL = 1
 REWARD_FOR_FOOD = 25
 
-class LocalDirection(Enum):
+class LocalDirection(IntEnum):
     STRAIGHT = 0,
     LEFT = 1,
     RIGHT = 2
@@ -189,6 +189,9 @@ def convertBoardToImage(board_width, board_height, snakes, food, boardHistoryFra
     
     if (boardHistoryFrames != None):
         boardHistoryFrames.append(board_image)
+
+    # Convert to greyscale
+    board_image = board_image.convert("L")
     
     return board_image
 

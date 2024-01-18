@@ -180,12 +180,13 @@ class BattleSnake():
         snake_in_training = self.snakes[0] if train_reinforcement else None
 
         while (True):   
-            # if we're training RL then convert the current board to an image         
+            rl_state = None
+            # if we're training RL then convert the current board to an image
             if (train_reinforcement):
-                state = rl_utils.convertBoardToImage(self.width, self.height, self.snakes, self.food, boardImageFrames)
+                rl_state = rl_utils.convertBoardToImage(self.width, self.height, self.snakes, self.food, boardImageFrames)
 
             t1 = time.time()
-            self._move_snakes()
+            self._move_snakes(rl_state)
             self._detect_death()
             self._check_for_eaten_food()
             self._spawn_food()
@@ -195,7 +196,7 @@ class BattleSnake():
             # if we're training RL then grab an updated board image as the next state
             if (train_reinforcement):
                 # pass in state, new_state, action, reward to the training snake
-                new_state = rl_utils.convertBoardToImage(self.width, self.height, self.snakes, self.food)
+                new_rl_state = rl_utils.convertBoardToImage(self.width, self.height, self.snakes, self.food)
                 # if the training snake was killed
                 training_snake_was_killed = (snake_in_training not in self.snakes)
                 # determine reward for snake
@@ -214,7 +215,7 @@ class BattleSnake():
                 # if game is over OR if the training snake was killed
                 training_is_done = is_game_over or training_snake_was_killed
                 # send to snake in training
-                snake_in_training.remember(state, new_state, training_reward, training_is_done)
+                snake_in_training.cache(rl_state, new_rl_state, training_reward, training_is_done)
 
                 # TODO when multiple snakes, end game if training_snake_was_killed
 
@@ -228,8 +229,8 @@ class BattleSnake():
             while(time.time()-t1 <= float(100-speed)/float(100)): pass
 
         # TODO put behind a command line flag
-        if (train_reinforcement):
-            rl_utils.outputToVideo(boardImageFrames)
+        # if (train_reinforcement):
+        #     rl_utils.outputToVideo(boardImageFrames)
         
         if (len(self.snakes) == 0):
             return GAME_RESULT_DRAW
@@ -293,12 +294,12 @@ class BattleSnake():
                     self.random.choice(range(self.height)))
         return spot
 
-    def _move_snakes(self):
+    def _move_snakes(self, rl_state=None):
         threads = []
         
         for snake in self.snakes:
             json = self._get_board_json()
-            process = Thread(target=snake.move, args=(json,))
+            process = Thread(target=snake.move, args=(json, rl_state))
             threads.append(process)
 
         # Start these threads outside of the setup loop, otherwise
@@ -408,16 +409,16 @@ class BattleSnake():
         return (len(self.snakes) == 1 and not is_solo) or (len(self.snakes) == 0)
 
 class Snake():
-    def __init__(self, name=None, id=None, color=None, move=None, end=None, start=None, remember=None, server=None, **kwargs):
+    def __init__(self, name=None, id=None, color=None, move=None, end=None, start=None, cache=None, server=None, **kwargs):
         self.body = []
         self.health = MAX_SNAKE_HEALTH
         self.ate_food = False
-        self.last_action = None
+        self.last_move_local_direction = 0
         self.color = color if color else snakes.COLORS["red"]
         self.id = id if id else str(uuid.uuid4())
         self.name = name if name else self.id
         self._move = move
-        self._remember = remember
+        self._cache = cache
         self._start = start
         self._end = end
         self.server = server
@@ -431,18 +432,19 @@ class Snake():
         jsonobj["name"] = self.name
         return jsonobj
 
-    def move(self, data):
+    def move(self, data, rl_state=None):
         data["you"] = self.jsonize()
         try:
             if self._move:
-                r = self._move(data)
+                r = self._move(data, rl_state)
             elif self.server:
                 url = self.server + "/move"
-                r = requests.post(url, json=data).json()
+                r = requests.post(url, json=data, rl_state=rl_state).json()
         except Exception as e:
             traceback.print_exc()
             r = {"move": "up"}
-        self._move_snake(r["move"])
+        
+        self._move_snake(r["move"], r["local_direction"])
 
     def start(self, data):
         data["you"] = self.jsonize()
@@ -455,10 +457,16 @@ class Snake():
         except Exception as e:
             traceback.print_exc()
 
-    def remember(self, state, next_state, reward, done):
+    def cache(self, state, next_state, reward, done):
+        if (self.last_move_local_direction is None):
+            return
+        
+        action = [0, 0, 0]
+        action[self.last_move_local_direction] = 1
+        
         try:
-            if (self._remember):
-                self._remember(state, next_state, reward, self.last_action, done)
+            if (self._cache):
+                self._cache(state, next_state, reward, action, done)
         except Exception as e:
             traceback.print_exc()        
 
@@ -473,8 +481,8 @@ class Snake():
         except Exception as e:
             traceback.print_exc()
 
-    def _move_snake(self, mv):
-        self.last_action = mv
+    def _move_snake(self, mv, local_dir):
+        self.last_move_local_direction = local_dir
 
         head = self.body[0]
 
@@ -534,7 +542,8 @@ def parse_args(sysargs=None):
     parser = argparse.ArgumentParser()
     parser.add_argument("-f", "--food_spawn_chance", help="Chance of food spawning", type=float, default=0.15)
     parser.add_argument("-mf", "--min_food", help="Minimum number of food", type=float, default=1)
-    parser.add_argument("-s", "--snakes", nargs='+', help="Snakes to battle", type=str, default=["simpleJake", "battleJake2019", "battleJake2019", "battleJake2019", "DDQNConlan2024"])
+    # parser.add_argument("-s", "--snakes", nargs='+', help="Snakes to battle", type=str, default=["simpleJake", "battleJake2019", "battleJake2019", "battleJake2019", "DDQNConlan2024"])
+    parser.add_argument("-s", "--snakes", nargs='+', help="Snakes to battle", type=str, default=["DDQNConlan2024"])
     parser.add_argument("-d", "--dims", nargs='+', help="Dimensions of the board in x,y", type=int, default=[BOARD_SIZE_MEDIUM,BOARD_SIZE_MEDIUM])
     parser.add_argument("-p", "--silent", help="Print information about the game", action="store_true", default=False)
     parser.add_argument("-g", "--games", help="Number of games to play", type=int, default=1)
@@ -568,21 +577,34 @@ def parse_args(sysargs=None):
 def main():
     args = parse_args()
 
-    if args.games == 1 or args.suppress_board:
-        for i in range(args.games):
-            _run_game_from_args(args)
-    else:
-        args.silent = True
-        with Pool(args.threads) as p:
-            outputs = list(tqdm.tqdm(p.imap_unordered(_run_game_from_args, [args for i in range(args.games)]), total=args.games))
+    running_turns_count = []
 
-        winners = [d["winner"] for d in outputs]
+    for i in range(args.games):
+        game_results = _run_game_from_args(args)
+        
+        turns = game_results["turns"]
+        running_turns_count.append(turns)
 
-        for winner in set(winners):
-            if (winner == GAME_RESULT_DRAW):
-                print("Games Tied: {}".format(sum([1 for s in winners if s == winner])))
-            else:
-                print("{}, Games Won: {}".format(winner, sum([1 for s in winners if s == winner])))
+        print(f'{i+1} / {args.games}) Turn Mean: {sum(running_turns_count) * 1.0 / len(running_turns_count):.3f}')    
+
+        
+    
+    # # else:
+
+    # if (args.games > 1):
+    #     args.silent = True
+    #     args.suppress_board = True
+    
+    # with Pool(args.threads) as p:
+    #     outputs = list(tqdm.tqdm(p.imap_unordered(_run_game_from_args, [args for i in range(args.games)]), total=args.games))
+
+    # winners = [d["winner"] for d in outputs]
+
+    # for winner in set(winners):
+    #     if (winner == GAME_RESULT_DRAW):
+    #         print("Games Tied: {}".format(sum([1 for s in winners if s == winner])))
+    #     else:
+    #         print("{}, Games Won: {}".format(winner, sum([1 for s in winners if s == winner])))
 
 
 if __name__ == "__main__":

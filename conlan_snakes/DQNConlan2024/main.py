@@ -154,7 +154,7 @@ class DQNSnakeModel():
             print(f"SnakeNet not found at {path}, skipping...")
             return
         
-        saved_dict = torch.load(path)
+        saved_dict = torch.load(path, map_location=torch.device(self.device))
         
         self.network.load_state_dict(saved_dict['model'])
         self.exploration_rate = saved_dict['exploration_rate']

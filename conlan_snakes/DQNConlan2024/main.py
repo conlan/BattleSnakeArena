@@ -80,16 +80,20 @@ class DQNSnakeModel():
 
         self.memory.add(TensorDict({"state": state, "next_state": next_state, "action": action, "reward": reward, "done": done}, batch_size=[]))
         
+        results = {}
         # wait until memory builds before learning
         if (self.curr_step < self.burnin):
-            return
+            return results
 
         # learn every few steps
         if (self.curr_step % self.learn_every == 0):
-            self.learn()
+            results['loss'] = self.learn()
 
+        # save every few steps
         if (self.curr_step % self.save_every == 0):
             self.save_network()
+
+        return results
             
     def learn(self):
         state, next_state, action, reward, done = self.recall()
@@ -117,10 +121,11 @@ class DQNSnakeModel():
         # determine loss from our target and our predictions
         loss = self.criterion(target, pred)
         # back propagate to determine gradients
-        loss.backward()
-        print(f'    Loss: {loss.item():.4f}')
+        loss.backward()        
         # take a step in the direction of the gradients
-        self.optimizer.step()        
+        self.optimizer.step()
+
+        return loss.item()     
 
     def recall(self):
         batch = self.memory.sample(self.batch_size).to(self.device)
@@ -221,7 +226,7 @@ def start(data=None):
     }
 
 def cache(state, next_state, reward, action, done):    
-    model.cache(state, next_state, reward, action, done)
+    return model.cache(state, next_state, reward, action, done)
 
 @bottle.post('/move')
 def move(data=None):

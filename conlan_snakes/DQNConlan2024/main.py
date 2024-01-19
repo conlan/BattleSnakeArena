@@ -20,13 +20,14 @@ from torchvision import transforms
 class DQNSnakeModel():
     def __init__(self) -> None:        
         # use gpu if available
+        self.memory = TensorDictReplayBuffer(storage=LazyMemmapStorage(100_000, 
+                                                device=torch.device("cpu")))
+        self.batch_size = 32
         self.device = "cuda" if torch.cuda.is_available() else "cpu"        
         print(f"Using {self.device} device")
 
-        self.memory = TensorDictReplayBuffer(storage=LazyMemmapStorage(100_000, device=torch.device(self.device)))
-        self.batch_size = 32
-
         self.network = NeuralNetwork(3)
+        self.network.to(self.device)
 
         self.curr_step = 0
         self.burnin = 1_000
@@ -57,7 +58,7 @@ class DQNSnakeModel():
         else:
             to_tensor = transforms.ToTensor()
 
-            state = to_tensor(stateImage)
+            state = to_tensor(stateImage).to(self.device)
 
             results = self.network(state)
 
@@ -150,7 +151,7 @@ class DQNSnakeModel():
     def load_network(self, path=None):        
         # check if file exists first
         if (os.path.exists(path) == False):
-            print(f"SnakeNet not found at {path}")
+            print(f"SnakeNet not found at {path}, skipping...")
             return
         
         saved_dict = torch.load(path)

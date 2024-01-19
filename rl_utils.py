@@ -48,6 +48,7 @@ def report_to_discord(discord_webhook_url, data):
     discord_message += ":video_game:  **Num Games**: " + str(len(winners)) + "\n\n"
     discord_message += ":trophy:  **Win Rate**: " + str(training_snake_win_rate) + "\n\n"    
     discord_message += ":skull:  **Mean Loss**: " + str(mean_training_loss) + "\n\n"
+    discord_message += "------------------------------------------------------------"
 
     payload = {
         "content": discord_message

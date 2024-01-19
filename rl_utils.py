@@ -1,6 +1,9 @@
 from PIL import Image, ImageDraw, ImageFont
 from enum import IntEnum
 
+import requests
+import json
+
 import imageio
 import numpy as np
 
@@ -26,6 +29,33 @@ class LocalDirection(IntEnum):
     STRAIGHT = 0,
     LEFT = 1,
     RIGHT = 2
+
+def report_to_discord(discord_webhook_url, data):
+    print(data)
+
+    running_turns_count = data['running_turns_count']
+    running_losses = data['running_losses']
+
+    # build the message to post to discord
+    discord_message = ""
+    # TODO average loss
+    # TODO running win rate
+
+
+    payload = {
+        "content": discord_message
+    }
+
+    headers = {
+        "Content-Type": "application/json"
+    }
+
+    response = requests.post(discord_webhook_url, data=json.dumps(payload), headers=headers)
+
+    if response.status_code == 204:
+        print("Message sent successfully to discord")
+    else:
+        print(f"Failed to send message. Status code: {response.status_code}")
 
 # Take head and neck coordinates and convert a local direction to 
 # actual BattleSnake move

@@ -180,7 +180,7 @@ class BattleSnake():
         boardImageFrames = []
 
         # keep a reference to the training snake it case it gets killed
-        snake_in_training = self.snakes[0] if train_reinforcement else None
+        snake_in_training = self.snakes[0]
 
         while (True):   
             rl_state = None
@@ -238,8 +238,13 @@ class BattleSnake():
         if (train_reinforcement):
             rl_utils.outputToVideo(boardImageFrames)
         
+        # if there's no snakes left
         if (len(self.snakes) == 0):
-            return GAME_RESULT_DRAW
+            # if this was a solo game then the first snake won
+            if (is_solo_game):
+                return snake_in_training.name
+            else:
+                return GAME_RESULT_DRAW
         
         return self.snakes[0].name if not is_solo_game else None
 
@@ -553,13 +558,13 @@ def parse_args(sysargs=None):
     parser.add_argument("-f", "--food_spawn_chance", help="Chance of food spawning", type=float, default=0.15)
     parser.add_argument("-mf", "--min_food", help="Minimum number of food", type=float, default=1)
     # parser.add_argument("-s", "--snakes", nargs='+', help="Snakes to battle", type=str, default=["simpleJake", "battleJake2019", "battleJake2019", "battleJake2019", "DQNConlan2024"])
-    parser.add_argument("-s", "--snakes", nargs='+', help="Snakes to battle", type=str, default=["DQNConlan2024", "simpleJake"])
+    parser.add_argument("-s", "--snakes", nargs='+', help="Snakes to battle", type=str, default=["DQNConlan2024"])
     parser.add_argument("-d", "--dims", nargs='+', help="Dimensions of the board in x,y", type=int, default=[BOARD_SIZE_MEDIUM,BOARD_SIZE_MEDIUM])
     parser.add_argument("-p", "--silent", help="Print information about the game", action="store_true", default=False)
     parser.add_argument("-g", "--games", help="Number of games to play", type=int, default=1)
-    parser.add_argument("-b", "--suppress-board", help="Don't print the board", action="store_false", default=True)
+    parser.add_argument("-dis", "--discord_webhook_url", nargs='+', help="Discord webhook for reporting", type=str, default=None)
+    parser.add_argument("-b", "--suppress_board", help="Don't print the board", action="store_false", default=True)
     parser.add_argument("-rl", "--train_reinforcement", help="Whether we should run in RL mode", action="store_true", default=False)
-    parser.add_argument("-t", "--threads", help="Number of threads to run multiple games on", type=int, default=4)
     parser.add_argument("-i", "--seed", help="Game seed", type=int, default=None)
     parser.add_argument("-sp", "--speed", help="Speed of the game", type=int, default=90)
     if sysargs:
@@ -601,6 +606,11 @@ def main():
         running_turns_count.append(turns)
 
         print(f'{i+1} / {args.games}) Turn Mean: {sum(running_turns_count) * 1.0 / len(running_turns_count):.3f}')    
+
+        if (args.discord_webhook_url):
+            rl_utils.report_to_discord(args.discord_webhook_url[0], {
+                "running_turns_count" : running_turns_count
+            })
 
     for winner in set(winners):
         if (winner == GAME_RESULT_DRAW):

@@ -434,6 +434,7 @@ class Snake():
         self.name = name if name else self.id
         self._move = move
         self._cache = cache
+        self.training_losses = []
         self._start = start
         self._end = end
         self.server = server
@@ -481,10 +482,15 @@ class Snake():
         
         action = [0, 0, 0]
         action[self.last_move_local_direction] = 1
-        
+                
         try:
             if (self._cache):
-                self._cache(state, next_state, reward, action, done)
+                results = self._cache(state, next_state, reward, action, done)
+                
+                if ('loss' in results):
+                    loss = results['loss']
+                    
+                    self.training_losses.append(float("{:.4f}".format(loss)))
         except Exception as e:
             traceback.print_exc()        
 
@@ -538,6 +544,9 @@ def run_game(snake_types, food_spawn_chance, min_food, dims=(BOARD_SIZE_MEDIUM,B
     game_results["winner"] = game.start_game(speed=speed, output_board=(not suppress_board), train_reinforcement=train_reinforcement)
     game_results["turns"] = game.turn
     game_results["seed"] = game.seed
+
+    if (train_reinforcement):
+        game_results["training_losses"] = snakes[0].training_losses
 
     if not silent:
         print("Winner: {}, Turns: {}, Seed: {}".format(game_results["winner"], game_results["turns"], game_results["seed"] ))
@@ -596,6 +605,7 @@ def main():
     args = parse_args()
 
     running_turns_count = []
+    running_training_losses = []
     
     winners = []
 
@@ -612,14 +622,19 @@ def main():
         turns = game_results["turns"]
         running_turns_count.append(turns)
 
+        running_training_losses.extend(game_results["training_losses"])
+
+        
         print(f'{i+1} / {args.games}) Turn Mean: {sum(running_turns_count) * 1.0 / len(running_turns_count):.3f}')    
 
         if (args.discord_webhook_url):
             if (i + 1) % REPORT_TO_DISCORD_EVERY == 0:
+                print(running_training_losses)
                 rl_utils.report_to_discord(args.discord_webhook_url[0], {
                     "running_turns_count" : running_turns_count,
+                    "running_training_losses" : running_training_losses,
                     "winners" : winners,
-                    "training_snake_name" : training_snake_name
+                    "training_snake_name" : training_snake_name                    
                 })
 
     for winner in set(winners):

@@ -549,7 +549,7 @@ def parse_args(sysargs=None):
     parser.add_argument("-f", "--food_spawn_chance", help="Chance of food spawning", type=float, default=0.15)
     parser.add_argument("-mf", "--min_food", help="Minimum number of food", type=float, default=1)
     # parser.add_argument("-s", "--snakes", nargs='+', help="Snakes to battle", type=str, default=["simpleJake", "battleJake2019", "battleJake2019", "battleJake2019", "DQNConlan2024"])
-    parser.add_argument("-s", "--snakes", nargs='+', help="Snakes to battle", type=str, default=["DQNConlan2024", "DQNConlan2024", "DQNConlan2024"])
+    parser.add_argument("-s", "--snakes", nargs='+', help="Snakes to battle", type=str, default=["DQNConlan2024", "simpleJake"])
     parser.add_argument("-d", "--dims", nargs='+', help="Dimensions of the board in x,y", type=int, default=[BOARD_SIZE_MEDIUM,BOARD_SIZE_MEDIUM])
     parser.add_argument("-p", "--silent", help="Print information about the game", action="store_true", default=False)
     parser.add_argument("-g", "--games", help="Number of games to play", type=int, default=1)
@@ -584,34 +584,25 @@ def main():
     args = parse_args()
 
     running_turns_count = []
+    
+    winners = []
 
     for i in range(args.games):
         game_results = _run_game_from_args(args)
+
+        winner = game_results["winner"]
+        winners.append(winner)
         
         turns = game_results["turns"]
         running_turns_count.append(turns)
 
         print(f'{i+1} / {args.games}) Turn Mean: {sum(running_turns_count) * 1.0 / len(running_turns_count):.3f}')    
 
-        
-    
-    # # else:
-
-    # if (args.games > 1):
-    #     args.silent = True
-    #     args.suppress_board = True
-    
-    # with Pool(args.threads) as p:
-    #     outputs = list(tqdm.tqdm(p.imap_unordered(_run_game_from_args, [args for i in range(args.games)]), total=args.games))
-
-    # winners = [d["winner"] for d in outputs]
-
-    # for winner in set(winners):
-    #     if (winner == GAME_RESULT_DRAW):
-    #         print("Games Tied: {}".format(sum([1 for s in winners if s == winner])))
-    #     else:
-    #         print("{}, Games Won: {}".format(winner, sum([1 for s in winners if s == winner])))
-
+    for winner in set(winners):
+        if (winner == GAME_RESULT_DRAW):
+            print("Games Tied: {}".format(sum([1 for s in winners if s == winner])))
+        else:
+            print("{}, Games Won: {}".format(winner, sum([1 for s in winners if s == winner])))
 
 if __name__ == "__main__":
     main()

@@ -34,6 +34,8 @@ def report_to_discord(discord_webhook_url, data):
     # running_turns_count = data['running_turns_count']
     winners = data['winners']
     training_snake_name = data['training_snake_name']
+    training_losses = data['running_training_losses']
+    mean_training_loss = np.mean(training_losses)
 
     # determine win rate by counting the number of times the training snake won
     # and dividing by the number of games played
@@ -42,9 +44,10 @@ def report_to_discord(discord_webhook_url, data):
 
     # build the message to post to discord
     discord_message = ""
-    # TODO average loss
-    discord_message += ":game_die:  **Num Games**: " + str(len(winners)) + "\n\n"
-    discord_message += ":trophy:  **Win Rate**: " + str(training_snake_win_rate) + "\n"
+    
+    discord_message += ":video_game:  **Num Games**: " + str(len(winners)) + "\n\n"
+    discord_message += ":trophy:  **Win Rate**: " + str(training_snake_win_rate) + "\n\n"    
+    discord_message += ":skull:  **Mean Loss**: " + str(mean_training_loss) + "\n\n"
 
     payload = {
         "content": discord_message

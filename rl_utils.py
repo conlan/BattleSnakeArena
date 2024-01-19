@@ -11,6 +11,10 @@ ME_HEAD_IMAGE = Image.open("assets/me_head.png")
 ME_BODY_IMAGE_STRAIGHT = Image.open("assets/me_body_straight.png")
 ME_BODY_IMAGE_CURVE = Image.open("assets/me_body_curve.png")
 
+ENEMY_HEAD_IMAGE = Image.open("assets/enemy_head.png")
+ENEMY_BODY_IMAGE_STRAIGHT = Image.open("assets/enemy_body_straight.png")
+ENEMY_BODY_IMAGE_CURVE = Image.open("assets/enemy_body_curve.png")
+
 FOOD_IMAGE = Image.open("assets/food.png")
 
 REWARD_FOR_DEATH = -500
@@ -67,7 +71,7 @@ def tupleToXY(tuple):
     y = tuple['y']
     return (x * (GRID_SIZE - 1), y * (GRID_SIZE - 1))
 
-def convertBoardToImage(json):    
+def convertBoardToImage(json, pov_snake_id = None):        
     board_width = json['board']['width']
     board_height = json['board']['height']
     snakes = json['board']['snakes']
@@ -91,7 +95,14 @@ def convertBoardToImage(json):
 
         y += GRID_SIZE - 1
 
+    # if pov snake id is not provided then get it from the 'you' parameter
+    if (pov_snake_id == None) and ('you' in json):
+        pov_snake_id = json['you']['id']
+
     for snake in snakes:
+        snake_id = snake['id']
+        is_pov_snake = (snake_id == pov_snake_id)
+
         snake_body = snake['body']
 
         snake_head = snake_body[0]
@@ -111,7 +122,12 @@ def convertBoardToImage(json):
         elif (neck_x == head_x) and (neck_y > head_y):
             head_rotation = 0
 
-        rotated_head = ME_HEAD_IMAGE.rotate(head_rotation) if head_rotation != 0 else ME_HEAD_IMAGE
+        # setup the images based on whether this snake is the POV or not
+        head_image = ME_HEAD_IMAGE if is_pov_snake else ENEMY_HEAD_IMAGE
+        straight_body_image = ME_BODY_IMAGE_STRAIGHT if is_pov_snake else ENEMY_BODY_IMAGE_STRAIGHT
+        curve_body_image = ME_BODY_IMAGE_CURVE if is_pov_snake else ENEMY_BODY_IMAGE_CURVE
+
+        rotated_head = head_image.rotate(head_rotation) if head_rotation != 0 else head_image
 
         board_image.paste(rotated_head, (head_x, head_y), rotated_head)
 
@@ -138,7 +154,7 @@ def convertBoardToImage(json):
 
             # there's no body after this segment, we're the tail
             if (next_body_x == None) or (next_body_y == None):
-                image_to_use = ME_BODY_IMAGE_STRAIGHT
+                image_to_use = straight_body_image
 
                 # rotate 90 if we're on the same row ====
                 if (body_y == prev_body_y):
@@ -146,7 +162,7 @@ def convertBoardToImage(json):
             else:
                 # there's a body after this segment, determine if straight or curved
                 if (prev_body_x > body_x) and (next_body_x == body_x):
-                    image_to_use = ME_BODY_IMAGE_CURVE      
+                    image_to_use = curve_body_image      
 
                     if (prev_body_y == body_y):
                         if (prev_body_y < next_body_y):
@@ -155,7 +171,7 @@ def convertBoardToImage(json):
                             image_rotation = 90
 
                 elif (prev_body_x == body_x) and (next_body_x < body_x):
-                    image_to_use = ME_BODY_IMAGE_CURVE
+                    image_to_use = curve_body_image
 
                     if (body_y < prev_body_y):
                         image_rotation = -90
@@ -163,29 +179,29 @@ def convertBoardToImage(json):
                         image_rotation = 180
 
                 elif (prev_body_x == body_x) and (next_body_x > body_x):
-                    image_to_use = ME_BODY_IMAGE_CURVE
+                    image_to_use = curve_body_image
 
                     if (next_body_y > prev_body_y):
                         image_rotation = 90
                 elif (prev_body_x == body_x) and (next_body_x == body_x):
-                    image_to_use = ME_BODY_IMAGE_STRAIGHT
+                    image_to_use = straight_body_image
                 elif (prev_body_x > body_x) and (next_body_x < body_x):
-                    image_to_use = ME_BODY_IMAGE_STRAIGHT
+                    image_to_use = straight_body_image
 
                     image_rotation = 90
 
                 elif (prev_body_y > body_y) and (next_body_y < body_y):
-                    image_to_use = ME_BODY_IMAGE_STRAIGHT
+                    image_to_use = straight_body_image
 
                 elif (prev_body_x < body_x) and (next_body_x == body_x):
-                    image_to_use = ME_BODY_IMAGE_CURVE
+                    image_to_use = curve_body_image
                     if (next_body_y > prev_body_y):
                         image_rotation = -90
                     elif (next_body_y < prev_body_y):
                         image_rotation = 180
 
                 elif (prev_body_x < body_x) and (next_body_x > body_x):
-                    image_to_use = ME_BODY_IMAGE_STRAIGHT
+                    image_to_use = straight_body_image
 
                     image_rotation = 90
             

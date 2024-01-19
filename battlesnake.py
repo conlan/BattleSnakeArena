@@ -183,7 +183,7 @@ class BattleSnake():
             rl_state = None
             # if we're training RL then convert the current board to an image
             if (train_reinforcement):
-                rl_state = rl_utils.convertBoardToImage(self._get_board_json())
+                rl_state = rl_utils.convertBoardToImage(self._get_board_json(), snake_in_training.id)
                 
                 boardImageFrames.append(rl_state)
 
@@ -199,7 +199,7 @@ class BattleSnake():
             # if we're training RL then grab an updated board image as the next state
             if (train_reinforcement):
                 # pass in state, new_state, action, reward to the training snake
-                new_rl_state = rl_utils.convertBoardToImage(self._get_board_json())
+                new_rl_state = rl_utils.convertBoardToImage(self._get_board_json(), snake_in_training.id)
                 # if the training snake was killed
                 training_snake_was_killed = (snake_in_training not in self.snakes)
                 # determine reward for snake
@@ -549,7 +549,7 @@ def parse_args(sysargs=None):
     parser.add_argument("-f", "--food_spawn_chance", help="Chance of food spawning", type=float, default=0.15)
     parser.add_argument("-mf", "--min_food", help="Minimum number of food", type=float, default=1)
     # parser.add_argument("-s", "--snakes", nargs='+', help="Snakes to battle", type=str, default=["simpleJake", "battleJake2019", "battleJake2019", "battleJake2019", "DQNConlan2024"])
-    parser.add_argument("-s", "--snakes", nargs='+', help="Snakes to battle", type=str, default=["DQNConlan2024"])
+    parser.add_argument("-s", "--snakes", nargs='+', help="Snakes to battle", type=str, default=["DQNConlan2024", "DQNConlan2024", "DQNConlan2024"])
     parser.add_argument("-d", "--dims", nargs='+', help="Dimensions of the board in x,y", type=int, default=[BOARD_SIZE_MEDIUM,BOARD_SIZE_MEDIUM])
     parser.add_argument("-p", "--silent", help="Print information about the game", action="store_true", default=False)
     parser.add_argument("-g", "--games", help="Number of games to play", type=int, default=1)

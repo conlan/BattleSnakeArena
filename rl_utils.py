@@ -35,7 +35,7 @@ def report_to_discord(discord_webhook_url, data):
     winners = data['winners']
     training_snake_name = data['training_snake_name']
     training_losses = data['running_training_losses']
-    mean_training_loss = np.mean(training_losses)
+    mean_training_loss = np.mean(training_losses) if len(training_losses) > 0 else 0
 
     # determine win rate by counting the number of times the training snake won
     # and dividing by the number of games played

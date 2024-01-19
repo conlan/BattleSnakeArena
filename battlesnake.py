@@ -628,8 +628,7 @@ def main():
         print(f'{i+1} / {args.games}) Turn Mean: {sum(running_turns_count) * 1.0 / len(running_turns_count):.3f}')    
 
         if (args.discord_webhook_url):
-            if (i + 1) % REPORT_TO_DISCORD_EVERY == 0:
-                print(running_training_losses)
+            if (i + 1) % REPORT_TO_DISCORD_EVERY == 0:                
                 rl_utils.report_to_discord(args.discord_webhook_url[0], {
                     "running_turns_count" : running_turns_count,
                     "running_training_losses" : running_training_losses,

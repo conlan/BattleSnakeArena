@@ -139,7 +139,11 @@ class DQNSnakeModel():
         print(f"SnakeNet saved to {self.model_save_path} at step {self.curr_step}")
 
     def load_network(self, path=None):        
-        # TODO check if file exists first
+        # check if file exists first
+        if (os.path.exists(path) == False):
+            print(f"SnakeNet not found at {path}")
+            return
+        
         saved_dict = torch.load(path)
         
         self.network.load_state_dict(saved_dict['model'])

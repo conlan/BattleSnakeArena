@@ -15,6 +15,7 @@ import rl_utils
 FOOD_COLOR = snakes.COLORS["green"]
 BORDER_COLOR = snakes.COLORS["grey"]
 DEFAULT_COLOR = snakes.COLORS["default"]
+DEFAULT_SPEED = 90
 
 # TOOD make constants
 SNAKE_START_SIZE = 3
@@ -168,7 +169,7 @@ class BattleSnake():
 
             self.snakes.append(snake)
 
-    def start_game(self, speed=90, output_board=True, train_reinforcement=False):
+    def start_game(self, speed=DEFAULT_SPEED, output_board=True, train_reinforcement=False):
         # set this so it goes into board json and is readable by snakes later
         self.train_reinforcement = train_reinforcement
 
@@ -524,7 +525,7 @@ def verbose_print(*args, **kwargs):
     if VERBOSE:
         print(*args, **kwargs)
 
-def run_game(snake_types, food_spawn_chance, min_food, dims=(BOARD_SIZE_MEDIUM,BOARD_SIZE_MEDIUM), suppress_board=False, train_reinforcement=False, speed=80, silent=False, seed=None):
+def run_game(snake_types, food_spawn_chance, min_food, dims=(BOARD_SIZE_MEDIUM,BOARD_SIZE_MEDIUM), suppress_board=False, train_reinforcement=False, speed=DEFAULT_SPEED, silent=False, seed=None):
     snakes = [Snake(**snake_type) for snake_type in snake_types]
 
     game = BattleSnake(food_spawn_chance=food_spawn_chance, min_food=min_food, dims=dims, seed=seed)
@@ -566,7 +567,7 @@ def parse_args(sysargs=None):
     parser.add_argument("-b", "--suppress_board", help="Don't print the board", action="store_false", default=True)
     parser.add_argument("-rl", "--train_reinforcement", help="Whether we should run in RL mode", action="store_true", default=False)
     parser.add_argument("-i", "--seed", help="Game seed", type=int, default=None)
-    parser.add_argument("-sp", "--speed", help="Speed of the game", type=int, default=90)
+    parser.add_argument("-sp", "--speed", help="Speed of the game", type=int, default=DEFAULT_SPEED)
     if sysargs:
         args = parser.parse_args(sysargs)
     else:

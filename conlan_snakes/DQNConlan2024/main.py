@@ -20,7 +20,8 @@ from torchvision import transforms
 class DQNSnakeModel():
     def __init__(self) -> None:        
         # use gpu if available
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.device = "cuda" if torch.cuda.is_available() else "cpu"        
+        print(f"Using {self.device} device")
 
         self.memory = TensorDictReplayBuffer(storage=LazyMemmapStorage(100_000, device=torch.device(self.device)))
         self.batch_size = 32

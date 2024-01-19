@@ -169,7 +169,10 @@ class BattleSnake():
             self.snakes.append(snake)
 
     def start_game(self, speed=90, output_board=True, train_reinforcement=False):
-        is_solo = (len(self.snakes) == 1)
+        # set this so it goes into board json and is readable by snakes later
+        self.train_reinforcement = train_reinforcement
+
+        is_solo_game = (len(self.snakes) == 1)
 
         json = self._get_board_json()
         for s in self.snakes: s.start(json)
@@ -193,7 +196,7 @@ class BattleSnake():
             self._check_for_eaten_food()
             self._spawn_food()
 
-            is_game_over = self._check_winner(is_solo)
+            is_game_over = self._check_winner(is_solo_game)
             
 
             # if we're training RL then grab an updated board image as the next state
@@ -238,7 +241,7 @@ class BattleSnake():
         if (len(self.snakes) == 0):
             return GAME_RESULT_DRAW
         
-        return self.snakes[0].name if not is_solo else None
+        return self.snakes[0].name if not is_solo_game else None
 
 
     def print_board(self):
@@ -394,6 +397,7 @@ class BattleSnake():
     def _get_board_json(self):
         jsonobj = {}
         jsonobj["turn"] = self.turn
+        jsonobj["is_training_reinforcement"] = self.train_reinforcement
         jsonobj["board"] = {}
         jsonobj["board"]["height"] = self.height
         jsonobj["board"]["width"] = self.width
@@ -408,8 +412,8 @@ class BattleSnake():
         self._detect_snake_collision()
         self._resolve_head_collisions()
 
-    def _check_winner(self, is_solo):
-        return (len(self.snakes) == 1 and not is_solo) or (len(self.snakes) == 0)
+    def _check_winner(self, is_solo_game):
+        return (len(self.snakes) == 1 and not is_solo_game) or (len(self.snakes) == 0)
 
 class Snake():
     def __init__(self, name=None, id=None, color=None, move=None, end=None, start=None, cache=None, server=None, **kwargs):

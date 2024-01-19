@@ -48,8 +48,9 @@ class DQNSnakeModel():
         self.model_save_path = 'saved/snake_net.chkpt'
         self.load_network(self.model_save_path)
 
-    def act(self, stateImage):
-        if (self.random.random() < self.exploration_rate):
+    def act(self, stateImage, use_greedy=False):
+        # only use epsilon greedy if we're not using greedy
+        if (not use_greedy) and (self.random.random() < self.exploration_rate):
             # random move
             action_idx = self.random.randint(0, 2)
         else:
@@ -239,8 +240,12 @@ def move(data=None):
     snakeNeck = you['body'][1]
     snakeNeck = (snakeNeck['x'], snakeNeck['y'])
 
+    is_training_reinforcement = data["is_training_reinforcement"] if "is_training_reinforcement" in data else False
+    # if we're not training reinforcement, use greedy strategy and no epsilon
+    use_greedy = False if is_training_reinforcement else True
+
     # get move index from move [STRAIGHT, LEFT, RIGHT]
-    dir_index = model.act(rl_state)
+    dir_index = model.act(rl_state, use_greedy=use_greedy)
     local_dir = rl_utils.LocalDirection(dir_index)
 
     return {

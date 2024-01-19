@@ -130,6 +130,9 @@ class DQNSnakeModel():
         return state, next_state, action.squeeze(), reward.squeeze(), done.squeeze()
     
     def save_network(self):
+        # ensure that save path exists
+        os.makedirs(os.path.dirname(self.model_save_path), exist_ok=True)
+        # save model
         torch.save(
             dict(model=self.network.state_dict(), 
                  exploration_rate=self.exploration_rate,

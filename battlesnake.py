@@ -601,7 +601,7 @@ def main():
 
     training_snake_name = args.snake_types[0]["name"]
 
-    REPORT_TO_DISCORD_EVERY = 5
+    REPORT_TO_DISCORD_EVERY = 100
 
     for i in range(args.games):
         game_results = _run_game_from_args(args)

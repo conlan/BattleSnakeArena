@@ -31,16 +31,20 @@ class LocalDirection(IntEnum):
     RIGHT = 2
 
 def report_to_discord(discord_webhook_url, data):
-    print(data)
+    # running_turns_count = data['running_turns_count']
+    winners = data['winners']
+    training_snake_name = data['training_snake_name']
 
-    running_turns_count = data['running_turns_count']
-    running_losses = data['running_losses']
+    # determine win rate by counting the number of times the training snake won
+    # and dividing by the number of games played
+    num_training_snake_wins = winners.count(training_snake_name)
+    training_snake_win_rate = num_training_snake_wins / len(winners)
 
     # build the message to post to discord
     discord_message = ""
     # TODO average loss
-    # TODO running win rate
-
+    discord_message += ":game_die:  **Num Games**: " + str(len(winners)) + "\n\n"
+    discord_message += ":trophy:  **Win Rate**: " + str(training_snake_win_rate) + "\n"
 
     payload = {
         "content": discord_message

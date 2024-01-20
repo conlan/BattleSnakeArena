@@ -256,11 +256,15 @@ def convertBoardToImage(json, pov_snake_id = None):
     
     return board_image
 
-def outputToVideo(boardHistoryFrames):   
+def output_to_video(board_history_frames):   
+    if (len(board_history_frames) == 0):
+        print("No board history frames to output")
+        return
+    
     output_file = "output_video.mp4"
 
     with imageio.get_writer(output_file, fps=8) as writer:  # Adjust the fps as needed
-        for img in boardHistoryFrames:
+        for img in board_history_frames:
             img_array = np.array(img)
             writer.append_data(img_array)
 

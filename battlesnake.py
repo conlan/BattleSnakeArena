@@ -169,7 +169,7 @@ class BattleSnake():
 
             self.snakes.append(snake)
 
-    def start_game(self, speed=DEFAULT_SPEED, output_board=True, train_reinforcement=False):
+    def start_game(self, speed=DEFAULT_SPEED, output_board=True, train_reinforcement=False, record_train_reinforcement_video=False):
         # set this so it goes into board json and is readable by snakes later
         self.train_reinforcement = train_reinforcement
 
@@ -178,7 +178,8 @@ class BattleSnake():
         json = self._get_board_json()
         for s in self.snakes: s.start(json)
 
-        boardImageFrames = []
+        # if we want to record a video of the training snake
+        board_image_frames_for_recording = []
 
         # keep a reference to the training snake it case it gets killed
         snake_in_training = self.snakes[0]
@@ -186,10 +187,11 @@ class BattleSnake():
         while (True):   
             rl_state = None
             # if we're training RL then convert the current board to an image
-            if (train_reinforcement):
+            if (train_reinforcement) or (record_train_reinforcement_video):
                 rl_state = rl_utils.convertBoardToImage(self._get_board_json(), snake_in_training.id)
                 
-                boardImageFrames.append(rl_state)
+                if record_train_reinforcement_video:
+                    board_image_frames_for_recording.append(rl_state)
 
             t1 = time.time()
             self._move_snakes()            
@@ -237,9 +239,8 @@ class BattleSnake():
 
             while(time.time()-t1 <= float(100-speed)/float(100)): pass
 
-        # TODO put behind a command line flag
-        # if (train_reinforcement):
-        #     rl_utils.outputToVideo(boardImageFrames)
+        if (record_train_reinforcement_video):
+            rl_utils.output_to_video(board_image_frames_for_recording)
         
         # if there's no snakes left
         if (len(self.snakes) == 0):
@@ -533,7 +534,7 @@ def verbose_print(*args, **kwargs):
     if VERBOSE:
         print(*args, **kwargs)
 
-def run_game(snake_types, food_spawn_chance, min_food, dims=(BOARD_SIZE_MEDIUM,BOARD_SIZE_MEDIUM), suppress_board=False, train_reinforcement=False, speed=DEFAULT_SPEED, silent=False, seed=None):
+def run_game(snake_types, food_spawn_chance, min_food, dims=(BOARD_SIZE_MEDIUM,BOARD_SIZE_MEDIUM), suppress_board=False, train_reinforcement=False, record_train_reinforcement_video=False, speed=DEFAULT_SPEED, silent=False, seed=None):
     snakes = [Snake(**snake_type) for snake_type in snake_types]
 
     game = BattleSnake(food_spawn_chance=food_spawn_chance, min_food=min_food, dims=dims, seed=seed)
@@ -541,7 +542,7 @@ def run_game(snake_types, food_spawn_chance, min_food, dims=(BOARD_SIZE_MEDIUM,B
     game.place_food()
 
     game_results = {}
-    game_results["winner"] = game.start_game(speed=speed, output_board=(not suppress_board), train_reinforcement=train_reinforcement)
+    game_results["winner"] = game.start_game(speed=speed, output_board=(not suppress_board), train_reinforcement=train_reinforcement, record_train_reinforcement_video=record_train_reinforcement_video)
     game_results["turns"] = game.turn
     game_results["seed"] = game.seed
 
@@ -561,6 +562,7 @@ def _run_game_from_args(args):
         dims=args.dims,
         suppress_board=args.suppress_board,
         train_reinforcement=args.train_reinforcement,
+        record_train_reinforcement_video=args.record_train_reinforcement_video,
         speed=args.speed,
         silent=args.silent,
         seed=args.seed)
@@ -577,6 +579,7 @@ def parse_args(sysargs=None):
     parser.add_argument("-dis", "--discord_webhook_url", nargs='+', help="Discord webhook for reporting", type=str, default=None)
     parser.add_argument("-b", "--suppress_board", help="Don't print the board", action="store_false", default=True)
     parser.add_argument("-rl", "--train_reinforcement", help="Whether we should run in RL mode", action="store_true", default=False)
+    parser.add_argument("-rec", "--record_train_reinforcement_video", help="Whether we should record a video of the reinforcement train", action="store_true", default=False)
     parser.add_argument("-i", "--seed", help="Game seed", type=int, default=None)
     parser.add_argument("-sp", "--speed", help="Speed of the game", type=int, default=DEFAULT_SPEED)
     if sysargs:

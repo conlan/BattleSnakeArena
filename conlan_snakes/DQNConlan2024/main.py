@@ -46,6 +46,9 @@ class DQNSnakeModel():
         # make a random generator that we use here so the seed doesn't get overriden in the main game
         self.random = random.Random()
 
+        # where to save the model to
+        self.model_save_path = None
+
     def act(self, stateImage, use_greedy=False):
         # only use epsilon greedy if we're not using greedy
         if (not use_greedy) and (self.random.random() < self.exploration_rate):
@@ -220,7 +223,7 @@ def start(data=None):
         bottle.request.urlparts.netloc
     )
     
-    if (data["model_save_path"]):
+    if (model.model_save_path == None) and (data["model_save_path"]):
         model.set_model_save_path(data["model_save_path"])
     else:
         print(f'Exploration Rate: {model.exploration_rate:.5f}, Current Step: {model.curr_step}')

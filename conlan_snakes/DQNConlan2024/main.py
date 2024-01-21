@@ -45,10 +45,6 @@ class DQNSnakeModel():
 
         # make a random generator that we use here so the seed doesn't get overriden in the main game
         self.random = random.Random()
-        
-        # TODO make save path a parameter
-        self.model_save_path = 'saved/snake_net.chkpt'
-        self.load_network(self.model_save_path)
 
     def act(self, stateImage, use_greedy=False):
         # only use epsilon greedy if we're not using greedy
@@ -136,6 +132,11 @@ class DQNSnakeModel():
 
         return state, next_state, action.squeeze(), reward.squeeze(), done.squeeze()
     
+    def set_model_save_path(self, path):
+        self.model_save_path = path
+        
+        self.load_network(self.model_save_path)
+    
     def save_network(self):
         # ensure that save path exists
         os.makedirs(os.path.dirname(self.model_save_path), exist_ok=True)
@@ -148,7 +149,7 @@ class DQNSnakeModel():
         )
         print(f"SnakeNet saved to {self.model_save_path} at step {self.curr_step}")
 
-    def load_network(self, path=None):        
+    def load_network(self, path=None):
         # check if file exists first
         if (os.path.exists(path) == False):
             print(f"SnakeNet not found at {path}, skipping...")
@@ -160,7 +161,7 @@ class DQNSnakeModel():
         self.exploration_rate = saved_dict['exploration_rate']
         self.curr_step = saved_dict['curr_step']
 
-        print(f"Loaded SnakeNet from {path} at step {self.curr_step}")
+        print(f"Loaded SnakeNet from {path} at step {self.curr_step}, exploration rate {self.exploration_rate}")
 
 class NeuralNetwork(nn.Module):
     def __init__(self, output_size):
@@ -218,8 +219,11 @@ def start(data=None):
         bottle.request.urlparts.scheme,
         bottle.request.urlparts.netloc
     )
-
-    print(f'Exploration Rate: {model.exploration_rate:.5f}, Current Step: {model.curr_step}')
+    
+    if (data["model_save_path"]):
+        model.set_model_save_path(data["model_save_path"])
+    else:
+        print(f'Exploration Rate: {model.exploration_rate:.5f}, Current Step: {model.curr_step}')
 
     return {
         'color': '#EADA50',

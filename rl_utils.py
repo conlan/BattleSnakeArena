@@ -44,10 +44,14 @@ def report_to_discord(discord_webhook_url, data):
     training_snake_win_rate = num_training_snake_wins / len(winners)
     training_snake_win_rate = float("{:.5f}".format(training_snake_win_rate))
 
+    training_epsilon = data['training_epsilon']
+    training_epsilon = float("{:.5f}".format(training_epsilon))
+
     # build the message to post to discord
     discord_message = ""
     
     discord_message += ":video_game:  **Num Games**: " + str(len(winners)) + "\n\n"
+    discord_message += ":game_die:  **Epsilon**: " + str(training_epsilon) + "\n\n"
     discord_message += ":trophy:  **Win Rate**: " + str(training_snake_win_rate) + "\n\n"    
     discord_message += ":skull:  **Mean Loss**: " + str(mean_training_loss) + "\n\n"
     discord_message += "------------------------------------------------------------"

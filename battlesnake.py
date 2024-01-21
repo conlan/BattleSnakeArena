@@ -437,6 +437,7 @@ class Snake():
         self._move = move
         self._cache = cache
         self.training_losses = []
+        self.training_epsilon = 0
         self._start = start
         self._end = end
         self.server = server
@@ -493,6 +494,9 @@ class Snake():
                     loss = results['loss']
                     
                     self.training_losses.append(float("{:.4f}".format(loss)))
+
+                if ('epsilon' in results):
+                    self.training_epsilon = results['epsilon']
         except Exception as e:
             traceback.print_exc()        
 
@@ -549,6 +553,7 @@ def run_game(snake_types, food_spawn_chance, min_food, dims=(BOARD_SIZE_MEDIUM,B
 
     if (train_reinforcement):
         game_results["training_losses"] = snakes[0].training_losses
+        game_results["training_epsilon"] = snakes[0].training_epsilon
 
     if not silent:
         print("Winner: {}, Turns: {}, Seed: {}".format(game_results["winner"], game_results["turns"], game_results["seed"] ))
@@ -644,8 +649,9 @@ def main():
                     rl_utils.report_to_discord(args.discord_webhook_url, {
                         "running_turns_count" : running_turns_count,
                         "running_training_losses" : running_training_losses,
+                        "training_epsilon" : game_results["training_epsilon"],
                         "winners" : winners,
-                        "training_snake_name" : training_snake_name                    
+                        "training_snake_name" : training_snake_name
                     })
 
     for winner in set(winners):

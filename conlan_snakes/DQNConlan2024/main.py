@@ -81,7 +81,10 @@ class DQNSnakeModel():
 
         self.memory.add(TensorDict({"state": state, "next_state": next_state, "action": action, "reward": reward, "done": done}, batch_size=[]))
         
-        results = {}
+        results = {
+            'epsilon': self.exploration_rate
+        }
+        
         # wait until memory builds before learning
         if (self.curr_step < self.burnin):
             return results

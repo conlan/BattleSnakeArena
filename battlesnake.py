@@ -201,21 +201,25 @@ class BattleSnake():
             self._spawn_food()
 
             is_game_over = self._check_winner(is_solo_game)
-            
+
+            new_rl_state = None
+
             # if we're training RL then grab an updated board image as the next state
-            if (train_reinforcement):
-                # pass in state, new_state, action, reward to the training snake
+            # OR if we're recording RL video and this is the final turn after game over
+            if (train_reinforcement) or (record_train_reinforcement_video and is_game_over):
+                # generate a new state after all the snakes have moved
                 new_rl_state = rl_utils.convertBoardToImage(self._get_board_json(), snake_in_training.id)
+                # append final frame if we're recording video
+                if (record_train_reinforcement_video and is_game_over):
+                    board_image_frames_for_recording.append(new_rl_state)        
                 # if the training snake was killed
                 training_snake_was_killed = (snake_in_training not in self.snakes)
                 # determine reward for snake
                 training_reward = 0
-
                 if (training_snake_was_killed):
                     training_reward = rl_utils.REWARD_FOR_DEATH
                 else:
                     training_reward = rl_utils.REWARD_FOR_SURVIVAL
-
                     # if food eaten
                     if (snake_in_training.ate_food):
                         training_reward += rl_utils.REWARD_FOR_FOOD                        
@@ -226,8 +230,10 @@ class BattleSnake():
 
                 # if game is over OR if the training snake was killed
                 training_is_done = is_game_over or training_snake_was_killed
-                # send to snake in training
-                snake_in_training.cache(rl_state, new_rl_state, training_reward, training_is_done)
+                
+                if (train_reinforcement):
+                    # send to snake in training
+                    snake_in_training.cache(rl_state, new_rl_state, training_reward, training_is_done)
 
                 # TODO when snakes > 2, end game if training_snake_was_killed?
 

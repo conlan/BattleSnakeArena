@@ -42,6 +42,7 @@ def report_to_discord(discord_webhook_url, data):
     # and dividing by the number of games played
     num_training_snake_wins = winners.count(training_snake_name)
     training_snake_win_rate = num_training_snake_wins / len(winners)
+    training_snake_win_rate = float("{:.5f}".format(training_snake_win_rate))
 
     # build the message to post to discord
     discord_message = ""

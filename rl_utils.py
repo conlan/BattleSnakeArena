@@ -22,7 +22,7 @@ FOOD_IMAGE = Image.open("assets/food.png")
 
 REWARD_FOR_DEATH = -1000
 REWARD_FOR_VICTORY = 1000
-REWARD_FOR_SURVIVAL = 1
+REWARD_FOR_SURVIVAL = -1
 REWARD_FOR_FOOD = 25
 
 class LocalDirection(IntEnum):

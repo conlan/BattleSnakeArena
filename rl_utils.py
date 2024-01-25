@@ -115,7 +115,8 @@ def tupleToXY(tuple):
     y = tuple['y']
     return (x * (GRID_SIZE - 1), y * (GRID_SIZE - 1))
 
-def convertBoardToImage(json, pov_snake_id = None):        
+# convert a board JSON object to a state and array of snake health
+def convertBoardToState(json, pov_snake_id = None):        
     board_width = json['board']['width']
     board_height = json['board']['height']
     snakes = json['board']['snakes']
@@ -258,8 +259,55 @@ def convertBoardToImage(json, pov_snake_id = None):
 
     # Convert to greyscale
     board_image = board_image.convert("L")
+
+    # Put normalized snake healths in an array
+    # in the order of length descending
+    # POV snake is index-0 always though
+    snakes_health_in_length_descending_order = []
     
-    return board_image
+    for snake in snakes:
+        snake_id = snake['id']
+        snake_length = len(snake['body'])
+        snake_health = snake['health']
+        # normalize from 0.0 -> 1.0
+        snake_health = snake_health / 100.0
+
+        if (snake_id == pov_snake_id):
+            snakes_health_in_length_descending_order.insert(0, {
+                "length" : snake_length,
+                "health" : snake_health,
+                "is_pov" : True
+            })
+            continue
+
+        did_insert = False
+        for i in range(len(snakes_health_in_length_descending_order)):
+            snake_obj = snakes_health_in_length_descending_order[i]
+            
+            # skip over the pov snake if we already inserted at index 0
+            is_other_pov = snake_obj['is_pov']
+            if is_other_pov:
+                continue
+
+            other_length = snake_obj['length']
+            if (snake_length > other_length):
+                snakes_health_in_length_descending_order.insert(i, {
+                    "length" : snake_length,
+                    "health" : snake_health,
+                    "is_pov" : False
+                })
+                did_insert = True
+            
+        if not did_insert:
+            snakes_health_in_length_descending_order.append({
+                "length" : snake_length,
+                "health" : snake_health,
+                "is_pov" : False
+            })
+
+    snakes_health_in_length_descending_order = [obj['health'] for obj in snakes_health_in_length_descending_order]
+    
+    return board_image, snakes_health_in_length_descending_order
 
 def output_to_video(board_history_frames):   
     if (len(board_history_frames) == 0):

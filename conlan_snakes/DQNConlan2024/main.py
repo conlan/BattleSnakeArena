@@ -62,7 +62,7 @@ def move(data=None):
               'local_direction' : None
          }
     
-    rl_state = rl_utils.convertBoardToImage(data)
+    rl_state_image, snakes_health = rl_utils.convertBoardToState(data)
     
     # Get all the data
     you = data['you']
@@ -78,7 +78,7 @@ def move(data=None):
     use_greedy = False if is_training_reinforcement else True
 
     # get move index from move [STRAIGHT, LEFT, RIGHT]
-    dir_index = model.act(rl_state, use_greedy=use_greedy)
+    dir_index = model.act(rl_state_image, use_greedy=use_greedy)
     local_dir = rl_utils.LocalDirection(dir_index)
 
     return {

@@ -189,10 +189,10 @@ class BattleSnake():
             rl_state = None
             # if we're training RL then convert the current board to an image
             if (train_reinforcement) or (record_train_reinforcement_video):
-                rl_state = rl_utils.convertBoardToImage(self._get_board_json(), snake_in_training.id)
+                rl_state_image, snakes_health = rl_utils.convertBoardToState(self._get_board_json(), snake_in_training.id)
                 
                 if record_train_reinforcement_video:
-                    board_image_frames_for_recording.append(rl_state)
+                    board_image_frames_for_recording.append(rl_state_image)
 
             t1 = time.time()
             self._move_snakes()            
@@ -208,7 +208,7 @@ class BattleSnake():
             # OR if we're recording RL video and this is the final turn after game over
             if (train_reinforcement) or (record_train_reinforcement_video and is_game_over):
                 # generate a new state after all the snakes have moved
-                new_rl_state = rl_utils.convertBoardToImage(self._get_board_json(), snake_in_training.id)
+                new_rl_state_image, new_snake_healths = rl_utils.convertBoardToState(self._get_board_json(), snake_in_training.id)
                 # append final frame if we're recording video
                 if (record_train_reinforcement_video and is_game_over):
                     board_image_frames_for_recording.append(new_rl_state)        
@@ -233,7 +233,7 @@ class BattleSnake():
                 
                 if (train_reinforcement):
                     # send to snake in training
-                    snake_in_training.cache(rl_state, new_rl_state, training_reward, training_is_done)
+                    snake_in_training.cache(rl_state_image, new_rl_state_image, training_reward, training_is_done)
 
                 # TODO when snakes > 2, end game if training_snake_was_killed?
 
@@ -585,7 +585,7 @@ def parse_args(sysargs=None):
     parser.add_argument("-f", "--food_spawn_chance", help="Chance of food spawning", type=float, default=0.15)
     parser.add_argument("-mf", "--min_food", help="Minimum number of food", type=float, default=1)
     # parser.add_argument("-s", "--snakes", nargs='+', help="Snakes to battle", type=str, default=["simpleJake", "battleJake2019", "battleJake2019", "battleJake2019", "DQNConlan2024"])
-    parser.add_argument("-s", "--snakes", nargs='+', help="Snakes to battle", type=str, default=["DQNConlan2024", "simpleJake"])
+    parser.add_argument("-s", "--snakes", nargs='+', help="Snakes to battle", type=str, default=["DQNConlan2024", "simpleJake", "simpleJake", "simpleJake"])
     parser.add_argument("-d", "--dims", nargs='+', help="Dimensions of the board in x,y", type=int, default=[BOARD_SIZE_MEDIUM,BOARD_SIZE_MEDIUM])
     parser.add_argument("-p", "--silent", help="Print information about the game", action="store_true", default=False)
     parser.add_argument("-g", "--games", help="Number of games to play", type=int, default=1)

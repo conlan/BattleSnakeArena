@@ -189,8 +189,7 @@ class BattleSnake():
             rl_state_image = None
             # if we're training RL then convert the current board to an image
             if (train_reinforcement) or (record_train_reinforcement_video):
-                rl_state_image, snakes_health = rl_utils.convertBoardToState(self._get_board_json(), snake_in_training.id)
-                print(snakes_health)
+                rl_state_image, snakes_health = rl_utils.convertBoardToState(self._get_board_json(), snake_in_training.id)                
                 
                 if record_train_reinforcement_video:
                     board_image_frames_for_recording.append(rl_state_image)
@@ -218,7 +217,6 @@ class BattleSnake():
                         new_snake_healths.insert(0, 0.0)
                     else:
                         new_snake_healths.insert(0, snakes_health[0])
-                print(new_snake_healths)
             
                 # append final frame if we're recording video
                 if (record_train_reinforcement_video and is_game_over):

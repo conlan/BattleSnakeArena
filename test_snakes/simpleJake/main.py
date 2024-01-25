@@ -110,7 +110,18 @@ def move(data=None):
         elif moves != []:
             move = rand.choice(moves)
         else:
-            move = 'up'
+            # if we've eliminated all possible moves then
+            # default to a move where you have at least a chance at survival
+            # e.g. don't hit a snake
+            chance_of_survival_moves = dont_hit_snakes(['left', 'right', 'up', 'down'], you['head'], snakesTogether, [])
+            # and don't hit a wall
+            chance_of_survival_moves = dont_hit_wall(chance_of_survival_moves, you['head'], walls)
+            
+            if (chance_of_survival_moves != []):
+                move = rand.choice(chance_of_survival_moves)
+            else:
+                # if no possible moves then at this point just move up
+                move = 'up'
 
     except Exception as e:
         traceback.print_tb(e.__traceback__)

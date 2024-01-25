@@ -265,7 +265,7 @@ def convertBoardToState(json, pov_snake_id = None):
     # POV snake is index-0 always though
     snakes_health_in_length_descending_order = []
     
-    for snake in snakes:
+    for snake in snakes:        
         snake_id = snake['id']
         snake_length = len(snake['body'])
         snake_health = snake['health']
@@ -290,13 +290,14 @@ def convertBoardToState(json, pov_snake_id = None):
                 continue
 
             other_length = snake_obj['length']
-            if (snake_length > other_length):
+            if (snake_length > other_length):                
                 snakes_health_in_length_descending_order.insert(i, {
                     "length" : snake_length,
                     "health" : snake_health,
                     "is_pov" : False
                 })
                 did_insert = True
+                break
             
         if not did_insert:
             snakes_health_in_length_descending_order.append({
@@ -305,7 +306,7 @@ def convertBoardToState(json, pov_snake_id = None):
                 "is_pov" : False
             })
 
-    snakes_health_in_length_descending_order = [obj['health'] for obj in snakes_health_in_length_descending_order]
+    snakes_health_in_length_descending_order = [obj['health'] for obj in snakes_health_in_length_descending_order]    
     
     return board_image, snakes_health_in_length_descending_order
 

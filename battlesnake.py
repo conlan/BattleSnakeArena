@@ -185,9 +185,9 @@ class BattleSnake():
         # keep a reference to the training snake it case it gets killed
         snake_in_training = self.snakes[0]
 
-        while (True):   
-            rl_state_image = None
+        while (True):                       
             # if we're training RL then convert the current board to an image
+            rl_state_image, snakes_health = None, None    
             if (train_reinforcement) or (record_train_reinforcement_video):
                 rl_state_image, snakes_health = rl_utils.convertBoardToState(self._get_board_json(), snake_in_training.id)                
                 
@@ -202,44 +202,41 @@ class BattleSnake():
 
             is_game_over = self._check_winner(is_solo_game)
 
-            next_rl_state_image = None
-
             # if we're training RL then grab an updated board image as the next state
             # OR if we're recording RL video and this is the final turn after game over
-            if (train_reinforcement) or (record_train_reinforcement_video and is_game_over):
+            if (train_reinforcement) or (record_train_reinforcement_video):
                 # if the training snake was killed
                 training_snake_was_killed = (snake_in_training not in self.snakes)
                 # generate a new state after all the snakes have moved
-                next_rl_state_image, next_snake_healths = rl_utils.convertBoardToState(self._get_board_json(), snake_in_training.id)
-                # if the training snake was just killed its health will not be in the health array so insert it here
-                if (training_snake_was_killed):
-                    if (snake_in_training.health == 0):
-                        next_snake_healths.insert(0, 0.0)
-                    else:
-                        next_snake_healths.insert(0, snakes_health[0])
-            
-                # append final frame if we're recording video
-                if (record_train_reinforcement_video and is_game_over):
-                    board_image_frames_for_recording.append(next_rl_state_image)                        
-                # determine reward for snake
-                training_reward = 0
-                if (training_snake_was_killed):
-                    training_reward = rl_utils.REWARD_FOR_DEATH
-                else:
-                    training_reward = rl_utils.REWARD_FOR_SURVIVAL
-                    # if food eaten
-                    if (snake_in_training.ate_food):
-                        training_reward += rl_utils.REWARD_FOR_FOOD                        
+                next_rl_state_image, next_snake_healths = rl_utils.convertBoardToState(self._get_board_json(), snake_in_training.id)                
 
-                    # add training reward if snake wins (not applicable in solo games)                    
-                    if (is_game_over and not training_snake_was_killed):
-                        training_reward += rl_utils.REWARD_FOR_VICTORY
-
-                # if game is over OR if the training snake was killed
-                training_is_done = is_game_over or training_snake_was_killed
-                
                 if (train_reinforcement):
-                    # send to snake in training
+                    # if the training snake was just killed its health will not be in the health array so insert it here
+                    if (training_snake_was_killed):
+                        if (snake_in_training.health == 0):
+                            next_snake_healths.insert(0, 0.0)
+                        else:
+                            next_snake_healths.insert(0, snakes_health[0])
+                            
+                    # determine reward for snake
+                    training_reward = 0
+                    if (training_snake_was_killed):
+                        training_reward = rl_utils.REWARD_FOR_DEATH
+                    else:
+                        training_reward = rl_utils.REWARD_FOR_SURVIVAL
+                        # if food eaten
+                        if (snake_in_training.ate_food):
+                            training_reward += rl_utils.REWARD_FOR_FOOD                        
+
+                        # add training reward if snake wins (not applicable in solo games)                    
+                        if (is_game_over and not training_snake_was_killed):
+                            training_reward += rl_utils.REWARD_FOR_VICTORY
+
+                
+                    # if game is over OR if the training snake was killed
+                    training_is_done = is_game_over or training_snake_was_killed
+
+                    # send to snake in training for cache
                     rl_state_obj = {
                         "image" : rl_state_image,
                         "health" : snakes_health
@@ -253,6 +250,10 @@ class BattleSnake():
                 # when snakes > 2, end game if training_snake_was_killed
                 if not is_solo_game and training_snake_was_killed:
                     is_game_over = True
+
+                # append final frame if we're recording video
+                if (record_train_reinforcement_video and is_game_over):
+                    board_image_frames_for_recording.append(next_rl_state_image)  
 
             self.turn += 1
 

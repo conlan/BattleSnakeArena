@@ -12,7 +12,7 @@ from torchrl.data import TensorDictReplayBuffer, LazyMemmapStorage
 from torchvision import transforms
 
 class DQNSnakeModel():
-    def __init__(self) -> None:        
+    def __init__(self, max_snakes) -> None:        
         # use gpu if available
         self.memory = TensorDictReplayBuffer(storage=LazyMemmapStorage(100_000, 
                                                 device=torch.device("cpu")))
@@ -20,7 +20,9 @@ class DQNSnakeModel():
         self.device = "cuda" if torch.cuda.is_available() else "cpu"        
         print(f"Using {self.device} device")
 
-        self.network = NeuralNetwork(3)
+        self.max_snakes = max_snakes
+
+        self.network = NeuralNetwork(self.max_snakes, 3)
         self.network.to(self.device)
 
         self.curr_step = 0
@@ -43,16 +45,21 @@ class DQNSnakeModel():
         # where to save the model to
         self.model_save_path = None
 
-    def act(self, stateImage, use_greedy=False):
+    def act(self, state_obj, use_greedy=False):
         # only use epsilon greedy if we're not using greedy
         if (not use_greedy) and (self.random.random() < self.exploration_rate):
             # random move
             action_idx = self.random.randint(0, 2)
         else:
-            to_tensor = transforms.ToTensor()
+            state, state_health = self.get_state_and_health_tensors_from_state_obj(state_obj)
 
-            state = to_tensor(stateImage).to(self.device)
+            # reshape health
+            state_health = state_health.view(1, 1, 1, self.max_snakes)
+            # # Expand dimensions to match state
+            state_health = state_health.expand(-1, 67, 67, -1)
 
+            state = torch.cat((state.unsqueeze(3), state_health), dim=3)
+            
             results = self.network(state)
 
             action_idx = torch.argmax(results).item()
@@ -61,21 +68,44 @@ class DQNSnakeModel():
         self.exploration_rate = max(self.exploration_rate_min, self.exploration_rate)
             
         return action_idx
+    
+    def get_state_and_health_tensors_from_state_obj(self, state_obj):
+        to_tensor = transforms.ToTensor()
 
-    def cache(self, state, next_state, reward, action, done):    
+        # convert state images to tensors
+        state = to_tensor(state_obj['image'])
+        
+        state_health = torch.tensor(state_obj['health'], dtype=torch.float)
+        # pad health tensor to always be max_snakes length        
+        if (state_health.shape[0] < self.max_snakes):
+            pad_required = self.max_snakes - state_health.shape[0]
+            state_health = F.pad(state_health, pad=(0, pad_required), mode='constant', value=0.0)    
+        state_health = state_health.unsqueeze(0)
+
+        return state, state_health
+
+    def cache(self, state_obj, next_state_obj, reward, action, done):    
         self.curr_step += 1
 
         # print(f'Caching State, Reward: {reward}, Action: {action}, Done: {done}')
 
-        to_tensor = transforms.ToTensor()
-
-        state = to_tensor(state)        
-        next_state = to_tensor(next_state)                
+        state, state_health = self.get_state_and_health_tensors_from_state_obj(state_obj)        
+        next_state, next_state_health = self.get_state_and_health_tensors_from_state_obj(next_state_obj)        
+                
+        # convert reward, action, done to tensors
         reward = torch.tensor([reward], dtype=torch.float)
         action = torch.tensor([action], dtype=torch.long)
         done = torch.tensor([done])
 
-        self.memory.add(TensorDict({"state": state, "next_state": next_state, "action": action, "reward": reward, "done": done}, batch_size=[]))
+        self.memory.add(TensorDict({
+                    "state": state, 
+                    "state_health" : state_health,
+                    "next_state": next_state, 
+                    "next_state_health" : next_state_health,
+                    "action": action, 
+                    "reward": reward, 
+                    "done": done}, 
+                batch_size=[]))
         
         results = {
             'epsilon': self.exploration_rate
@@ -98,11 +128,13 @@ class DQNSnakeModel():
     def learn(self):
         state, next_state, action, reward, done = self.recall()
 
+        print("learning....")
+
         # predict q values for this state
         pred = self.network(state)
         # clone the predictions
         target = pred.clone()
-
+        
         # update the target q values as immediate reward + discounted future reward
         for idx in range(len(done)):
             Q_new = reward[idx].item()
@@ -110,11 +142,7 @@ class DQNSnakeModel():
             if not done[idx]:
                 Q_new += self.gamma * torch.max(self.network(next_state[idx]))
 
-            # print(target[idx])
-            # print(action[idx])
             target[idx][torch.argmax(action[idx]).item()] = Q_new
-            # print(Q_new)            
-            # print(target[idx])
 
         # clear the optimizer gradients
         self.optimizer.zero_grad()
@@ -125,13 +153,27 @@ class DQNSnakeModel():
         # take a step in the direction of the gradients
         self.optimizer.step()
 
-        return loss.item()     
+        return loss.item()    
 
     def recall(self):
         batch = self.memory.sample(self.batch_size).to(self.device)
 
-        state, next_state, action, reward, done = (batch.get(key) for key in ("state", "next_state", "action", "reward", "done"))
+        state, state_health, next_state, next_state_health, action, reward, done = (batch.get(key) for key in ("state", "state_health", "next_state", "next_state_health", "action", "reward", "done"))
+        
+        # reshape health
+        state_health = state_health.view(self.batch_size, 1, 1, 1, self.max_snakes)        
+        # Expand dimensions to match state
+        state_health = state_health.expand(-1, -1, 67, 67, -1)
+        # combine state and state_health
+        state = torch.cat((state.unsqueeze(4), state_health), dim=4)
 
+        # reshape next health
+        next_state_health = next_state_health.view(self.batch_size, 1, 1, 1, self.max_snakes)
+        # Expand dimensions to match next_state
+        next_state_health = next_state_health.expand(-1, -1, 67, 67, -1)
+        # combine next_state and next_state_health
+        next_state = torch.cat((next_state.unsqueeze(4), next_state_health), dim=4)
+        
         return state, next_state, action.squeeze(), reward.squeeze(), done.squeeze()
     
     def set_model_save_path(self, path):
@@ -166,8 +208,10 @@ class DQNSnakeModel():
         print(f"Loaded SnakeNet from {path} at step {self.curr_step}, exploration rate {self.exploration_rate}")
 
 class NeuralNetwork(nn.Module):
-    def __init__(self, output_size):
+    def __init__(self, max_snakes, output_size):
         super(NeuralNetwork, self).__init__()
+
+        self.max_snakes = max_snakes
 
         # 67 x 67 -> 16 x 16
         self.conv1 = nn.Conv2d(in_channels=1, out_channels=32, kernel_size=7, stride=4)      
@@ -176,11 +220,24 @@ class NeuralNetwork(nn.Module):
         # 7 x 7 -> 5 x 5
         self.conv3 = nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3, stride=1)
         # 64 x 5 x 5 -> 512
-        self.fc1 = nn.Linear(1600, 512)
+        self.fc1 = nn.Linear(1600 + max_snakes, 512) # we're going to append the snake healths after the convolution NN does it work
         self.fc2 = nn.Linear(512, output_size)
         self.flatten = nn.Flatten()
 
-    def forward(self, x):
+    def forward(self, x):        
+        if (len(x.shape) == 5): # Batch of tensors
+            # 4th dimension is normalized healths
+            health_tensor = x[:, :, 0, 0, 1:] # slice out first element since that's remnant when we concated in cache()
+            # slice out the health tensor
+            x = x[:, :, :, :, 0]
+        elif (len(x.shape) == 4): # Single tensor
+            # 3rd dimension is normalized healths
+            health_tensor = x[:, 0, 0, 1:]
+            # slice out the health tensor now
+            x = x[:, :, :, 0]
+        else:
+            raise ValueError("Shouldn't be here!")
+        
         # 67 x 67 -> 16 x 16
         x = F.relu(self.conv1(x))        
         # 16 x 16 -> 7 x 7
@@ -189,7 +246,12 @@ class NeuralNetwork(nn.Module):
         x = F.relu(self.conv3(x))
         # 64 x 5 x 5 -> 1600
         x = x.view(-1, 64 * 5 * 5)
-        # 1600 -> 512
+        
+        # Squeeze out dimension 1 so [32, 1, 4] becomes [32, 4]
+        health_tensor = health_tensor.squeeze(1)
+
+        x = torch.cat((x, health_tensor), dim=1)        
+        # 1604 -> 512
         x = F.relu(self.fc1(x))        
         # don't relu the last layer
         x = self.fc2(x)

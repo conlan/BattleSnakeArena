@@ -9,7 +9,7 @@ import bottle
 import rl_utils
 from conlan_snakes.DQNConlan2024.dqn_snake_model import DQNSnakeModel
 
-model = DQNSnakeModel() 
+model = DQNSnakeModel(4)
 
 @bottle.route('/')
 def index():
@@ -46,8 +46,8 @@ def start(data=None):
         'head_url': headUrl
     }
 
-def cache(state, next_state, reward, action, done):    
-    return model.cache(state, next_state, reward, action, done)
+def cache(state_obj, next_state_obj, reward, action, done):    
+    return model.cache(state_obj, next_state_obj, reward, action, done)
 
 @bottle.post('/move')
 def move(data=None):
@@ -77,8 +77,12 @@ def move(data=None):
     # if we're not training reinforcement, use greedy strategy and no epsilon
     use_greedy = False if is_training_reinforcement else True
 
+    state_obj = {
+         "image" : rl_state_image,
+         "health" : snakes_health
+    }
     # get move index from move [STRAIGHT, LEFT, RIGHT]
-    dir_index = model.act(rl_state_image, use_greedy=use_greedy)
+    dir_index = model.act(state_obj, use_greedy=use_greedy)
     local_dir = rl_utils.LocalDirection(dir_index)
 
     return {

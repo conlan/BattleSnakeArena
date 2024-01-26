@@ -202,7 +202,7 @@ class BattleSnake():
 
             is_game_over = self._check_winner(is_solo_game)
 
-            new_rl_state_image = None
+            next_rl_state_image = None
 
             # if we're training RL then grab an updated board image as the next state
             # OR if we're recording RL video and this is the final turn after game over
@@ -210,17 +210,17 @@ class BattleSnake():
                 # if the training snake was killed
                 training_snake_was_killed = (snake_in_training not in self.snakes)
                 # generate a new state after all the snakes have moved
-                new_rl_state_image, new_snake_healths = rl_utils.convertBoardToState(self._get_board_json(), snake_in_training.id)
+                next_rl_state_image, next_snake_healths = rl_utils.convertBoardToState(self._get_board_json(), snake_in_training.id)
                 # if the training snake was just killed its health will not be in the health array so insert it here
                 if (training_snake_was_killed):
                     if (snake_in_training.health == 0):
-                        new_snake_healths.insert(0, 0.0)
+                        next_snake_healths.insert(0, 0.0)
                     else:
-                        new_snake_healths.insert(0, snakes_health[0])
+                        next_snake_healths.insert(0, snakes_health[0])
             
                 # append final frame if we're recording video
                 if (record_train_reinforcement_video and is_game_over):
-                    board_image_frames_for_recording.append(new_rl_state_image)                        
+                    board_image_frames_for_recording.append(next_rl_state_image)                        
                 # determine reward for snake
                 training_reward = 0
                 if (training_snake_was_killed):
@@ -240,7 +240,15 @@ class BattleSnake():
                 
                 if (train_reinforcement):
                     # send to snake in training
-                    snake_in_training.cache(rl_state_image, new_rl_state_image, training_reward, training_is_done)
+                    rl_state_obj = {
+                        "image" : rl_state_image,
+                        "health" : snakes_health
+                    }
+                    next_rl_state_obj = {
+                        "image" : next_rl_state_image,
+                        "health" : next_snake_healths
+                    }
+                    snake_in_training.cache(rl_state_obj, next_rl_state_obj, training_reward, training_is_done)
 
                 # when snakes > 2, end game if training_snake_was_killed
                 if not is_solo_game and training_snake_was_killed:
@@ -494,7 +502,7 @@ class Snake():
         except Exception as e:
             traceback.print_exc()
 
-    def cache(self, state, next_state, reward, done):
+    def cache(self, rl_state_obj, next_rl_state_obj, reward, done):
         if (self.last_move_local_direction is None):
             return
         
@@ -503,7 +511,7 @@ class Snake():
                 
         try:
             if (self._cache):
-                results = self._cache(state, next_state, reward, action, done)
+                results = self._cache(rl_state_obj, next_rl_state_obj, reward, action, done)
                 
                 if ('loss' in results):
                     loss = results['loss']

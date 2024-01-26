@@ -58,7 +58,7 @@ class DQNSnakeModel():
             # # Expand dimensions to match state
             state_health = state_health.expand(-1, 67, 67, -1)
 
-            state = torch.cat((state.unsqueeze(3), state_health), dim=3)
+            state = torch.cat((state.unsqueeze(3), state_health), dim=3).to(self.device)
             
             results = self.network(state)
 

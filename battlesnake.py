@@ -267,7 +267,8 @@ class BattleSnake():
             if (is_game_over):
                 break
 
-            while(time.time()-t1 <= float(100-speed)/float(100)): pass
+            if (speed < 100):
+                while(time.time()-t1 <= float(100-speed)/float(100)): pass
 
         if (record_train_reinforcement_video):
             rl_utils.output_to_video(board_image_frames_for_recording)

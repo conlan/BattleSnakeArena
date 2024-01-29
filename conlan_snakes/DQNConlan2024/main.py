@@ -76,13 +76,22 @@ def move(data=None):
     is_training_reinforcement = data["is_training_reinforcement"] if "is_training_reinforcement" in data else False
     # if we're not training reinforcement, use greedy strategy and no epsilon
     use_greedy = False if is_training_reinforcement else True
+    use_action_masking = True
 
     state_obj = {
          "image" : rl_state_image,
-         "health" : snakes_health
+         "health" : snakes_health,
+         "json" : data,
+         "next_move_coordinates" : {}
     }
+
+    # determine these for action masking use
+    for local_dir in rl_utils.LocalDirection:
+         state_obj["next_move_coordinates"][local_dir.value] = \
+            rl_utils.getLocalDirectionAsCoordinate(local_dir, snakeHead, snakeNeck)
+         
     # get move index from move [STRAIGHT, LEFT, RIGHT]
-    dir_index = model.act(state_obj, use_greedy=use_greedy)
+    dir_index = model.act(state_obj, use_greedy=use_greedy, use_action_masking=use_action_masking)
     local_dir = rl_utils.LocalDirection(dir_index)
 
     return {

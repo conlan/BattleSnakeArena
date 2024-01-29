@@ -45,7 +45,8 @@ class DQNSnakeModel():
         # where to save the model to
         self.model_save_path = None
 
-    def act(self, state_obj, use_greedy=False):
+    @torch.inference_mode()
+    def act(self, state_obj, use_greedy=False, use_action_masking=False):
         # only use epsilon greedy if we're not using greedy
         if (not use_greedy) and (self.random.random() < self.exploration_rate):
             # random move
@@ -62,12 +63,54 @@ class DQNSnakeModel():
             
             results = self.network(state)
 
+            # if we should mask out moves that are guaranteed to lose
+            if (use_action_masking):
+                results = self.perform_action_mask(results, state_obj['json'], state_obj['next_move_coordinates'])
+
             action_idx = torch.argmax(results).item()
 
         self.exploration_rate *= self.exploration_rate_decay
         self.exploration_rate = max(self.exploration_rate_min, self.exploration_rate)
             
         return action_idx
+    
+    def perform_action_mask(self, action_values, board_data, next_move_coordinates):
+        MIN_Q_VALUE = -99999
+
+        # for each action, nullify value to MIN if it will guanteed lose
+        # e.g. walls or snake body hits
+        # If it's a possible snake head hit then don't mask out since that's dependent on opponent strategy
+        possible_actions = [0, 1, 2]
+
+        board_width = board_data['board']['width']
+        board_height = board_data['board']['height']
+
+        # compile a set of all the snake body pieces except for their tails since those
+        # will move this turn (technically if they ate food it won't but for simplification
+        # assume it will)
+        snakes_together = set()
+        for snake in board_data['board']['snakes']:
+            snake_body = snake['body']
+            for i in range(len(snake_body) - 1):
+                snakes_together.add((snake_body[i]['x'], snake_body[i]['y']))        
+
+        for action in possible_actions:
+            action_will_lose = False 
+
+            # check if coordinate is simply off the board
+            next_move_coor = next_move_coordinates[action]
+            if (next_move_coor[0] < 0) or (next_move_coor[0] >= board_width) or \
+                (next_move_coor[1] < 0) or (next_move_coor[1] >= board_height):
+                action_will_lose = True
+
+            # now check if the coordinate is anywhere in the snake bodies
+            if (next_move_coor in snakes_together):
+                action_will_lose = True
+            
+            if (action_will_lose):
+                action_values[0][action] = MIN_Q_VALUE
+
+        return action_values
     
     def get_state_and_health_tensors_from_state_obj(self, state_obj):
         to_tensor = transforms.ToTensor()

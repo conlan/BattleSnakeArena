@@ -71,6 +71,20 @@ def report_to_discord(discord_webhook_url, data):
     else:
         print(f"Failed to send message. Status code: {response.status_code}")
 
+def getLocalDirectionAsCoordinate(dir, snakeHead, snakeNeck):
+    head_x, head_y = snakeHead[0], snakeHead[1]
+
+    move = getLocalDirectionAsMove(dir, snakeHead, snakeNeck)
+
+    if (move == 'up'):
+        return (head_x, head_y - 1)
+    elif (move == 'down'):
+        return (head_x, head_y + 1)
+    elif (move == 'left'):
+        return (head_x - 1, head_y)
+    else: # right
+        return (head_x + 1, head_y)
+                
 # Take head and neck coordinates and convert a local direction to 
 # actual BattleSnake move
 def getLocalDirectionAsMove(dir, snakeHead, snakeNeck):

@@ -569,8 +569,15 @@ def verbose_print(*args, **kwargs):
     if VERBOSE:
         print(*args, **kwargs)
 
-def run_game(snake_types, food_spawn_chance, min_food, dims=(BOARD_SIZE_MEDIUM,BOARD_SIZE_MEDIUM), suppress_board=False, train_reinforcement=False, record_train_reinforcement_video=False, model_save_path=None, speed=DEFAULT_SPEED, silent=False, seed=None):
+def run_game(snake_types, food_spawn_chance, min_food, dims=(BOARD_SIZE_MEDIUM,BOARD_SIZE_MEDIUM), suppress_board=False, train_reinforcement=False, record_train_reinforcement_video=False, randomize_opponent_count=False, model_save_path=None, speed=DEFAULT_SPEED, silent=False, seed=None):
     snakes = [Snake(**snake_type) for snake_type in snake_types]
+
+    if (randomize_opponent_count):
+        # determine a random number of opponents for each game
+        num_opponents = random.randint(1, 3)
+        # pop snakes until we have the right number of opponents
+        while (len(snakes) > (num_opponents + 1)):
+            snakes.pop(random.randint(1, len(snakes) - 1))
 
     game = BattleSnake(food_spawn_chance=food_spawn_chance, min_food=min_food, dims=dims, seed=seed)
     game.place_snakes(snakes)    
@@ -599,6 +606,7 @@ def _run_game_from_args(args):
         suppress_board=args.suppress_board,
         train_reinforcement=args.train_reinforcement,
         record_train_reinforcement_video=args.record_train_reinforcement_video,
+        randomize_opponent_count=args.randomize_opponent_count,
         model_save_path=args.model_save_path,
         speed=args.speed,
         silent=args.silent,
@@ -609,7 +617,7 @@ def parse_args(sysargs=None):
     parser.add_argument("-f", "--food_spawn_chance", help="Chance of food spawning", type=float, default=0.15)
     parser.add_argument("-mf", "--min_food", help="Minimum number of food", type=float, default=1)
     # parser.add_argument("-s", "--snakes", nargs='+', help="Snakes to battle", type=str, default=["simpleJake", "battleJake2019", "battleJake2019", "battleJake2019", "DQNConlan2024"])
-    parser.add_argument("-s", "--snakes", nargs='+', help="Snakes to battle", type=str, default=["DQNConlan2024", "hungryJake", "battleJake2018", "battleJake2019"])
+    parser.add_argument("-s", "--snakes", nargs='+', help="Snakes to battle", type=str, default=["DQNConlan2024", "hungryJake", "simpleJake", "battleJake2018", "battleJake2019"])
     parser.add_argument("-d", "--dims", nargs='+', help="Dimensions of the board in x,y", type=int, default=[BOARD_SIZE_MEDIUM,BOARD_SIZE_MEDIUM])
     parser.add_argument("-p", "--silent", help="Print information about the game", action="store_true", default=False)
     parser.add_argument("-g", "--games", help="Number of games to play", type=int, default=1)
@@ -636,14 +644,6 @@ def parse_args(sysargs=None):
 
     if (args.discord_webhook_url):
         args.discord_webhook_url = args.discord_webhook_url[0]
-
-    if (args.train_reinforcement) and (args.randomize_opponent_count):
-        make_two_player = random.random() < 0.5
-
-        if (make_two_player):
-            # pop 2 snakes
-            while (len(args.snakes) > 2):
-                args.snakes.pop(random.randint(1, len(args.snakes) - 1))
     
     snake_types = []
     for input_snake in args.snakes:
@@ -668,6 +668,7 @@ def main():
     training_snake_name = args.snake_types[0]["name"]
 
     REPORT_TO_DISCORD_EVERY = 500
+
 
     for i in range(args.games):
         game_results = _run_game_from_args(args)

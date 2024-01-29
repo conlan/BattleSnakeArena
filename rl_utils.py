@@ -20,15 +20,22 @@ ENEMY_BODY_IMAGE_CURVE = Image.open("assets/enemy_body_curve.png")
 
 FOOD_IMAGE = Image.open("assets/food.png")
 
-REWARD_FOR_DEATH = -1000
-REWARD_FOR_VICTORY = 1000
-REWARD_FOR_SURVIVAL = -1
-REWARD_FOR_FOOD = 25
+TRAINING_REWARD_SETS = {
+    1 : {
+        "REWARD_FOR_DEATH" : -1000,
+        "REWARD_FOR_VICTORY" : 1000,
+        "REWARD_FOR_SURVIVAL" : -1,
+        "REWARD_FOR_FOOD" : 25
+    }
+}
 
 class LocalDirection(IntEnum):
     STRAIGHT = 0,
     LEFT = 1,
     RIGHT = 2
+
+def get_training_reward(training_reward_index, training_reward_key):
+    return TRAINING_REWARD_SETS[training_reward_index][training_reward_key]
 
 def report_to_discord(discord_webhook_url, data):
     # running_turns_count = data['running_turns_count']

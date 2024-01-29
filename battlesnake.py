@@ -220,19 +220,24 @@ class BattleSnake():
                             
                     # determine reward for snake
                     training_reward = 0
+                    
                     if (training_snake_was_killed):
-                        training_reward = rl_utils.REWARD_FOR_DEATH
+                        training_reward = rl_utils.get_training_reward( \
+                            snake_in_training.training_reward_index, "REWARD_FOR_DEATH")
                     else:
-                        training_reward = rl_utils.REWARD_FOR_SURVIVAL
+                        training_reward = rl_utils.get_training_reward( \
+                            snake_in_training.training_reward_index, "REWARD_FOR_SURVIVAL")
+
                         # if food eaten
                         if (snake_in_training.ate_food):
-                            training_reward += rl_utils.REWARD_FOR_FOOD                        
+                            training_reward += rl_utils.get_training_reward( \
+                                snake_in_training.training_reward_index, "REWARD_FOR_FOOD")
 
                         # add training reward if snake wins (not applicable in solo games)                    
                         if (is_game_over and not training_snake_was_killed):
-                            training_reward += rl_utils.REWARD_FOR_VICTORY
-
-                
+                            training_reward += rl_utils.get_training_reward( \
+                                snake_in_training.training_reward_index, "REWARD_FOR_VICTORY")
+            
                     # if game is over OR if the training snake was killed
                     training_is_done = is_game_over or training_snake_was_killed
 
@@ -450,7 +455,7 @@ class BattleSnake():
         return (len(self.snakes) == 1 and not is_solo_game) or (len(self.snakes) == 0)
 
 class Snake():
-    def __init__(self, name=None, id=None, color=None, move=None, end=None, start=None, cache=None, server=None, **kwargs):
+    def __init__(self, name=None, id=None, color=None, move=None, end=None, start=None, cache=None, server=None, training_reward_index=None, **kwargs):
         self.body = []
         self.health = MAX_SNAKE_HEALTH
         self.ate_food = False
@@ -462,6 +467,7 @@ class Snake():
         self._cache = cache
         self.training_losses = []
         self.training_epsilon = 0
+        self.training_reward_index = training_reward_index if training_reward_index else 0
         self._start = start
         self._end = end
         self.server = server

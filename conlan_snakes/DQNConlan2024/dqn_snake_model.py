@@ -181,8 +181,6 @@ class DQNSnakeModel():
     def learn(self):
         state, next_state, action, reward, done = self.recall()
 
-        print("learning....")
-
         # predict q values for this state
         pred = self.network(state)
         # clone the predictions

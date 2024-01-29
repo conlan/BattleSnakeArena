@@ -50,7 +50,17 @@ class DQNSnakeModel():
         # only use epsilon greedy if we're not using greedy
         if (not use_greedy) and (self.random.random() < self.exploration_rate):
             # random move
-            action_idx = self.random.randint(0, 2)
+            # if we're using action masking, grab a random move from a non-losing direction
+            if (use_action_masking):
+                # initialize tensor with 3 random values
+                results = torch.randn(1, 3)
+                # mask out the losing moves
+                results = self.perform_action_mask(results, \
+                                    state_obj['json'], state_obj['next_move_coordinates'])            
+                # grab the highest remaining option after mask
+                action_idx = torch.argmax(results).item()
+            else:
+                action_idx = self.random.randint(0, 2)
         else:
             state, state_health = self.get_state_and_health_tensors_from_state_obj(state_obj)
 

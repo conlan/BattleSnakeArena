@@ -45,7 +45,6 @@ class DQNSnakeModel():
         # where to save the model to
         self.model_save_path = None
 
-    @torch.inference_mode()
     def act(self, state_obj, use_greedy=False, use_action_masking=False):
         # only use epsilon greedy if we're not using greedy
         if (not use_greedy) and (self.random.random() < self.exploration_rate):

@@ -616,6 +616,7 @@ def parse_args(sysargs=None):
     parser.add_argument("-dis", "--discord_webhook_url", nargs='+', help="Discord webhook for reporting", type=str, default=None)
     parser.add_argument("-b", "--suppress_board", help="Don't print the board", action="store_false", default=True)
     parser.add_argument("-rl", "--train_reinforcement", help="Whether we should run in RL mode", action="store_true", default=False)
+    parser.add_argument("-roc", "--randomize_opponent_count", help="Whether we should randomize opponent counts during RL training", action="store_true", default=False)
     parser.add_argument("-model", "--model_save_path", nargs='+', help="Save path for loading and saving ML model", type=str, default=None)
     parser.add_argument("-rec", "--record_train_reinforcement_video", help="Whether we should record a video of the reinforcement train", action="store_true", default=False)
     parser.add_argument("-i", "--seed", help="Game seed", type=int, default=None)
@@ -635,6 +636,14 @@ def parse_args(sysargs=None):
 
     if (args.discord_webhook_url):
         args.discord_webhook_url = args.discord_webhook_url[0]
+
+    if (args.train_reinforcement) and (args.randomize_opponent_count):
+        make_two_player = random.random() < 0.5
+
+        if (make_two_player):
+            # pop 2 snakes
+            while (len(args.snakes) > 2):
+                args.snakes.pop(random.randint(1, len(args.snakes) - 1))
     
     snake_types = []
     for input_snake in args.snakes:

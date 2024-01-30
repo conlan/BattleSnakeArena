@@ -41,6 +41,12 @@ class LocalDirection(IntEnum):
     RIGHT = 2
 
 def get_training_reward(training_reward_index, training_reward_key):
+    if (training_reward_index not in TRAINING_REWARD_SETS):
+        raise Exception("Invalid training reward index: " + str(training_reward_index))
+    
+    if (training_reward_key not in TRAINING_REWARD_SETS[training_reward_index]):
+        raise Exception("Invalid training reward key: " + str(training_reward_key))
+    
     return TRAINING_REWARD_SETS[training_reward_index][training_reward_key]
 
 def report_to_discord(discord_webhook_url, data):

@@ -213,10 +213,7 @@ class BattleSnake():
                 if (train_reinforcement):
                     # if the training snake was just killed its health will not be in the health array so insert it here
                     if (training_snake_was_killed):
-                        if (snake_in_training.health == 0):
-                            next_snake_healths.insert(0, 0.0)
-                        else:
-                            next_snake_healths.insert(0, snakes_health[0])
+                        next_snake_healths.insert(0, 0.0)                        
                             
                     # determine reward for snake
                     training_reward = 0

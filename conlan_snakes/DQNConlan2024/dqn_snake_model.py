@@ -139,10 +139,10 @@ class DQNSnakeModel():
     def cache(self, state_obj, next_state_obj, reward, action, done):    
         self.curr_step += 1
 
-        # print(f'Caching State, Reward: {reward}, Action: {action}, Done: {done}')
-
         state, state_health = self.get_state_and_health_tensors_from_state_obj(state_obj)        
         next_state, next_state_health = self.get_state_and_health_tensors_from_state_obj(next_state_obj)        
+
+        # print(f'Caching State, Reward: {reward}, Action: {action}, Done: {done}\n health: {state_health[0]}\n next_health: {next_state_health[0]}')
                 
         # convert reward, action, done to tensors
         reward = torch.tensor([reward], dtype=torch.float)

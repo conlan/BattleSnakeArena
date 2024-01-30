@@ -49,11 +49,11 @@ def get_training_reward(training_reward_index, training_reward_key):
     
     return TRAINING_REWARD_SETS[training_reward_index][training_reward_key]
 
-def report_to_discord(discord_webhook_url, data):
-    # running_turns_count = data['running_turns_count']
+def report_to_discord(discord_webhook_url, data):    
     winners = data['winners']
     training_snake_name = data['training_snake_name']
     training_losses = data['running_training_losses']
+    
     mean_training_loss = np.mean(training_losses) if len(training_losses) > 0 else 0
     mean_training_loss = float("{:.5f}".format(mean_training_loss))
 
@@ -66,6 +66,22 @@ def report_to_discord(discord_webhook_url, data):
     training_epsilon = data['training_epsilon']
     training_epsilon = float("{:.5f}".format(training_epsilon))
 
+    running_turns_count = data['running_turns_count']
+    mean_turn_count_text = ""
+    
+    for snake_count in range(2, 5):
+        if not snake_count in running_turns_count:
+            continue
+
+        turns_for_snake_count = running_turns_count[snake_count]
+
+        if (snake_count == 2):
+            mean_turn_count_text += ":two:  **Mean Turns**: {:.2f}".format(sum(turns_for_snake_count) * 1.0 / len(turns_for_snake_count)) + "\n\n"
+        elif (snake_count == 3):
+            mean_turn_count_text += ":three:  **Mean Turns**: {:.2f}".format(sum(turns_for_snake_count) * 1.0 / len(turns_for_snake_count)) + "\n\n"
+        elif (snake_count == 4):
+            mean_turn_count_text += ":four:  **Mean Turns**: {:.2f}".format(sum(turns_for_snake_count) * 1.0 / len(turns_for_snake_count)) + "\n\n"
+
     # build the message to post to discord
     discord_message = ""
     
@@ -73,6 +89,7 @@ def report_to_discord(discord_webhook_url, data):
     discord_message += ":game_die:  **Epsilon**: " + str(training_epsilon) + "\n\n"
     discord_message += ":trophy:  **Win Rate**: " + str(training_snake_win_rate) + "\n\n"    
     discord_message += ":skull:  **Mean Loss**: " + str(mean_training_loss) + "\n\n"
+    discord_message += mean_turn_count_text
     discord_message += "------------------------------------------------------------"
 
     payload = {

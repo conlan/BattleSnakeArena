@@ -587,6 +587,7 @@ def run_game(snake_types, food_spawn_chance, min_food, dims=(BOARD_SIZE_MEDIUM,B
     game_results["winner"] = game.start_game(speed=speed, output_board=(not suppress_board), train_reinforcement=train_reinforcement, model_save_path=model_save_path, record_train_reinforcement_video=record_train_reinforcement_video)
     game_results["turns"] = game.turn
     game_results["seed"] = game.seed
+    game_results["num_snakes"] = len(snakes)
 
     if (train_reinforcement):
         game_results["training_losses"] = snakes[0].training_losses
@@ -660,7 +661,7 @@ def parse_args(sysargs=None):
 def main():
     args = parse_args()
 
-    running_turns_count = []
+    running_turns_count = {}
     running_training_losses = []
     
     winners = []
@@ -673,14 +674,26 @@ def main():
     for i in range(args.games):
         game_results = _run_game_from_args(args)
 
+        num_snakes = game_results["num_snakes"]
+
         winner = game_results["winner"]
         winners.append(winner)
 
         turns = game_results["turns"]
-        running_turns_count.append(turns)
+
+        if (num_snakes not in running_turns_count):
+            running_turns_count[num_snakes] = []
+
+        running_turns_count[num_snakes].append(turns)
         
         if (args.train_reinforcement):
-            print(f'{i+1} / {args.games}) Turn Mean: {sum(running_turns_count) * 1.0 / len(running_turns_count):.3f}')
+            for snake_count in range(2, 5):
+                if not snake_count in running_turns_count:
+                    continue
+
+                turns_for_snake_count = running_turns_count[snake_count]
+                
+                print(f'{i+1} / {args.games}) {snake_count}-player, Turn Mean: {sum(turns_for_snake_count) * 1.0 / len(turns_for_snake_count):.2f}')
 
             running_training_losses.extend(game_results["training_losses"])
         

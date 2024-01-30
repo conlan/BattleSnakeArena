@@ -24,8 +24,8 @@ TRAINING_REWARD_SETS = {
     1 : {
         "REWARD_FOR_DEATH" : -1000,
         "REWARD_FOR_VICTORY" : 1000,
-        "REWARD_FOR_SURVIVAL" : -1,
-        "REWARD_FOR_FOOD" : 25
+        "REWARD_FOR_SURVIVAL" : 1,
+        "REWARD_FOR_FOOD" : 0
     },
     3 : {
         "REWARD_FOR_DEATH" : -1000,

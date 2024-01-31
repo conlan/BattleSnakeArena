@@ -232,6 +232,10 @@ class DQNSnakeModel():
         self.load_network(self.model_save_path)
     
     def save_network(self):
+        if (self.model_save_path == None):
+            print("No model save path set, skipping save...")
+            return
+            
         # ensure that save path exists
         os.makedirs(os.path.dirname(self.model_save_path), exist_ok=True)
         # save model

@@ -664,26 +664,28 @@ def main():
     running_turns_count = {}
     running_training_losses = []
     
-    winners = []
+    running_winners = {}
 
     training_snake_name = args.snake_types[0]["name"]
 
     REPORT_TO_DISCORD_EVERY = 500
 
-
+    # TODO track food consumed for training snake and report
     for i in range(args.games):
         game_results = _run_game_from_args(args)
 
         num_snakes = game_results["num_snakes"]
 
+        # winner tracking
         winner = game_results["winner"]
-        winners.append(winner)
+        if (num_snakes not in running_winners):
+            running_winners[num_snakes] = []
+        running_winners[num_snakes].append(winner)
 
+        # turn count tracking
         turns = game_results["turns"]
-
         if (num_snakes not in running_turns_count):
             running_turns_count[num_snakes] = []
-
         running_turns_count[num_snakes].append(turns)
         
         if (args.train_reinforcement):
@@ -703,15 +705,21 @@ def main():
                         "running_turns_count" : running_turns_count,
                         "running_training_losses" : running_training_losses,
                         "training_epsilon" : game_results["training_epsilon"],
-                        "winners" : winners,
+                        "running_winners" : running_winners,
                         "training_snake_name" : training_snake_name
                     })
 
-    for winner in set(winners):
-        if (winner == GAME_RESULT_DRAW):
-            print("Games Tied: {}".format(sum([1 for s in winners if s == winner])))
-        else:
-            print("{}, Games Won: {}".format(winner, sum([1 for s in winners if s == winner])))
+    for snake_count in range(2, 5):
+        if not snake_count in running_turns_count:
+            continue
+
+        winners = running_winners[snake_count]
+
+        for winner in set(winners):
+            if (winner == GAME_RESULT_DRAW):
+                print(f'{snake_count}-player, Games Tied: {sum([1 for s in winners if s == winner])}')
+            else:
+                print(f'{snake_count}-player, {winner} Won: {sum([1 for s in winners if s == winner])}')
 
 if __name__ == "__main__":
     main()

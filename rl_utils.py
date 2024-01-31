@@ -50,22 +50,36 @@ def get_training_reward(training_reward_index, training_reward_key):
     return TRAINING_REWARD_SETS[training_reward_index][training_reward_key]
 
 def report_to_discord(discord_webhook_url, data):    
-    winners = data['winners']
+    running_winners = data['running_winners']
     training_snake_name = data['training_snake_name']
     training_losses = data['running_training_losses']
     
+    # Training Loss
     mean_training_loss = np.mean(training_losses) if len(training_losses) > 0 else 0
     mean_training_loss = float("{:.5f}".format(mean_training_loss))
 
-    # determine win rate by counting the number of times the training snake won
-    # and dividing by the number of games played
-    num_training_snake_wins = winners.count(training_snake_name)
-    training_snake_win_rate = num_training_snake_wins / len(winners)
-    training_snake_win_rate = float("{:.5f}".format(training_snake_win_rate))
+    # Win Rate (Per Game Size)
+    total_num_games = 0
+    mean_win_rate_text = ""
+    for snake_count in range(2, 5):
+        if not snake_count in running_winners:
+            continue
 
+        winners_for_turn_count = running_winners[snake_count]
+        
+        total_num_games += len(winners_for_turn_count)
+
+        num_games_training_snake_won = winners_for_turn_count.count(training_snake_name)
+
+        training_snake_win_rate = num_games_training_snake_won * 1.0 / len(winners_for_turn_count)
+
+        mean_win_rate_text += ":trophy:  **{}-P Win Rate**: {:.2f}".format(snake_count, training_snake_win_rate) + "\n\n"
+
+    # Epsilon
     training_epsilon = data['training_epsilon']
     training_epsilon = float("{:.5f}".format(training_epsilon))
 
+    # Turn Count (Per Game Size)
     running_turns_count = data['running_turns_count']
     mean_turn_count_text = ""
     
@@ -75,15 +89,14 @@ def report_to_discord(discord_webhook_url, data):
 
         turns_for_snake_count = running_turns_count[snake_count]
 
-        mean_turn_count_text += ":ping_pong:  **{}-Player Mean Turns**: {:.2f}".format(snake_count, sum(turns_for_snake_count) * 1.0 / len(turns_for_snake_count)) + "\n\n"        
+        mean_turn_count_text += ":ping_pong:  **{}-P Mean Turns**: {:.2f}".format(snake_count, sum(turns_for_snake_count) * 1.0 / len(turns_for_snake_count)) + "\n\n"        
 
     # build the message to post to discord
-    discord_message = ""
-    
-    discord_message += ":video_game:  **Num Games**: " + str(len(winners)) + "\n\n"
+    discord_message = ""    
+    discord_message += ":video_game:  **Num Games**: " + str(total_num_games) + "\n\n"
     discord_message += ":game_die:  **Epsilon**: " + str(training_epsilon) + "\n\n"
-    discord_message += ":trophy:  **Win Rate**: " + str(training_snake_win_rate) + "\n\n"    
     discord_message += ":skull:  **Mean Loss**: " + str(mean_training_loss) + "\n\n"
+    discord_message += mean_win_rate_text    
     discord_message += mean_turn_count_text
     discord_message += "------------------------------------------------------------"
 

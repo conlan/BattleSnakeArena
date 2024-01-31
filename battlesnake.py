@@ -426,6 +426,7 @@ class BattleSnake():
                 if f in s.body:
                     s.health = MAX_SNAKE_HEALTH
                     s.ate_food = True
+                    s.num_food_consumed += 1
 
                     removed_food.append(f)
                     break
@@ -459,6 +460,7 @@ class Snake():
         self.body = []
         self.health = MAX_SNAKE_HEALTH
         self.ate_food = False
+        self.num_food_consumed = 0
         self.last_move_local_direction = 0
         self.color = color if color else snakes.COLORS["red"]
         self.id = id if id else str(uuid.uuid4())
@@ -592,6 +594,7 @@ def run_game(snake_types, food_spawn_chance, min_food, dims=(BOARD_SIZE_MEDIUM,B
     if (train_reinforcement):
         game_results["training_losses"] = snakes[0].training_losses
         game_results["training_epsilon"] = snakes[0].training_epsilon
+        game_results["training_food_consumed"] = snakes[0].num_food_consumed
 
     if not silent:
         print("Winner: {}, Turns: {}, Seed: {}".format(game_results["winner"], game_results["turns"], game_results["seed"] ))
@@ -662,10 +665,10 @@ def main():
     args = parse_args()
 
     running_turns_count = {}
+    running_food_consumed = {}
+    running_winners = {}
     running_training_losses = []
     
-    running_winners = {}
-
     training_snake_name = args.snake_types[0]["name"]
 
     REPORT_TO_DISCORD_EVERY = 500
@@ -687,6 +690,11 @@ def main():
         if (num_snakes not in running_turns_count):
             running_turns_count[num_snakes] = []
         running_turns_count[num_snakes].append(turns)
+
+        # food consumed
+        if (num_snakes not in running_food_consumed):
+            running_food_consumed[num_snakes] = []
+        running_food_consumed[num_snakes].append(game_results["training_food_consumed"])
         
         if (args.train_reinforcement):
             for snake_count in range(2, 5):
@@ -705,6 +713,7 @@ def main():
                         "running_turns_count" : running_turns_count,
                         "running_training_losses" : running_training_losses,
                         "training_epsilon" : game_results["training_epsilon"],
+                        "training_food_consumed" : running_food_consumed,
                         "running_winners" : running_winners,
                         "training_snake_name" : training_snake_name
                     })

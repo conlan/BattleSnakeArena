@@ -697,10 +697,7 @@ def main():
         running_food_consumed[num_snakes].append(game_results["training_food_consumed"])
         
         if (args.train_reinforcement):
-            for snake_count in range(2, 5):
-                if not snake_count in running_turns_count:
-                    continue
-
+            for snake_count in running_turns_count:
                 turns_for_snake_count = running_turns_count[snake_count]
                 
                 print(f'{i+1} / {args.games}) {snake_count}-player, Turn Mean: {sum(turns_for_snake_count) * 1.0 / len(turns_for_snake_count):.2f}')
@@ -718,10 +715,7 @@ def main():
                         "training_snake_name" : training_snake_name
                     })
 
-    for snake_count in range(2, 5):
-        if not snake_count in running_turns_count:
-            continue
-
+    for snake_count in running_turns_count:
         winners = running_winners[snake_count]
 
         for winner in set(winners):

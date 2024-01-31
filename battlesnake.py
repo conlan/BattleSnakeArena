@@ -692,18 +692,18 @@ def main():
             running_winners[num_snakes] = []
         running_winners[num_snakes].append(winner)
 
-        # turn count tracking
-        turns = game_results["turns"]
-        if (num_snakes not in running_turns_count):
-            running_turns_count[num_snakes] = []
-        running_turns_count[num_snakes].append(turns)
-
-        # food consumed
-        if (num_snakes not in running_food_consumed):
-            running_food_consumed[num_snakes] = []
-        running_food_consumed[num_snakes].append(game_results["training_food_consumed"])
-        
         if (args.train_reinforcement):
+            # turn count tracking
+            turns = game_results["turns"]
+            if (num_snakes not in running_turns_count):
+                running_turns_count[num_snakes] = []
+            running_turns_count[num_snakes].append(turns)
+
+            # food consumed
+            if (num_snakes not in running_food_consumed):
+                running_food_consumed[num_snakes] = []
+            running_food_consumed[num_snakes].append(game_results["training_food_consumed"])        
+        
             for snake_count in running_turns_count:
                 turns_for_snake_count = running_turns_count[snake_count]
                 
@@ -731,7 +731,7 @@ def main():
                     }, epoch_size=LOG_TO_TENSORBOARD_EVERY)
 
 
-    for snake_count in running_turns_count:
+    for snake_count in running_winners:
         winners = running_winners[snake_count]
 
         for winner in set(winners):

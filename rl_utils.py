@@ -103,8 +103,8 @@ def report_to_discord(discord_webhook_url, data):
             continue
 
         discord_message += stats_per_snake_count[snake_count]['num_games']
-        discord_message += stats_per_snake_count[snake_count]['food_consumed']
         discord_message += stats_per_snake_count[snake_count]['win_rate']
+        discord_message += stats_per_snake_count[snake_count]['food_consumed']        
         discord_message += stats_per_snake_count[snake_count]['turn_count']        
         discord_message += "------------------------------------------------------------\n\n"
 

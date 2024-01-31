@@ -11,6 +11,7 @@ from multiprocessing import Pool
 
 import snakes
 import rl_utils
+import tensorboard_utils
 
 FOOD_COLOR = snakes.COLORS["green"]
 BORDER_COLOR = snakes.COLORS["grey"]
@@ -626,6 +627,7 @@ def parse_args(sysargs=None):
     parser.add_argument("-p", "--silent", help="Print information about the game", action="store_true", default=False)
     parser.add_argument("-g", "--games", help="Number of games to play", type=int, default=1)
     parser.add_argument("-dis", "--discord_webhook_url", nargs='+', help="Discord webhook for reporting", type=str, default=None)
+    parser.add_argument("-tb", "--tensor_board_dir", nargs='+', help="Output data to tensorboard dir", type=str, default=None)
     parser.add_argument("-b", "--suppress_board", help="Don't print the board", action="store_false", default=True)
     parser.add_argument("-rl", "--train_reinforcement", help="Whether we should run in RL mode", action="store_true", default=False)
     parser.add_argument("-roc", "--randomize_opponent_count", help="Whether we should randomize opponent counts during RL training", action="store_true", default=False)
@@ -648,6 +650,9 @@ def parse_args(sysargs=None):
 
     if (args.discord_webhook_url):
         args.discord_webhook_url = args.discord_webhook_url[0]
+
+    if (args.tensor_board_dir):
+        args.tensor_board_dir = args.tensor_board_dir[0]
     
     snake_types = []
     for input_snake in args.snakes:
@@ -661,6 +666,7 @@ def parse_args(sysargs=None):
 
     return args
 
+# TODO put this into a separate training module
 def main():
     args = parse_args()
 
@@ -672,6 +678,7 @@ def main():
     training_snake_name = args.snake_types[0]["name"]
 
     REPORT_TO_DISCORD_EVERY = 500
+    LOG_TO_TENSORBOARD_EVERY = 500
 
     # TODO track food consumed for training snake and report
     for i in range(args.games):
@@ -704,6 +711,7 @@ def main():
 
             running_training_losses.extend(game_results["training_losses"])
         
+            # log to discord periodically
             if (args.discord_webhook_url):
                 if (i + 1) % REPORT_TO_DISCORD_EVERY == 0:                
                     rl_utils.report_to_discord(args.discord_webhook_url, {
@@ -714,6 +722,14 @@ def main():
                         "running_winners" : running_winners,
                         "training_snake_name" : training_snake_name
                     })
+
+            # log to tensorboard periodically
+            if (args.tensor_board_dir):
+                if (i + 1) % LOG_TO_TENSORBOARD_EVERY == 0:
+                    tensorboard_utils.log(args.tensor_board_dir, {
+                        "training_food_consumed" : running_food_consumed
+                    }, epoch_size=LOG_TO_TENSORBOARD_EVERY)
+
 
     for snake_count in running_turns_count:
         winners = running_winners[snake_count]

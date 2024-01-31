@@ -75,12 +75,7 @@ def report_to_discord(discord_webhook_url, data):
 
         turns_for_snake_count = running_turns_count[snake_count]
 
-        if (snake_count == 2):
-            mean_turn_count_text += ":two:  **Mean Turns**: {:.2f}".format(sum(turns_for_snake_count) * 1.0 / len(turns_for_snake_count)) + "\n\n"
-        elif (snake_count == 3):
-            mean_turn_count_text += ":three:  **Mean Turns**: {:.2f}".format(sum(turns_for_snake_count) * 1.0 / len(turns_for_snake_count)) + "\n\n"
-        elif (snake_count == 4):
-            mean_turn_count_text += ":four:  **Mean Turns**: {:.2f}".format(sum(turns_for_snake_count) * 1.0 / len(turns_for_snake_count)) + "\n\n"
+        mean_turn_count_text += ":ping_pong:  **{}-Player Mean Turns**: {:.2f}".format(snake_count, sum(turns_for_snake_count) * 1.0 / len(turns_for_snake_count)) + "\n\n"        
 
     # build the message to post to discord
     discord_message = ""

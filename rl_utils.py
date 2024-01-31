@@ -59,14 +59,11 @@ def report_to_discord(discord_webhook_url, data):
     mean_training_loss = float("{:.5f}".format(mean_training_loss))
 
     stats_per_snake_count = {}
-    for snake_count in range(2, 5):
+    for snake_count in running_winners:
         stats_per_snake_count[snake_count] = {}
 
     # Win Rate (Per Game Size)
-    for snake_count in range(2, 5):
-        if not snake_count in running_winners:
-            continue
-
+    for snake_count in running_winners:
         winners_for_turn_count = running_winners[snake_count]
         
         stats_per_snake_count[snake_count]["num_games"] = ":video_game:   **Num Games**: " + str(len(winners_for_turn_count)) + "\n\n"
@@ -83,20 +80,14 @@ def report_to_discord(discord_webhook_url, data):
 
     # Turn Count (Per Game Size)
     running_turns_count = data['running_turns_count']    
-    for snake_count in range(2, 5):
-        if not snake_count in running_turns_count:
-            continue
-
+    for snake_count in running_turns_count:
         turns_for_snake_count = running_turns_count[snake_count]
 
         stats_per_snake_count[snake_count]['turn_count'] = ":alarm_clock:   **{}-P Mean Turns**: {:.2f}".format(snake_count, sum(turns_for_snake_count) * 1.0 / len(turns_for_snake_count)) + "\n\n"
 
     # Food Consumed (Per Game Size)
     training_food_consumed = data['training_food_consumed']
-    for snake_count in range(2, 5):
-        if not snake_count in training_food_consumed:
-            continue
-
+    for snake_count in training_food_consumed:
         food_consumed_for_snake_count = training_food_consumed[snake_count]
 
         stats_per_snake_count[snake_count]['food_consumed'] = ":pill:   **{}-P Mean Food**: {:.2f}".format(snake_count, sum(food_consumed_for_snake_count) * 1.0 / len(food_consumed_for_snake_count)) + "\n\n"
@@ -107,7 +98,7 @@ def report_to_discord(discord_webhook_url, data):
     discord_message += ":skull:  **Mean Loss**: " + str(mean_training_loss) + "\n\n"
     discord_message += "------------------------------------------------------------\n\n"
 
-    for snake_count in range(2, 5):
+    for snake_count in range(2, 99):
         if not snake_count in stats_per_snake_count:
             continue
 

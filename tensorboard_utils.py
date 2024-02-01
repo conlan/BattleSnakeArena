@@ -24,3 +24,5 @@ def log(dir, data, epoch_size):
             writer.add_scalar('Food Consumed ({}-Player)'.format(snake_count), mean_food_consumed, epoch)
 
     writer.close()
+
+    print(f"Wrote tensorboard logs to {dir}")

@@ -1,8 +1,12 @@
 import requests
 import json
 import numpy as np
+import copy
 
 def report_to_discord(discord_webhook_url, data, epoch_size):    
+    # make a deep copy of the data so we don't modify the original
+    data = copy.deepcopy(data)
+
     running_winners = data['running_winners']
     
     training_snake_name = data['training_snake_name']

@@ -685,7 +685,7 @@ def main():
     training_snake_name = args.snake_types[0]["name"]
 
     REPORT_TO_DISCORD_EVERY = 500
-    LOG_TO_TENSORBOARD_EVERY = 500
+    REPORT_TO_TENSORBOARD_EVERY = 500
 
     # TODO track food consumed for training snake and report
     for i in range(args.games):
@@ -739,10 +739,11 @@ def main():
 
             # log to tensorboard periodically
             if (args.tensor_board_dir):
-                if (i + 1) % LOG_TO_TENSORBOARD_EVERY == 0:
+                if (i + 1) % REPORT_TO_TENSORBOARD_EVERY == 0:
                     tensorboard_utils.log(args.tensor_board_dir, {
-                        "training_food_consumed" : running_food_consumed
-                    }, epoch_size=LOG_TO_TENSORBOARD_EVERY)
+                        "training_food_consumed" : running_food_consumed,
+                        "running_accumulated_rewards" : running_accumulated_rewards
+                    }, epoch_size=REPORT_TO_TENSORBOARD_EVERY)
 
 
     for snake_count in running_winners:

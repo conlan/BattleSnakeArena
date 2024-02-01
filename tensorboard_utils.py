@@ -3,6 +3,7 @@ from torch.utils.tensorboard import SummaryWriter
 
 def log(dir, data, epoch_size):
     training_food_consumed = data["training_food_consumed"]
+    running_accumulated_rewards = data["running_accumulated_rewards"]
 
     writer = SummaryWriter(dir)
 
@@ -11,6 +12,7 @@ def log(dir, data, epoch_size):
             continue
 
         num_food_consumed = training_food_consumed[snake_count]
+        num_reward_accumulated = running_accumulated_rewards[snake_count]
 
         for epoch in range(1_000_000):
             food_in_epoch = num_food_consumed[epoch * epoch_size : (epoch + 1) * epoch_size]
@@ -22,6 +24,13 @@ def log(dir, data, epoch_size):
             mean_food_consumed = sum(food_in_epoch) / len(food_in_epoch)
 
             writer.add_scalar('Food Consumed ({}-Player)'.format(snake_count), mean_food_consumed, epoch)
+
+            # calculate mean of accumulated rewards in epoch
+            rewards_in_epoch = num_reward_accumulated[epoch * epoch_size : (epoch + 1) * epoch_size]
+
+            mean_accumulated_rewards = sum(rewards_in_epoch) / len(rewards_in_epoch)
+
+            writer.add_scalar('Accumulated Rewards ({}-Player)'.format(snake_count), mean_accumulated_rewards, epoch)
 
     writer.close()
 

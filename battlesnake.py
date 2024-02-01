@@ -683,7 +683,7 @@ def main():
     
     training_snake_name = args.snake_types[0]["name"]
 
-    REPORT_TO_DISCORD_EVERY = 5
+    REPORT_TO_DISCORD_EVERY = 500
     REPORT_TO_TENSORBOARD_EVERY = 500
 
     # TODO track food consumed for training snake and report

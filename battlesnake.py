@@ -709,7 +709,8 @@ def main():
                 
                 print(f'{i+1} / {args.games}) {snake_count}-player, Turn Mean: {sum(turns_for_snake_count) * 1.0 / len(turns_for_snake_count):.2f}')
 
-            running_training_losses.extend(game_results["training_losses"])
+            training_loss_mean = sum(game_results["training_losses"]) * 1.0 / len(game_results["training_losses"]) if len(game_results["training_losses"]) > 0 else 0
+            running_training_losses.append(training_loss_mean)
         
             # log to discord periodically
             if (args.discord_webhook_url):
@@ -721,7 +722,7 @@ def main():
                         "training_food_consumed" : running_food_consumed,
                         "running_winners" : running_winners,
                         "training_snake_name" : training_snake_name
-                    })
+                    }, epoch_size=REPORT_TO_DISCORD_EVERY)
 
             # log to tensorboard periodically
             if (args.tensor_board_dir):

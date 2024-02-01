@@ -1,10 +1,25 @@
 import requests
 import json
+import numpy as np
 
-def report_to_discord(discord_webhook_url, data):    
+def report_to_discord(discord_webhook_url, data, epoch_size):    
     running_winners = data['running_winners']
+    
     training_snake_name = data['training_snake_name']
     training_losses = data['running_training_losses']
+    
+    running_turns_count = data['running_turns_count']
+    training_food_consumed = data['training_food_consumed']
+
+    training_epsilon = data['training_epsilon']
+
+    # trim out the data so we're only dealing with the latest epoch
+    training_losses = training_losses[-epoch_size:]
+
+    for snake_count in running_winners:
+        running_winners[snake_count] = running_winners[snake_count][-epoch_size:]
+        running_turns_count[snake_count] = running_turns_count[snake_count][-epoch_size:]
+        training_food_consumed[snake_count] = training_food_consumed[snake_count][-epoch_size:]
     
     # Training Loss
     mean_training_loss = np.mean(training_losses) if len(training_losses) > 0 else 0
@@ -26,19 +41,16 @@ def report_to_discord(discord_webhook_url, data):
 
         stats_per_snake_count[snake_count]['win_rate'] = ":trophy:   **{}-P Win Rate**: {:.2f}".format(snake_count, training_snake_win_rate) + "\n\n"
 
-    # Epsilon
-    training_epsilon = data['training_epsilon']
+    # Epsilon    
     training_epsilon = float("{:.5f}".format(training_epsilon))
 
-    # Turn Count (Per Game Size)
-    running_turns_count = data['running_turns_count']    
+    # Turn Count (Per Game Size)    
     for snake_count in running_turns_count:
         turns_for_snake_count = running_turns_count[snake_count]
 
         stats_per_snake_count[snake_count]['turn_count'] = ":alarm_clock:   **{}-P Mean Turns**: {:.2f}".format(snake_count, sum(turns_for_snake_count) * 1.0 / len(turns_for_snake_count)) + "\n\n"
 
-    # Food Consumed (Per Game Size)
-    training_food_consumed = data['training_food_consumed']
+    # Food Consumed (Per Game Size)    
     for snake_count in training_food_consumed:
         food_consumed_for_snake_count = training_food_consumed[snake_count]
 

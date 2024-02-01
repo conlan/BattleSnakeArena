@@ -715,10 +715,10 @@ def main():
                 running_accumulated_rewards[num_snakes] = []
             running_accumulated_rewards[num_snakes].append(game_results["total_accumulated_reward"])
         
-            for snake_count in running_turns_count:
-                turns_for_snake_count = running_turns_count[snake_count]
+            for snake_count in running_accumulated_rewards:
+                rewards_for_snake_count = running_accumulated_rewards[snake_count]
                 
-                print(f'{i+1} / {args.games}) {snake_count}-player, Turn Mean: {sum(turns_for_snake_count) * 1.0 / len(turns_for_snake_count):.2f}')
+                print(f'{i+1} / {args.games}) {snake_count}-player, Reward Mean: {sum(rewards_for_snake_count) * 1.0 / len(rewards_for_snake_count):.2f}')
 
             training_loss_mean = sum(game_results["training_losses"]) * 1.0 / len(game_results["training_losses"]) if len(game_results["training_losses"]) > 0 else 0
             running_training_losses.append(training_loss_mean)

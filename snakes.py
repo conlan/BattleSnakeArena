@@ -27,11 +27,12 @@ COLORS = {
 
 SNAKES = [
     {
+        "name": "DQNConlan2024",
         "start":conlan_snakes.DQNConlan2024.main.start,
         "move": conlan_snakes.DQNConlan2024.main.move,
-        "cache" : conlan_snakes.DQNConlan2024.main.cache,
-        "name": "DQNConlan2024",
+        "cache" : conlan_snakes.DQNConlan2024.main.cache,        
         "training_reward_index" : 1,
+        "model_save_path" : "content/drive/MyDrive/ColabOutput/snake_net.chkpt",
         "color": COLORS["red"]
     },
     {

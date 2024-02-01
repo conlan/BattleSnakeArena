@@ -170,15 +170,16 @@ class BattleSnake():
 
             self.snakes.append(snake)
 
-    def start_game(self, speed=DEFAULT_SPEED, output_board=True, train_reinforcement=False, record_train_reinforcement_video=False, model_save_path=None):
+    def start_game(self, speed=DEFAULT_SPEED, output_board=True, train_reinforcement=False, record_train_reinforcement_video=False):
         # set this so it goes into board json and is readable by snakes later
         self.train_reinforcement = train_reinforcement
 
         is_solo_game = (len(self.snakes) == 1)
-
-        json = self._get_board_json()
-        json["model_save_path"] = model_save_path
-        for s in self.snakes: s.start(json)
+        
+        for s in self.snakes:
+            json = self._get_board_json()
+            json["model_save_path"] = s.model_save_path
+            s.start(json)
 
         # if we want to record a video of the training snake
         board_image_frames_for_recording = []
@@ -470,10 +471,13 @@ class Snake():
         self.name = name if name else self.id
         self._move = move
         self._cache = cache
+        
         self.training_losses = []
         self.training_epsilon = 0
         self.training_reward_index = training_reward_index if training_reward_index else 0
         self.total_accumulated_reward = 0
+        self.model_save_path = kwargs.get("model_save_path", None)
+
         self._start = start
         self._end = end
         self.server = server
@@ -575,7 +579,7 @@ def verbose_print(*args, **kwargs):
     if VERBOSE:
         print(*args, **kwargs)
 
-def run_game(snake_types, food_spawn_chance, min_food, dims=(BOARD_SIZE_MEDIUM,BOARD_SIZE_MEDIUM), suppress_board=False, train_reinforcement=False, record_train_reinforcement_video=False, randomize_opponent_count=False, model_save_path=None, speed=DEFAULT_SPEED, silent=False, seed=None):
+def run_game(snake_types, food_spawn_chance, min_food, dims=(BOARD_SIZE_MEDIUM,BOARD_SIZE_MEDIUM), suppress_board=False, train_reinforcement=False, record_train_reinforcement_video=False, randomize_opponent_count=False, speed=DEFAULT_SPEED, silent=False, seed=None):
     snakes = [Snake(**snake_type) for snake_type in snake_types]
 
     if (randomize_opponent_count):
@@ -590,7 +594,7 @@ def run_game(snake_types, food_spawn_chance, min_food, dims=(BOARD_SIZE_MEDIUM,B
     game.place_food()
 
     game_results = {}
-    game_results["winner"] = game.start_game(speed=speed, output_board=(not suppress_board), train_reinforcement=train_reinforcement, model_save_path=model_save_path, record_train_reinforcement_video=record_train_reinforcement_video)
+    game_results["winner"] = game.start_game(speed=speed, output_board=(not suppress_board), train_reinforcement=train_reinforcement, record_train_reinforcement_video=record_train_reinforcement_video)
     game_results["turns"] = game.turn
     game_results["seed"] = game.seed
     game_results["num_snakes"] = len(snakes)
@@ -618,7 +622,6 @@ def _run_game_from_args(args):
         train_reinforcement=args.train_reinforcement,
         record_train_reinforcement_video=args.record_train_reinforcement_video,
         randomize_opponent_count=args.randomize_opponent_count,
-        model_save_path=args.model_save_path,
         speed=args.speed,
         silent=args.silent,
         seed=args.seed)
@@ -637,7 +640,6 @@ def parse_args(sysargs=None):
     parser.add_argument("-b", "--suppress_board", help="Don't print the board", action="store_false", default=True)
     parser.add_argument("-rl", "--train_reinforcement", help="Whether we should run in RL mode", action="store_true", default=False)
     parser.add_argument("-roc", "--randomize_opponent_count", help="Whether we should randomize opponent counts during RL training", action="store_true", default=False)
-    parser.add_argument("-model", "--model_save_path", nargs='+', help="Save path for loading and saving ML model", type=str, default=None)
     parser.add_argument("-rec", "--record_train_reinforcement_video", help="Whether we should record a video of the reinforcement train", action="store_true", default=False)
     parser.add_argument("-i", "--seed", help="Game seed", type=int, default=None)
     parser.add_argument("-sp", "--speed", help="Speed of the game", type=int, default=DEFAULT_SPEED)
@@ -650,9 +652,6 @@ def parse_args(sysargs=None):
         args.dims = (args.dims[0], args.dims[0])
     elif len(args.dims) == 2:
         args.dims = tuple(args.dims)
-
-    if (args.model_save_path):
-        args.model_save_path = args.model_save_path[0]
 
     if (args.discord_webhook_url):
         args.discord_webhook_url = args.discord_webhook_url[0]
@@ -684,7 +683,7 @@ def main():
     
     training_snake_name = args.snake_types[0]["name"]
 
-    REPORT_TO_DISCORD_EVERY = 500
+    REPORT_TO_DISCORD_EVERY = 5
     REPORT_TO_TENSORBOARD_EVERY = 500
 
     # TODO track food consumed for training snake and report

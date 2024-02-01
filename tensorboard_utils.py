@@ -17,7 +17,8 @@ def log(dir, data, epoch_size):
         for epoch in range(1_000_000):
             food_in_epoch = num_food_consumed[epoch * epoch_size : (epoch + 1) * epoch_size]
 
-            if (len(food_in_epoch) == 0):
+            # don't track epochs with less than epoch_size data (otherwise can look skewed)
+            if (len(food_in_epoch) < epoch_size):
                 break
             
             # calculate mean of food consumed in epoch

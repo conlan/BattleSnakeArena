@@ -9,6 +9,7 @@ def report_to_discord(discord_webhook_url, data, epoch_size):
     training_losses = data['running_training_losses']
     
     running_turns_count = data['running_turns_count']
+    running_accumulated_rewards = data['running_accumulated_rewards']
     training_food_consumed = data['training_food_consumed']
 
     training_epsilon = data['training_epsilon']
@@ -20,6 +21,7 @@ def report_to_discord(discord_webhook_url, data, epoch_size):
         running_winners[snake_count] = running_winners[snake_count][-epoch_size:]
         running_turns_count[snake_count] = running_turns_count[snake_count][-epoch_size:]
         training_food_consumed[snake_count] = training_food_consumed[snake_count][-epoch_size:]
+        running_accumulated_rewards[snake_count] = running_accumulated_rewards[snake_count][-epoch_size:]
     
     # Training Loss
     mean_training_loss = np.mean(training_losses) if len(training_losses) > 0 else 0
@@ -55,6 +57,12 @@ def report_to_discord(discord_webhook_url, data, epoch_size):
         food_consumed_for_snake_count = training_food_consumed[snake_count]
 
         stats_per_snake_count[snake_count]['food_consumed'] = ":pill:   **{}-P Mean Food**: {:.2f}".format(snake_count, sum(food_consumed_for_snake_count) * 1.0 / len(food_consumed_for_snake_count)) + "\n\n"
+
+    # Accumulated Rewards (Per Game Size)
+    for snake_count in running_accumulated_rewards:
+        accumulated_rewards_for_snake_count = running_accumulated_rewards[snake_count]
+
+        stats_per_snake_count[snake_count]['accumulated_rewards'] = ":moneybag:   **{}-P Mean Rewards**: {:.2f}".format(snake_count, sum(accumulated_rewards_for_snake_count) * 1.0 / len(accumulated_rewards_for_snake_count)) + "\n\n"
     
     # build the message to post to discord
     discord_message = ""        
@@ -69,7 +77,8 @@ def report_to_discord(discord_webhook_url, data, epoch_size):
         discord_message += stats_per_snake_count[snake_count]['num_games']
         discord_message += stats_per_snake_count[snake_count]['win_rate']
         discord_message += stats_per_snake_count[snake_count]['food_consumed']        
-        discord_message += stats_per_snake_count[snake_count]['turn_count']        
+        discord_message += stats_per_snake_count[snake_count]['turn_count']
+        discord_message += stats_per_snake_count[snake_count]['accumulated_rewards']
         discord_message += "------------------------------------------------------------\n\n"
 
     payload = {

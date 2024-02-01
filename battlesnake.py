@@ -239,6 +239,8 @@ class BattleSnake():
                     # if game is over OR if the training snake was killed
                     training_is_done = is_game_over or training_snake_was_killed
 
+                    snake_in_training.total_accumulated_reward += training_reward
+
                     # send to snake in training for cache
                     rl_state_obj = {
                         "image" : rl_state_image,
@@ -471,6 +473,7 @@ class Snake():
         self.training_losses = []
         self.training_epsilon = 0
         self.training_reward_index = training_reward_index if training_reward_index else 0
+        self.total_accumulated_reward = 0
         self._start = start
         self._end = end
         self.server = server
@@ -593,9 +596,12 @@ def run_game(snake_types, food_spawn_chance, min_food, dims=(BOARD_SIZE_MEDIUM,B
     game_results["num_snakes"] = len(snakes)
 
     if (train_reinforcement):
-        game_results["training_losses"] = snakes[0].training_losses
-        game_results["training_epsilon"] = snakes[0].training_epsilon
-        game_results["training_food_consumed"] = snakes[0].num_food_consumed
+        snake_in_training = snakes[0]
+
+        game_results["training_losses"] = snake_in_training.training_losses
+        game_results["training_epsilon"] = snake_in_training.training_epsilon
+        game_results["training_food_consumed"] = snake_in_training.num_food_consumed
+        game_results["total_accumulated_reward"] = snake_in_training.total_accumulated_reward
 
     if not silent:
         print("Winner: {}, Turns: {}, Seed: {}".format(game_results["winner"], game_results["turns"], game_results["seed"] ))
@@ -672,6 +678,7 @@ def main():
 
     running_turns_count = {}
     running_food_consumed = {}
+    running_accumulated_rewards = {}
     running_winners = {}
     running_training_losses = []
     
@@ -702,7 +709,12 @@ def main():
             # food consumed
             if (num_snakes not in running_food_consumed):
                 running_food_consumed[num_snakes] = []
-            running_food_consumed[num_snakes].append(game_results["training_food_consumed"])        
+            running_food_consumed[num_snakes].append(game_results["training_food_consumed"])
+
+            # total accumulated reward
+            if (num_snakes not in running_accumulated_rewards):
+                running_accumulated_rewards[num_snakes] = []
+            running_accumulated_rewards[num_snakes].append(game_results["total_accumulated_reward"])
         
             for snake_count in running_turns_count:
                 turns_for_snake_count = running_turns_count[snake_count]
@@ -720,6 +732,7 @@ def main():
                         "running_training_losses" : running_training_losses,
                         "training_epsilon" : game_results["training_epsilon"],
                         "training_food_consumed" : running_food_consumed,
+                        "running_accumulated_rewards" : running_accumulated_rewards,
                         "running_winners" : running_winners,
                         "training_snake_name" : training_snake_name
                     }, epoch_size=REPORT_TO_DISCORD_EVERY)

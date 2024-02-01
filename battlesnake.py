@@ -3,7 +3,6 @@ import time
 import traceback
 import uuid
 import argparse
-import tqdm
 import requests
 import traceback
 from threading import Thread
@@ -11,6 +10,7 @@ from multiprocessing import Pool
 
 import snakes
 import rl_utils
+import discord_utils
 import tensorboard_utils
 
 FOOD_COLOR = snakes.COLORS["green"]
@@ -714,7 +714,7 @@ def main():
             # log to discord periodically
             if (args.discord_webhook_url):
                 if (i + 1) % REPORT_TO_DISCORD_EVERY == 0:                
-                    rl_utils.report_to_discord(args.discord_webhook_url, {
+                    discord_utils.report_to_discord(args.discord_webhook_url, {
                         "running_turns_count" : running_turns_count,
                         "running_training_losses" : running_training_losses,
                         "training_epsilon" : game_results["training_epsilon"],

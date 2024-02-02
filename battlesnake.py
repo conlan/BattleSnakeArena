@@ -169,9 +169,6 @@ class BattleSnake():
             self.snakes.append(snake)
 
     def start_game(self, speed=DEFAULT_SPEED, output_board=True, train_reinforcement=False, record_train_reinforcement_video=False):
-        # set this so it goes into board json and is readable by snakes later
-        self.train_reinforcement = train_reinforcement
-
         is_solo_game = (len(self.snakes) == 1)
         
         for s in self.snakes:
@@ -439,7 +436,6 @@ class BattleSnake():
     def _get_board_json(self):
         jsonobj = {}
         jsonobj["turn"] = self.turn
-        jsonobj["is_training_reinforcement"] = self.train_reinforcement
         jsonobj["board"] = {}
         jsonobj["board"]["height"] = self.height
         jsonobj["board"]["width"] = self.width

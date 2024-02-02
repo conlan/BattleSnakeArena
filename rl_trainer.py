@@ -16,7 +16,6 @@ def main():
     REPORT_TO_DISCORD_EVERY = 500
     REPORT_TO_TENSORBOARD_EVERY = 500
 
-    # TODO track food consumed for training snake and report
     for i in range(args.games):
         game_results = battlesnake._run_game_from_args(args)
 
@@ -28,53 +27,52 @@ def main():
             running_winners[num_snakes] = []
         running_winners[num_snakes].append(winner)
 
-        if (args.train_reinforcement):
-            # turn count tracking
-            turns = game_results["turns"]
-            if (num_snakes not in running_turns_count):
-                running_turns_count[num_snakes] = []
-            running_turns_count[num_snakes].append(turns)
+        # turn count tracking
+        turns = game_results["turns"]
+        if (num_snakes not in running_turns_count):
+            running_turns_count[num_snakes] = []
+        running_turns_count[num_snakes].append(turns)
 
-            # food consumed
-            if (num_snakes not in running_food_consumed):
-                running_food_consumed[num_snakes] = []
-            running_food_consumed[num_snakes].append(game_results["training_food_consumed"])
+        # food consumed
+        if (num_snakes not in running_food_consumed):
+            running_food_consumed[num_snakes] = []
+        running_food_consumed[num_snakes].append(game_results["training_food_consumed"])
 
-            # total accumulated reward
-            if (num_snakes not in running_accumulated_rewards):
-                running_accumulated_rewards[num_snakes] = []
-            running_accumulated_rewards[num_snakes].append(game_results["total_accumulated_reward"])
-        
-            for snake_count in running_accumulated_rewards:
-                rewards_for_snake_count = running_accumulated_rewards[snake_count]
-                
-                print(f'{i+1} / {args.games}) {snake_count}-player, Reward Mean: {sum(rewards_for_snake_count) * 1.0 / len(rewards_for_snake_count):.2f}')
+        # total accumulated reward
+        if (num_snakes not in running_accumulated_rewards):
+            running_accumulated_rewards[num_snakes] = []
+        running_accumulated_rewards[num_snakes].append(game_results["total_accumulated_reward"])
+    
+        for snake_count in running_accumulated_rewards:
+            rewards_for_snake_count = running_accumulated_rewards[snake_count]
+            
+            print(f'{i+1} / {args.games}) {snake_count}-player, Reward Mean: {sum(rewards_for_snake_count) * 1.0 / len(rewards_for_snake_count):.2f}')
 
-            training_loss_mean = sum(game_results["training_losses"]) * 1.0 / len(game_results["training_losses"]) if len(game_results["training_losses"]) > 0 else 0
-            running_training_losses.append(training_loss_mean)
-        
-            # log to discord periodically
-            if (args.discord_webhook_url):
-                if (i + 1) % REPORT_TO_DISCORD_EVERY == 0:                
-                    discord_utils.report_to_discord(args.discord_webhook_url, {
-                        "running_turns_count" : running_turns_count,
-                        "running_training_losses" : running_training_losses,
-                        "training_epsilon" : game_results["training_epsilon"],
-                        "training_food_consumed" : running_food_consumed,
-                        "running_accumulated_rewards" : running_accumulated_rewards,
-                        "running_winners" : running_winners,
-                        "training_snake_name" : training_snake_name
-                    }, epoch_size=REPORT_TO_DISCORD_EVERY)
+        training_loss_mean = sum(game_results["training_losses"]) * 1.0 / len(game_results["training_losses"]) if len(game_results["training_losses"]) > 0 else 0
+        running_training_losses.append(training_loss_mean)
+    
+        # log to discord periodically
+        if (args.discord_webhook_url):
+            if (i + 1) % REPORT_TO_DISCORD_EVERY == 0:                
+                discord_utils.report_to_discord(args.discord_webhook_url, {
+                    "running_turns_count" : running_turns_count,
+                    "running_training_losses" : running_training_losses,
+                    "training_epsilon" : game_results["training_epsilon"],
+                    "training_food_consumed" : running_food_consumed,
+                    "running_accumulated_rewards" : running_accumulated_rewards,
+                    "running_winners" : running_winners,
+                    "training_snake_name" : training_snake_name
+                }, epoch_size=REPORT_TO_DISCORD_EVERY)
 
-            # log to tensorboard periodically
-            if (args.tensor_board_dir):
-                if (i + 1) % REPORT_TO_TENSORBOARD_EVERY == 0:
-                    tensorboard_utils.log(args.tensor_board_dir, {
-                        "training_food_consumed" : running_food_consumed,
-                        "running_accumulated_rewards" : running_accumulated_rewards,
-                        "running_winners" : running_winners,
-                        "training_snake_name" : training_snake_name
-                    }, epoch_size=REPORT_TO_TENSORBOARD_EVERY)
+        # log to tensorboard periodically
+        if (args.tensor_board_dir):
+            if (i + 1) % REPORT_TO_TENSORBOARD_EVERY == 0:
+                tensorboard_utils.log(args.tensor_board_dir, {
+                    "training_food_consumed" : running_food_consumed,
+                    "running_accumulated_rewards" : running_accumulated_rewards,
+                    "running_winners" : running_winners,
+                    "training_snake_name" : training_snake_name
+                }, epoch_size=REPORT_TO_TENSORBOARD_EVERY)
 
 
     for snake_count in running_winners:

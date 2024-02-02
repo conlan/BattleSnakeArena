@@ -13,8 +13,7 @@ def main():
     
     training_snake_name = args.snake_types[0]["name"]
 
-    REPORT_TO_DISCORD_EVERY = 500
-    REPORT_TO_TENSORBOARD_EVERY = 500
+    REPORT_FREQUENCY = 500
 
     for i in range(args.games):
         game_results = battlesnake._run_game_from_args(args)
@@ -51,29 +50,23 @@ def main():
         training_loss_mean = sum(game_results["training_losses"]) * 1.0 / len(game_results["training_losses"]) if len(game_results["training_losses"]) > 0 else 0
         running_training_losses.append(training_loss_mean)
     
-        # log to discord periodically
-        if (args.discord_webhook_url):
-            if (i + 1) % REPORT_TO_DISCORD_EVERY == 0:                
-                discord_utils.report_to_discord(args.discord_webhook_url, {
-                    "running_turns_count" : running_turns_count,
-                    "running_training_losses" : running_training_losses,
-                    "training_epsilon" : game_results["training_epsilon"],
-                    "training_food_consumed" : running_food_consumed,
-                    "running_accumulated_rewards" : running_accumulated_rewards,
-                    "running_winners" : running_winners,
-                    "training_snake_name" : training_snake_name
-                }, epoch_size=REPORT_TO_DISCORD_EVERY)
+        if (i + 1) % REPORT_FREQUENCY == 0:
+            report_data = {
+                "running_turns_count" : running_turns_count,
+                "running_training_losses" : running_training_losses,
+                "training_epsilon" : game_results["training_epsilon"],
+                "training_food_consumed" : running_food_consumed,
+                "running_accumulated_rewards" : running_accumulated_rewards,
+                "running_winners" : running_winners,
+                "training_snake_name" : training_snake_name
+            }
+            # report to discord periodically
+            if (args.discord_webhook_url):            
+                discord_utils.report_to_discord(args.discord_webhook_url, report_data, epoch_size=REPORT_FREQUENCY)
 
-        # log to tensorboard periodically
-        if (args.tensor_board_dir):
-            if (i + 1) % REPORT_TO_TENSORBOARD_EVERY == 0:
-                tensorboard_utils.log(args.tensor_board_dir, {
-                    "training_food_consumed" : running_food_consumed,
-                    "running_accumulated_rewards" : running_accumulated_rewards,
-                    "running_winners" : running_winners,
-                    "training_snake_name" : training_snake_name
-                }, epoch_size=REPORT_TO_TENSORBOARD_EVERY)
-
+            # log to tensorboard periodically
+            if (args.tensor_board_dir):
+                tensorboard_utils.log(args.tensor_board_dir, report_data, epoch_size=REPORT_FREQUENCY)
 
     for snake_count in running_winners:
         winners = running_winners[snake_count]

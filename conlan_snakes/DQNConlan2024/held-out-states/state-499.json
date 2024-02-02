@@ -1,0 +1,85 @@
+{
+    "turn": 5,
+    "is_training_reinforcement": true,
+    "board": {
+        "height": 11,
+        "width": 11,
+        "snakes": [
+            {
+                "health": 95,
+                "body": [
+                    {
+                        "x": 3,
+                        "y": 10
+                    },
+                    {
+                        "x": 2,
+                        "y": 10
+                    },
+                    {
+                        "x": 1,
+                        "y": 10
+                    }
+                ],
+                "id": "9fa527c9-d4f8-47ce-9cbe-0f760136c24f",
+                "name": "DQNConlan2024_v2"
+            },
+            {
+                "health": 97,
+                "body": [
+                    {
+                        "x": 5,
+                        "y": 10
+                    },
+                    {
+                        "x": 6,
+                        "y": 10
+                    },
+                    {
+                        "x": 7,
+                        "y": 10
+                    },
+                    {
+                        "x": 8,
+                        "y": 10
+                    }
+                ],
+                "id": "a867b58b-bf63-40c8-936f-033e3b8a0c77",
+                "name": "simpleJake"
+            }
+        ],
+        "food": [
+            {
+                "x": 0,
+                "y": 8
+            },
+            {
+                "x": 5,
+                "y": 5
+            },
+            {
+                "x": 9,
+                "y": 5
+            }
+        ]
+    },
+    "you": {
+        "health": 95,
+        "body": [
+            {
+                "x": 3,
+                "y": 10
+            },
+            {
+                "x": 2,
+                "y": 10
+            },
+            {
+                "x": 1,
+                "y": 10
+            }
+        ],
+        "id": "9fa527c9-d4f8-47ce-9cbe-0f760136c24f",
+        "name": "DQNConlan2024_v2"
+    }
+}

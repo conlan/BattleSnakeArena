@@ -4,18 +4,21 @@ from enum import IntEnum
 import imageio
 import numpy as np
 
-GRID_IMAGE = Image.open("assets/grid.png")
+ASSET_VERSION = 2
+ASSET_FOLDER = "assets-v" + str(ASSET_VERSION) + "/"
+
+GRID_IMAGE = Image.open(ASSET_FOLDER + "grid.png")
 GRID_SIZE = GRID_IMAGE.size[0]
 
-ME_HEAD_IMAGE = Image.open("assets/me_head.png")
-ME_BODY_IMAGE_STRAIGHT = Image.open("assets/me_body_straight.png")
-ME_BODY_IMAGE_CURVE = Image.open("assets/me_body_curve.png")
+ME_HEAD_IMAGE = Image.open(ASSET_FOLDER + "me_head.png")
+ME_BODY_IMAGE_STRAIGHT = Image.open(ASSET_FOLDER + "me_body_straight.png")
+ME_BODY_IMAGE_CURVE = Image.open(ASSET_FOLDER + "me_body_curve.png")
 
-ENEMY_HEAD_IMAGE = Image.open("assets/enemy_head.png")
-ENEMY_BODY_IMAGE_STRAIGHT = Image.open("assets/enemy_body_straight.png")
-ENEMY_BODY_IMAGE_CURVE = Image.open("assets/enemy_body_curve.png")
+ENEMY_HEAD_IMAGE = Image.open(ASSET_FOLDER + "enemy_head.png")
+ENEMY_BODY_IMAGE_STRAIGHT = Image.open(ASSET_FOLDER + "enemy_body_straight.png")
+ENEMY_BODY_IMAGE_CURVE = Image.open(ASSET_FOLDER + "enemy_body_curve.png")
 
-FOOD_IMAGE = Image.open("assets/food.png")
+FOOD_IMAGE = Image.open(ASSET_FOLDER + "food.png")
 
 TRAINING_REWARD_SETS = {
     1 : {

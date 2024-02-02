@@ -1,0 +1,85 @@
+{
+    "turn": 11,
+    "is_training_reinforcement": true,
+    "board": {
+        "height": 11,
+        "width": 11,
+        "snakes": [
+            {
+                "health": 89,
+                "body": [
+                    {
+                        "x": 5,
+                        "y": 8
+                    },
+                    {
+                        "x": 5,
+                        "y": 9
+                    },
+                    {
+                        "x": 5,
+                        "y": 10
+                    }
+                ],
+                "id": "5128ffd4-50f5-4add-a0c3-2dde5a16c67a",
+                "name": "DQNConlan2024_v2"
+            },
+            {
+                "health": 99,
+                "body": [
+                    {
+                        "x": 4,
+                        "y": 5
+                    },
+                    {
+                        "x": 5,
+                        "y": 5
+                    },
+                    {
+                        "x": 5,
+                        "y": 4
+                    },
+                    {
+                        "x": 5,
+                        "y": 3
+                    },
+                    {
+                        "x": 4,
+                        "y": 3
+                    },
+                    {
+                        "x": 3,
+                        "y": 3
+                    }
+                ],
+                "id": "418e3326-1e5a-4af7-86c3-25be21fce78d",
+                "name": "simpleJake"
+            }
+        ],
+        "food": [
+            {
+                "x": 4,
+                "y": 10
+            }
+        ]
+    },
+    "you": {
+        "health": 89,
+        "body": [
+            {
+                "x": 5,
+                "y": 8
+            },
+            {
+                "x": 5,
+                "y": 9
+            },
+            {
+                "x": 5,
+                "y": 10
+            }
+        ],
+        "id": "5128ffd4-50f5-4add-a0c3-2dde5a16c67a",
+        "name": "DQNConlan2024_v2"
+    }
+}

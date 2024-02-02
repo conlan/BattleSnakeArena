@@ -1,0 +1,93 @@
+{
+    "turn": 12,
+    "is_training_reinforcement": true,
+    "board": {
+        "height": 11,
+        "width": 11,
+        "snakes": [
+            {
+                "health": 92,
+                "body": [
+                    {
+                        "x": 1,
+                        "y": 3
+                    },
+                    {
+                        "x": 1,
+                        "y": 2
+                    },
+                    {
+                        "x": 2,
+                        "y": 2
+                    },
+                    {
+                        "x": 2,
+                        "y": 1
+                    }
+                ],
+                "id": "ffbaffd9-18a7-4f5f-9950-3e941adfde1b",
+                "name": "DQNConlan2024_v2"
+            },
+            {
+                "health": 98,
+                "body": [
+                    {
+                        "x": 6,
+                        "y": 4
+                    },
+                    {
+                        "x": 6,
+                        "y": 5
+                    },
+                    {
+                        "x": 5,
+                        "y": 5
+                    },
+                    {
+                        "x": 5,
+                        "y": 6
+                    },
+                    {
+                        "x": 5,
+                        "y": 7
+                    }
+                ],
+                "id": "ad0c6aea-3e51-4d3c-8cf0-bf6b356fa973",
+                "name": "simpleJake"
+            }
+        ],
+        "food": [
+            {
+                "x": 7,
+                "y": 10
+            },
+            {
+                "x": 5,
+                "y": 4
+            }
+        ]
+    },
+    "you": {
+        "health": 92,
+        "body": [
+            {
+                "x": 1,
+                "y": 3
+            },
+            {
+                "x": 1,
+                "y": 2
+            },
+            {
+                "x": 2,
+                "y": 2
+            },
+            {
+                "x": 2,
+                "y": 1
+            }
+        ],
+        "id": "ffbaffd9-18a7-4f5f-9950-3e941adfde1b",
+        "name": "DQNConlan2024_v2"
+    }
+}

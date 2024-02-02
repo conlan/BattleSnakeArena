@@ -1,0 +1,85 @@
+{
+    "turn": 4,
+    "is_training_reinforcement": true,
+    "board": {
+        "height": 11,
+        "width": 11,
+        "snakes": [
+            {
+                "health": 96,
+                "body": [
+                    {
+                        "x": 1,
+                        "y": 5
+                    },
+                    {
+                        "x": 1,
+                        "y": 6
+                    },
+                    {
+                        "x": 1,
+                        "y": 7
+                    }
+                ],
+                "id": "c2abb04a-ac45-4472-a628-87b723005d8b",
+                "name": "DQNConlan2024_v2"
+            },
+            {
+                "health": 98,
+                "body": [
+                    {
+                        "x": 8,
+                        "y": 2
+                    },
+                    {
+                        "x": 9,
+                        "y": 2
+                    },
+                    {
+                        "x": 10,
+                        "y": 2
+                    },
+                    {
+                        "x": 10,
+                        "y": 1
+                    }
+                ],
+                "id": "e4ec21f3-d43d-411f-8ded-fd561b2c28ca",
+                "name": "simpleJake"
+            }
+        ],
+        "food": [
+            {
+                "x": 2,
+                "y": 10
+            },
+            {
+                "x": 5,
+                "y": 5
+            },
+            {
+                "x": 5,
+                "y": 4
+            }
+        ]
+    },
+    "you": {
+        "health": 96,
+        "body": [
+            {
+                "x": 1,
+                "y": 5
+            },
+            {
+                "x": 1,
+                "y": 6
+            },
+            {
+                "x": 1,
+                "y": 7
+            }
+        ],
+        "id": "c2abb04a-ac45-4472-a628-87b723005d8b",
+        "name": "DQNConlan2024_v2"
+    }
+}

@@ -1,0 +1,85 @@
+{
+    "turn": 4,
+    "is_training_reinforcement": true,
+    "board": {
+        "height": 11,
+        "width": 11,
+        "snakes": [
+            {
+                "health": 96,
+                "body": [
+                    {
+                        "x": 7,
+                        "y": 9
+                    },
+                    {
+                        "x": 7,
+                        "y": 8
+                    },
+                    {
+                        "x": 6,
+                        "y": 8
+                    }
+                ],
+                "id": "2690feee-e1ab-4346-bfae-3a204e762ada",
+                "name": "DQNConlan2024_v2"
+            },
+            {
+                "health": 98,
+                "body": [
+                    {
+                        "x": 2,
+                        "y": 4
+                    },
+                    {
+                        "x": 1,
+                        "y": 4
+                    },
+                    {
+                        "x": 0,
+                        "y": 4
+                    },
+                    {
+                        "x": 0,
+                        "y": 5
+                    }
+                ],
+                "id": "1870f6f4-cb76-4f47-afa0-bc67d8cb9e1f",
+                "name": "simpleJake"
+            }
+        ],
+        "food": [
+            {
+                "x": 6,
+                "y": 10
+            },
+            {
+                "x": 5,
+                "y": 5
+            },
+            {
+                "x": 2,
+                "y": 0
+            }
+        ]
+    },
+    "you": {
+        "health": 96,
+        "body": [
+            {
+                "x": 7,
+                "y": 9
+            },
+            {
+                "x": 7,
+                "y": 8
+            },
+            {
+                "x": 6,
+                "y": 8
+            }
+        ],
+        "id": "2690feee-e1ab-4346-bfae-3a204e762ada",
+        "name": "DQNConlan2024_v2"
+    }
+}

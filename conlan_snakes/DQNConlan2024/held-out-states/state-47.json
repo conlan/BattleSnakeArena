@@ -1,0 +1,85 @@
+{
+    "turn": 14,
+    "is_training_reinforcement": true,
+    "board": {
+        "height": 11,
+        "width": 11,
+        "snakes": [
+            {
+                "health": 86,
+                "body": [
+                    {
+                        "x": 9,
+                        "y": 9
+                    },
+                    {
+                        "x": 10,
+                        "y": 9
+                    },
+                    {
+                        "x": 10,
+                        "y": 8
+                    }
+                ],
+                "id": "cf6cd44d-820e-4e5d-86ed-ff1fab161f40",
+                "name": "DQNConlan2024_v2"
+            },
+            {
+                "health": 94,
+                "body": [
+                    {
+                        "x": 5,
+                        "y": 7
+                    },
+                    {
+                        "x": 5,
+                        "y": 8
+                    },
+                    {
+                        "x": 5,
+                        "y": 9
+                    },
+                    {
+                        "x": 6,
+                        "y": 9
+                    },
+                    {
+                        "x": 7,
+                        "y": 9
+                    }
+                ],
+                "id": "8d63e34b-8702-4e2a-9c70-d89aa6b887f9",
+                "name": "simpleJake"
+            }
+        ],
+        "food": [
+            {
+                "x": 5,
+                "y": 5
+            },
+            {
+                "x": 4,
+                "y": 1
+            }
+        ]
+    },
+    "you": {
+        "health": 86,
+        "body": [
+            {
+                "x": 9,
+                "y": 9
+            },
+            {
+                "x": 10,
+                "y": 9
+            },
+            {
+                "x": 10,
+                "y": 8
+            }
+        ],
+        "id": "cf6cd44d-820e-4e5d-86ed-ff1fab161f40",
+        "name": "DQNConlan2024_v2"
+    }
+}

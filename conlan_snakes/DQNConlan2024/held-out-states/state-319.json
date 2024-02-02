@@ -1,0 +1,85 @@
+{
+    "turn": 12,
+    "is_training_reinforcement": true,
+    "board": {
+        "height": 11,
+        "width": 11,
+        "snakes": [
+            {
+                "health": 88,
+                "body": [
+                    {
+                        "x": 0,
+                        "y": 10
+                    },
+                    {
+                        "x": 1,
+                        "y": 10
+                    },
+                    {
+                        "x": 2,
+                        "y": 10
+                    }
+                ],
+                "id": "7a9dca9c-44fa-4db5-9e16-bcdd057eac95",
+                "name": "DQNConlan2024_v2"
+            },
+            {
+                "health": 98,
+                "body": [
+                    {
+                        "x": 3,
+                        "y": 5
+                    },
+                    {
+                        "x": 4,
+                        "y": 5
+                    },
+                    {
+                        "x": 5,
+                        "y": 5
+                    },
+                    {
+                        "x": 5,
+                        "y": 4
+                    },
+                    {
+                        "x": 5,
+                        "y": 3
+                    }
+                ],
+                "id": "04adea96-6770-4598-9be6-870bd88194c8",
+                "name": "simpleJake"
+            }
+        ],
+        "food": [
+            {
+                "x": 0,
+                "y": 8
+            },
+            {
+                "x": 1,
+                "y": 5
+            }
+        ]
+    },
+    "you": {
+        "health": 88,
+        "body": [
+            {
+                "x": 0,
+                "y": 10
+            },
+            {
+                "x": 1,
+                "y": 10
+            },
+            {
+                "x": 2,
+                "y": 10
+            }
+        ],
+        "id": "7a9dca9c-44fa-4db5-9e16-bcdd057eac95",
+        "name": "DQNConlan2024_v2"
+    }
+}

@@ -1,0 +1,85 @@
+{
+    "turn": 3,
+    "is_training_reinforcement": true,
+    "board": {
+        "height": 11,
+        "width": 11,
+        "snakes": [
+            {
+                "health": 97,
+                "body": [
+                    {
+                        "x": 5,
+                        "y": 0
+                    },
+                    {
+                        "x": 6,
+                        "y": 0
+                    },
+                    {
+                        "x": 6,
+                        "y": 1
+                    }
+                ],
+                "id": "bbd889e1-e910-46c9-9ea5-b06dbd4d0934",
+                "name": "DQNConlan2024_v2"
+            },
+            {
+                "health": 99,
+                "body": [
+                    {
+                        "x": 5,
+                        "y": 10
+                    },
+                    {
+                        "x": 6,
+                        "y": 10
+                    },
+                    {
+                        "x": 6,
+                        "y": 9
+                    },
+                    {
+                        "x": 5,
+                        "y": 9
+                    }
+                ],
+                "id": "2818bd7b-6405-4d2d-a708-f3e7af778a64",
+                "name": "simpleJake"
+            }
+        ],
+        "food": [
+            {
+                "x": 4,
+                "y": 0
+            },
+            {
+                "x": 5,
+                "y": 5
+            },
+            {
+                "x": 7,
+                "y": 6
+            }
+        ]
+    },
+    "you": {
+        "health": 97,
+        "body": [
+            {
+                "x": 5,
+                "y": 0
+            },
+            {
+                "x": 6,
+                "y": 0
+            },
+            {
+                "x": 6,
+                "y": 1
+            }
+        ],
+        "id": "bbd889e1-e910-46c9-9ea5-b06dbd4d0934",
+        "name": "DQNConlan2024_v2"
+    }
+}

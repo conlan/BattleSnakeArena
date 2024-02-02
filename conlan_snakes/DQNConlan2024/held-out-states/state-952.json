@@ -1,0 +1,105 @@
+{
+    "turn": 24,
+    "is_training_reinforcement": true,
+    "board": {
+        "height": 11,
+        "width": 11,
+        "snakes": [
+            {
+                "health": 76,
+                "body": [
+                    {
+                        "x": 9,
+                        "y": 1
+                    },
+                    {
+                        "x": 9,
+                        "y": 2
+                    },
+                    {
+                        "x": 10,
+                        "y": 2
+                    }
+                ],
+                "id": "27bfe40c-c1bd-4cfb-bada-d02ce012e6aa",
+                "name": "DQNConlan2024_v2"
+            },
+            {
+                "health": 96,
+                "body": [
+                    {
+                        "x": 1,
+                        "y": 3
+                    },
+                    {
+                        "x": 2,
+                        "y": 3
+                    },
+                    {
+                        "x": 2,
+                        "y": 2
+                    },
+                    {
+                        "x": 2,
+                        "y": 1
+                    },
+                    {
+                        "x": 1,
+                        "y": 1
+                    },
+                    {
+                        "x": 1,
+                        "y": 0
+                    },
+                    {
+                        "x": 2,
+                        "y": 0
+                    }
+                ],
+                "id": "daeb9eb1-5f38-4859-bc9c-d173963c73ff",
+                "name": "simpleJake"
+            }
+        ],
+        "food": [
+            {
+                "x": 2,
+                "y": 8
+            },
+            {
+                "x": 5,
+                "y": 8
+            },
+            {
+                "x": 7,
+                "y": 10
+            },
+            {
+                "x": 0,
+                "y": 5
+            },
+            {
+                "x": 7,
+                "y": 0
+            }
+        ]
+    },
+    "you": {
+        "health": 76,
+        "body": [
+            {
+                "x": 9,
+                "y": 1
+            },
+            {
+                "x": 9,
+                "y": 2
+            },
+            {
+                "x": 10,
+                "y": 2
+            }
+        ],
+        "id": "27bfe40c-c1bd-4cfb-bada-d02ce012e6aa",
+        "name": "DQNConlan2024_v2"
+    }
+}

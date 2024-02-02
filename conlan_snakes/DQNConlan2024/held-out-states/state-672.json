@@ -1,0 +1,85 @@
+{
+    "turn": 4,
+    "is_training_reinforcement": true,
+    "board": {
+        "height": 11,
+        "width": 11,
+        "snakes": [
+            {
+                "health": 96,
+                "body": [
+                    {
+                        "x": 9,
+                        "y": 7
+                    },
+                    {
+                        "x": 10,
+                        "y": 7
+                    },
+                    {
+                        "x": 10,
+                        "y": 8
+                    }
+                ],
+                "id": "6c1174b1-e7f8-4743-b6ec-ce9864dbe5d6",
+                "name": "DQNConlan2024_v2"
+            },
+            {
+                "health": 98,
+                "body": [
+                    {
+                        "x": 2,
+                        "y": 2
+                    },
+                    {
+                        "x": 1,
+                        "y": 2
+                    },
+                    {
+                        "x": 0,
+                        "y": 2
+                    },
+                    {
+                        "x": 0,
+                        "y": 1
+                    }
+                ],
+                "id": "f66fdbb5-361a-4b9c-84d1-06cf3bf8c0d1",
+                "name": "simpleJake"
+            }
+        ],
+        "food": [
+            {
+                "x": 8,
+                "y": 10
+            },
+            {
+                "x": 5,
+                "y": 5
+            },
+            {
+                "x": 6,
+                "y": 10
+            }
+        ]
+    },
+    "you": {
+        "health": 96,
+        "body": [
+            {
+                "x": 9,
+                "y": 7
+            },
+            {
+                "x": 10,
+                "y": 7
+            },
+            {
+                "x": 10,
+                "y": 8
+            }
+        ],
+        "id": "6c1174b1-e7f8-4743-b6ec-ce9864dbe5d6",
+        "name": "DQNConlan2024_v2"
+    }
+}

@@ -1,0 +1,81 @@
+{
+    "turn": 3,
+    "is_training_reinforcement": true,
+    "board": {
+        "height": 11,
+        "width": 11,
+        "snakes": [
+            {
+                "health": 97,
+                "body": [
+                    {
+                        "x": 7,
+                        "y": 10
+                    },
+                    {
+                        "x": 7,
+                        "y": 9
+                    },
+                    {
+                        "x": 6,
+                        "y": 9
+                    }
+                ],
+                "id": "9dd74cdb-1f8b-4917-a308-7c7752ccea07",
+                "name": "DQNConlan2024_v2"
+            },
+            {
+                "health": 99,
+                "body": [
+                    {
+                        "x": 9,
+                        "y": 6
+                    },
+                    {
+                        "x": 10,
+                        "y": 6
+                    },
+                    {
+                        "x": 10,
+                        "y": 5
+                    },
+                    {
+                        "x": 9,
+                        "y": 5
+                    }
+                ],
+                "id": "fbe0eadd-d3b2-4692-8d3f-d5ec42e1c530",
+                "name": "simpleJake"
+            }
+        ],
+        "food": [
+            {
+                "x": 6,
+                "y": 10
+            },
+            {
+                "x": 5,
+                "y": 5
+            }
+        ]
+    },
+    "you": {
+        "health": 97,
+        "body": [
+            {
+                "x": 7,
+                "y": 10
+            },
+            {
+                "x": 7,
+                "y": 9
+            },
+            {
+                "x": 6,
+                "y": 9
+            }
+        ],
+        "id": "9dd74cdb-1f8b-4917-a308-7c7752ccea07",
+        "name": "DQNConlan2024_v2"
+    }
+}

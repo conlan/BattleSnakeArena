@@ -1,0 +1,85 @@
+{
+    "turn": 8,
+    "is_training_reinforcement": true,
+    "board": {
+        "height": 11,
+        "width": 11,
+        "snakes": [
+            {
+                "health": 92,
+                "body": [
+                    {
+                        "x": 3,
+                        "y": 3
+                    },
+                    {
+                        "x": 2,
+                        "y": 3
+                    },
+                    {
+                        "x": 1,
+                        "y": 3
+                    }
+                ],
+                "id": "f405a39b-5b71-47f5-9c78-bd8f8b99eef4",
+                "name": "DQNConlan2024_v2"
+            },
+            {
+                "health": 94,
+                "body": [
+                    {
+                        "x": 9,
+                        "y": 3
+                    },
+                    {
+                        "x": 8,
+                        "y": 3
+                    },
+                    {
+                        "x": 7,
+                        "y": 3
+                    },
+                    {
+                        "x": 7,
+                        "y": 2
+                    }
+                ],
+                "id": "70c2b728-a831-45b2-80ba-6217231f776a",
+                "name": "simpleJake"
+            }
+        ],
+        "food": [
+            {
+                "x": 2,
+                "y": 0
+            },
+            {
+                "x": 5,
+                "y": 5
+            },
+            {
+                "x": 9,
+                "y": 4
+            }
+        ]
+    },
+    "you": {
+        "health": 92,
+        "body": [
+            {
+                "x": 3,
+                "y": 3
+            },
+            {
+                "x": 2,
+                "y": 3
+            },
+            {
+                "x": 1,
+                "y": 3
+            }
+        ],
+        "id": "f405a39b-5b71-47f5-9c78-bd8f8b99eef4",
+        "name": "DQNConlan2024_v2"
+    }
+}

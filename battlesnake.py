@@ -10,8 +10,6 @@ from multiprocessing import Pool
 
 import snakes
 import rl_utils
-import discord_utils
-import tensorboard_utils
 
 FOOD_COLOR = snakes.COLORS["green"]
 BORDER_COLOR = snakes.COLORS["grey"]
@@ -630,8 +628,7 @@ def parse_args(sysargs=None):
     parser = argparse.ArgumentParser()
     parser.add_argument("-f", "--food_spawn_chance", help="Chance of food spawning", type=float, default=0.15)
     parser.add_argument("-mf", "--min_food", help="Minimum number of food", type=float, default=1)
-    # parser.add_argument("-s", "--snakes", nargs='+', help="Snakes to battle", type=str, default=["simpleJake", "battleJake2019", "battleJake2019", "battleJake2019", "DQNConlan2024"])
-    parser.add_argument("-s", "--snakes", nargs='+', help="Snakes to battle", type=str, default=["DQNConlan2024_v2", "simpleJake"])
+    parser.add_argument("-s", "--snakes", nargs='+', help="Snakes to battle", type=str, default=["simpleJake", "battleJake2019", "battleJake2019", "battleJake2019", "DQNConlan2024"])
     parser.add_argument("-d", "--dims", nargs='+', help="Dimensions of the board in x,y", type=int, default=[BOARD_SIZE_MEDIUM,BOARD_SIZE_MEDIUM])
     parser.add_argument("-p", "--silent", help="Print information about the game", action="store_true", default=False)
     parser.add_argument("-g", "--games", help="Number of games to play", type=int, default=1)
@@ -671,22 +668,11 @@ def parse_args(sysargs=None):
 
     return args
 
-# TODO put this into a separate training module
 def main():
     args = parse_args()
 
-    running_turns_count = {}
-    running_food_consumed = {}
-    running_accumulated_rewards = {}
     running_winners = {}
-    running_training_losses = []
     
-    training_snake_name = args.snake_types[0]["name"]
-
-    REPORT_TO_DISCORD_EVERY = 500
-    REPORT_TO_TENSORBOARD_EVERY = 500
-
-    # TODO track food consumed for training snake and report
     for i in range(args.games):
         game_results = _run_game_from_args(args)
 
@@ -696,56 +682,7 @@ def main():
         winner = game_results["winner"]
         if (num_snakes not in running_winners):
             running_winners[num_snakes] = []
-        running_winners[num_snakes].append(winner)
-
-        if (args.train_reinforcement):
-            # turn count tracking
-            turns = game_results["turns"]
-            if (num_snakes not in running_turns_count):
-                running_turns_count[num_snakes] = []
-            running_turns_count[num_snakes].append(turns)
-
-            # food consumed
-            if (num_snakes not in running_food_consumed):
-                running_food_consumed[num_snakes] = []
-            running_food_consumed[num_snakes].append(game_results["training_food_consumed"])
-
-            # total accumulated reward
-            if (num_snakes not in running_accumulated_rewards):
-                running_accumulated_rewards[num_snakes] = []
-            running_accumulated_rewards[num_snakes].append(game_results["total_accumulated_reward"])
-        
-            for snake_count in running_accumulated_rewards:
-                rewards_for_snake_count = running_accumulated_rewards[snake_count]
-                
-                print(f'{i+1} / {args.games}) {snake_count}-player, Reward Mean: {sum(rewards_for_snake_count) * 1.0 / len(rewards_for_snake_count):.2f}')
-
-            training_loss_mean = sum(game_results["training_losses"]) * 1.0 / len(game_results["training_losses"]) if len(game_results["training_losses"]) > 0 else 0
-            running_training_losses.append(training_loss_mean)
-        
-            # log to discord periodically
-            if (args.discord_webhook_url):
-                if (i + 1) % REPORT_TO_DISCORD_EVERY == 0:                
-                    discord_utils.report_to_discord(args.discord_webhook_url, {
-                        "running_turns_count" : running_turns_count,
-                        "running_training_losses" : running_training_losses,
-                        "training_epsilon" : game_results["training_epsilon"],
-                        "training_food_consumed" : running_food_consumed,
-                        "running_accumulated_rewards" : running_accumulated_rewards,
-                        "running_winners" : running_winners,
-                        "training_snake_name" : training_snake_name
-                    }, epoch_size=REPORT_TO_DISCORD_EVERY)
-
-            # log to tensorboard periodically
-            if (args.tensor_board_dir):
-                if (i + 1) % REPORT_TO_TENSORBOARD_EVERY == 0:
-                    tensorboard_utils.log(args.tensor_board_dir, {
-                        "training_food_consumed" : running_food_consumed,
-                        "running_accumulated_rewards" : running_accumulated_rewards,
-                        "running_winners" : running_winners,
-                        "training_snake_name" : training_snake_name
-                    }, epoch_size=REPORT_TO_TENSORBOARD_EVERY)
-
+        running_winners[num_snakes].append(winner)    
 
     for snake_count in running_winners:
         winners = running_winners[snake_count]

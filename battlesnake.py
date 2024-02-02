@@ -599,13 +599,13 @@ def run_game(snake_types, food_spawn_chance, min_food, dims=(BOARD_SIZE_MEDIUM,B
     game_results["seed"] = game.seed
     game_results["num_snakes"] = len(snakes)
 
-    if (train_reinforcement):
-        snake_in_training = snakes[0]
+    # Stats for training reporting
+    snake_in_training = snakes[0]
 
-        game_results["training_losses"] = snake_in_training.training_losses
-        game_results["training_epsilon"] = snake_in_training.training_epsilon
-        game_results["training_food_consumed"] = snake_in_training.num_food_consumed
-        game_results["total_accumulated_reward"] = snake_in_training.total_accumulated_reward
+    game_results["training_losses"] = snake_in_training.training_losses
+    game_results["training_epsilon"] = snake_in_training.training_epsilon
+    game_results["training_food_consumed"] = snake_in_training.num_food_consumed
+    game_results["total_accumulated_reward"] = snake_in_training.total_accumulated_reward
 
     if not silent:
         print("Winner: {}, Turns: {}, Seed: {}".format(game_results["winner"], game_results["turns"], game_results["seed"] ))
@@ -741,7 +741,9 @@ def main():
                 if (i + 1) % REPORT_TO_TENSORBOARD_EVERY == 0:
                     tensorboard_utils.log(args.tensor_board_dir, {
                         "training_food_consumed" : running_food_consumed,
-                        "running_accumulated_rewards" : running_accumulated_rewards
+                        "running_accumulated_rewards" : running_accumulated_rewards,
+                        "running_winners" : running_winners,
+                        "training_snake_name" : training_snake_name
                     }, epoch_size=REPORT_TO_TENSORBOARD_EVERY)
 
 

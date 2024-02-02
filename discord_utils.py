@@ -37,13 +37,13 @@ def report_to_discord(discord_webhook_url, data, epoch_size):
 
     # Win Rate (Per Game Size)
     for snake_count in running_winners:
-        winners_for_turn_count = running_winners[snake_count]
+        winners_for_snake_count = running_winners[snake_count]
         
-        stats_per_snake_count[snake_count]["num_games"] = ":video_game:   **Num Games**: " + str(len(winners_for_turn_count)) + "\n\n"
+        stats_per_snake_count[snake_count]["num_games"] = ":video_game:   **Num Games**: " + str(len(winners_for_snake_count)) + "\n\n"
 
-        num_games_training_snake_won = winners_for_turn_count.count(training_snake_name)
+        num_games_training_snake_won = winners_for_snake_count.count(training_snake_name)
 
-        training_snake_win_rate = num_games_training_snake_won * 1.0 / len(winners_for_turn_count)
+        training_snake_win_rate = num_games_training_snake_won * 1.0 / len(winners_for_snake_count)
 
         stats_per_snake_count[snake_count]['win_rate'] = ":trophy:   **{}-P Win Rate**: {:.2f}".format(snake_count, training_snake_win_rate) + "\n\n"
 

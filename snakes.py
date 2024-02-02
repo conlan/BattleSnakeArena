@@ -45,6 +45,15 @@ SNAKES = [
         "color": COLORS["red"]
     },
     {
+        "name": "DQNConlan2024_reward-3_asset-2",
+        "start":conlan_snakes.DQNConlan2024.main.start,
+        "move": conlan_snakes.DQNConlan2024.main.move,
+        "cache" : conlan_snakes.DQNConlan2024.main.cache,        
+        "training_reward_index" : 3,
+        "model_save_path" : "/content/drive/MyDrive/ColabOutput/snake_net_reward_3_asset-2.chkpt",
+        "color": COLORS["red"]
+    },
+    {
         "move": test_snakes.battleJake2019.main.move,
         "name": "battleJake2019",
         "color": COLORS["purple"]

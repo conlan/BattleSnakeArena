@@ -1,0 +1,82 @@
+{
+    "turn": 64,
+    "board": {
+        "height": 11,
+        "width": 11,
+        "snakes": [
+            {
+                "health": 96,
+                "body": [
+                    {
+                        "x": 5,
+                        "y": 9
+                    },
+                    {
+                        "x": 5,
+                        "y": 8
+                    },
+                    {
+                        "x": 5,
+                        "y": 7
+                    },
+                    {
+                        "x": 5,
+                        "y": 6
+                    },
+                    {
+                        "x": 5,
+                        "y": 5
+                    }
+                ],
+                "id": "0e950a78-fc37-4022-98b6-fb76d745438a",
+                "name": "DQNConlan2024_reward-3_asset-2_solo_no_health"
+            }
+        ],
+        "food": [
+            {
+                "x": 3,
+                "y": 3
+            },
+            {
+                "x": 1,
+                "y": 0
+            },
+            {
+                "x": 2,
+                "y": 2
+            },
+            {
+                "x": 3,
+                "y": 10
+            }
+        ]
+    },
+    "should_action_mask": true,
+    "you": {
+        "health": 96,
+        "body": [
+            {
+                "x": 5,
+                "y": 9
+            },
+            {
+                "x": 5,
+                "y": 8
+            },
+            {
+                "x": 5,
+                "y": 7
+            },
+            {
+                "x": 5,
+                "y": 6
+            },
+            {
+                "x": 5,
+                "y": 5
+            }
+        ],
+        "id": "0e950a78-fc37-4022-98b6-fb76d745438a",
+        "name": "DQNConlan2024_reward-3_asset-2_solo_no_health"
+    }
+}

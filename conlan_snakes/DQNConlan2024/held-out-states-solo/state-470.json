@@ -1,0 +1,94 @@
+{
+    "turn": 51,
+    "board": {
+        "height": 11,
+        "width": 11,
+        "snakes": [
+            {
+                "health": 49,
+                "body": [
+                    {
+                        "x": 5,
+                        "y": 8
+                    },
+                    {
+                        "x": 5,
+                        "y": 7
+                    },
+                    {
+                        "x": 6,
+                        "y": 7
+                    }
+                ],
+                "id": "7bc131bd-11b3-4cf9-8fc3-929a37f5e892",
+                "name": "DQNConlan2024_reward-3_asset-2_solo_no_health"
+            }
+        ],
+        "food": [
+            {
+                "x": 0,
+                "y": 8
+            },
+            {
+                "x": 5,
+                "y": 5
+            },
+            {
+                "x": 8,
+                "y": 5
+            },
+            {
+                "x": 5,
+                "y": 3
+            },
+            {
+                "x": 6,
+                "y": 1
+            },
+            {
+                "x": 6,
+                "y": 10
+            },
+            {
+                "x": 2,
+                "y": 4
+            },
+            {
+                "x": 3,
+                "y": 6
+            },
+            {
+                "x": 7,
+                "y": 0
+            },
+            {
+                "x": 2,
+                "y": 0
+            },
+            {
+                "x": 7,
+                "y": 4
+            }
+        ]
+    },
+    "should_action_mask": true,
+    "you": {
+        "health": 49,
+        "body": [
+            {
+                "x": 5,
+                "y": 8
+            },
+            {
+                "x": 5,
+                "y": 7
+            },
+            {
+                "x": 6,
+                "y": 7
+            }
+        ],
+        "id": "7bc131bd-11b3-4cf9-8fc3-929a37f5e892",
+        "name": "DQNConlan2024_reward-3_asset-2_solo_no_health"
+    }
+}

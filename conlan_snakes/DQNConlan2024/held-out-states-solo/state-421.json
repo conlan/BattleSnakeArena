@@ -1,0 +1,90 @@
+{
+    "turn": 56,
+    "board": {
+        "height": 11,
+        "width": 11,
+        "snakes": [
+            {
+                "health": 80,
+                "body": [
+                    {
+                        "x": 10,
+                        "y": 6
+                    },
+                    {
+                        "x": 10,
+                        "y": 7
+                    },
+                    {
+                        "x": 10,
+                        "y": 8
+                    },
+                    {
+                        "x": 9,
+                        "y": 8
+                    },
+                    {
+                        "x": 9,
+                        "y": 7
+                    }
+                ],
+                "id": "eeec339c-f6e8-4122-b3e4-5aa7a5fc3ee0",
+                "name": "DQNConlan2024_reward-3_asset-2_solo_no_health"
+            }
+        ],
+        "food": [
+            {
+                "x": 5,
+                "y": 5
+            },
+            {
+                "x": 10,
+                "y": 3
+            },
+            {
+                "x": 0,
+                "y": 0
+            },
+            {
+                "x": 5,
+                "y": 9
+            },
+            {
+                "x": 7,
+                "y": 7
+            },
+            {
+                "x": 8,
+                "y": 7
+            }
+        ]
+    },
+    "should_action_mask": true,
+    "you": {
+        "health": 80,
+        "body": [
+            {
+                "x": 10,
+                "y": 6
+            },
+            {
+                "x": 10,
+                "y": 7
+            },
+            {
+                "x": 10,
+                "y": 8
+            },
+            {
+                "x": 9,
+                "y": 8
+            },
+            {
+                "x": 9,
+                "y": 7
+            }
+        ],
+        "id": "eeec339c-f6e8-4122-b3e4-5aa7a5fc3ee0",
+        "name": "DQNConlan2024_reward-3_asset-2_solo_no_health"
+    }
+}

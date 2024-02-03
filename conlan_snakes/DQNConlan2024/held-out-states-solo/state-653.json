@@ -1,0 +1,90 @@
+{
+    "turn": 22,
+    "board": {
+        "height": 11,
+        "width": 11,
+        "snakes": [
+            {
+                "health": 97,
+                "body": [
+                    {
+                        "x": 9,
+                        "y": 5
+                    },
+                    {
+                        "x": 9,
+                        "y": 6
+                    },
+                    {
+                        "x": 9,
+                        "y": 7
+                    },
+                    {
+                        "x": 8,
+                        "y": 7
+                    },
+                    {
+                        "x": 7,
+                        "y": 7
+                    }
+                ],
+                "id": "2720d24a-bfdf-408e-ba33-adb69c28523b",
+                "name": "DQNConlan2024_reward-3_asset-2_solo_no_health"
+            }
+        ],
+        "food": [
+            {
+                "x": 5,
+                "y": 5
+            },
+            {
+                "x": 0,
+                "y": 5
+            },
+            {
+                "x": 2,
+                "y": 1
+            },
+            {
+                "x": 1,
+                "y": 4
+            },
+            {
+                "x": 7,
+                "y": 4
+            },
+            {
+                "x": 4,
+                "y": 5
+            }
+        ]
+    },
+    "should_action_mask": true,
+    "you": {
+        "health": 97,
+        "body": [
+            {
+                "x": 9,
+                "y": 5
+            },
+            {
+                "x": 9,
+                "y": 6
+            },
+            {
+                "x": 9,
+                "y": 7
+            },
+            {
+                "x": 8,
+                "y": 7
+            },
+            {
+                "x": 7,
+                "y": 7
+            }
+        ],
+        "id": "2720d24a-bfdf-408e-ba33-adb69c28523b",
+        "name": "DQNConlan2024_reward-3_asset-2_solo_no_health"
+    }
+}

@@ -73,9 +73,6 @@ def move(data=None, force_greedy_move=False):
     snakeNeck = you['body'][1]
     snakeNeck = (snakeNeck['x'], snakeNeck['y'])
 
-    should_action_mask = data["should_action_mask"] if "should_action_mask" in data else True
-    print(should_action_mask)
-
     state_obj = {
          "image" : rl_state_image,
          "health" : snakes_health,
@@ -83,10 +80,12 @@ def move(data=None, force_greedy_move=False):
          "next_move_coordinates" : {}
     }
 
-    # determine these for action masking use
-    for local_dir in rl_utils.LocalDirection:
-         state_obj["next_move_coordinates"][local_dir.value] = \
-            rl_utils.getLocalDirectionAsCoordinate(local_dir, snakeHead, snakeNeck)
+    should_action_mask = data["should_action_mask"] if "should_action_mask" in data else True
+    if (should_action_mask):
+        # determine these for action masking use
+        for local_dir in rl_utils.LocalDirection:
+            state_obj["next_move_coordinates"][local_dir.value] = \
+                rl_utils.getLocalDirectionAsCoordinate(local_dir, snakeHead, snakeNeck)
          
     # get move index from move [STRAIGHT, LEFT, RIGHT]
     dir_index, q_values = model.act(state_obj, force_greedy_move=force_greedy_move, use_action_masking=should_action_mask)

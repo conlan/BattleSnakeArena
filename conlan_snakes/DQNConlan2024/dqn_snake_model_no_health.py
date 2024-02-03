@@ -61,6 +61,8 @@ class DQNSnakeModel_NoHealth():
                 action_idx = self.random.randint(0, 2)
         else:
             state, _ = self.get_state_and_health_tensors_from_state_obj(state_obj)
+            # convert to current device
+            state = state.to(self.device)
             
             q_values = self.network(state)
 

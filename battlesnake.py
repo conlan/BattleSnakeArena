@@ -343,6 +343,7 @@ class BattleSnake():
         
         for snake in self.snakes:
             json = self._get_board_json()
+            json["should_action_mask"] = snake.should_action_mask
             process = Thread(target=snake.move, args=(json,))
             threads.append(process)
 
@@ -454,7 +455,7 @@ class BattleSnake():
         return (len(self.snakes) == 1 and not is_solo_game) or (len(self.snakes) == 0)
 
 class Snake():
-    def __init__(self, name=None, id=None, color=None, move=None, end=None, start=None, cache=None, server=None, training_reward_index=None, **kwargs):
+    def __init__(self, name=None, id=None, color=None, move=None, end=None, start=None, cache=None, server=None, training_reward_index=None, should_action_mask=True, **kwargs):
         self.body = []
         self.health = MAX_SNAKE_HEALTH
         self.ate_food = False
@@ -470,6 +471,7 @@ class Snake():
         self.training_epsilon = 0
         self.training_curr_step = 0
         self.training_reward_index = training_reward_index if training_reward_index else 0
+        self.should_action_mask = should_action_mask
         self.total_accumulated_reward = 0
         self.model_save_path = kwargs.get("model_save_path", None)
 

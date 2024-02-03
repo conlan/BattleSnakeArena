@@ -31,7 +31,7 @@ class DQNSnakeModel_NoHealth():
         self.gamma = 0.9 # discount rate
         
         self.exploration_rate = 1
-        self.exploration_rate_decay = 0.9999991
+        self.exploration_rate_decay = 0.99999975
         self.exploration_rate_min = 0.1
 
         self.optimizer = optim.Adam(self.network.parameters(), lr=self.learning_rate)

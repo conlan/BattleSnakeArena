@@ -45,10 +45,10 @@ class DQNSnakeModel():
         # where to save the model to
         self.model_save_path = None
 
-    def act(self, state_obj, use_action_masking=False):
+    def act(self, state_obj, force_greedy_move=False, use_action_masking=False):
         q_values = None
 
-        if (self.random.random() < self.exploration_rate):
+        if (not force_greedy_move) and (self.random.random() < self.exploration_rate):
             # random move
             # if we're using action masking, grab a random move from a non-losing direction
             if (use_action_masking):

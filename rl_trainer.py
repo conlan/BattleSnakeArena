@@ -100,7 +100,7 @@ def track_mean_max_predicted_q_on_holdout_states(training_snake):
             board_data = json.load(json_file)
 
         # run model and get max predicted Q_value
-        move = training_snake["move"](board_data)
+        move = training_snake["move"](board_data, force_greedy_move=True)
         q_values = move["q_values"] # tensor of q values
         max_q_value = torch.max(q_values).item()
         

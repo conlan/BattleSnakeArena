@@ -50,7 +50,7 @@ def cache(state_obj, next_state_obj, reward, action, done):
     return model.cache(state_obj, next_state_obj, reward, action, done)
 
 @bottle.post('/move')
-def move(data=None):
+def move(data=None, force_greedy_move=False):
     if not data:
         data = bottle.request.json
     
@@ -88,7 +88,7 @@ def move(data=None):
             rl_utils.getLocalDirectionAsCoordinate(local_dir, snakeHead, snakeNeck)
          
     # get move index from move [STRAIGHT, LEFT, RIGHT]
-    dir_index, q_values = model.act(state_obj, use_action_masking=use_action_masking)
+    dir_index, q_values = model.act(state_obj, force_greedy_move=force_greedy_move, use_action_masking=use_action_masking)
     local_dir = rl_utils.LocalDirection(dir_index)
 
     return {

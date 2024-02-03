@@ -85,8 +85,8 @@ def report_to_discord(discord_webhook_url, data, epoch_size):
 
         # discord_message += stats_per_snake_count[snake_count]['num_games']
         discord_message += stats_per_snake_count[snake_count]['win_rate']
-        # discord_message += stats_per_snake_count[snake_count]['food_consumed']        
-        # discord_message += stats_per_snake_count[snake_count]['turn_count']
+        discord_message += stats_per_snake_count[snake_count]['food_consumed']        
+        discord_message += stats_per_snake_count[snake_count]['turn_count']
         discord_message += stats_per_snake_count[snake_count]['accumulated_rewards']
         discord_message += "------------------------------------------------------------\n\n"
 

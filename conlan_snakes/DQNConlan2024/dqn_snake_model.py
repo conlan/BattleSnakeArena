@@ -161,7 +161,8 @@ class DQNSnakeModel():
                 batch_size=[]))
         
         results = {
-            'epsilon': self.exploration_rate
+            'epsilon': self.exploration_rate,
+            'curr_step': self.curr_step,
         }
         
         # wait until memory builds before learning

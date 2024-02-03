@@ -468,6 +468,7 @@ class Snake():
         
         self.training_losses = []
         self.training_epsilon = 0
+        self.training_curr_step = 0
         self.training_reward_index = training_reward_index if training_reward_index else 0
         self.total_accumulated_reward = 0
         self.model_save_path = kwargs.get("model_save_path", None)
@@ -531,6 +532,9 @@ class Snake():
 
                 if ('epsilon' in results):
                     self.training_epsilon = results['epsilon']
+
+                if ('curr_step' in results):
+                    self.training_curr_step = results['curr_step']
         except Exception as e:
             traceback.print_exc()        
 
@@ -598,6 +602,7 @@ def run_game(snake_types, food_spawn_chance, min_food, dims=(BOARD_SIZE_MEDIUM,B
 
     game_results["training_losses"] = snake_in_training.training_losses
     game_results["training_epsilon"] = snake_in_training.training_epsilon
+    game_results["training_curr_step"] = snake_in_training.training_curr_step
     game_results["training_food_consumed"] = snake_in_training.num_food_consumed
     game_results["total_accumulated_reward"] = snake_in_training.total_accumulated_reward
 

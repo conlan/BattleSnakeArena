@@ -18,7 +18,8 @@ def main():
     training_snake = args.snake_types[0]
     training_snake_name = training_snake["name"]
     
-    REPORT_FREQUENCY = 500
+    REPORT_STEP_FREQUENCY = 150_000 # every 50k model steps
+    last_report_step_count = 0
 
     for i in range(args.games):
         game_results = battlesnake._run_game_from_args(args)
@@ -53,14 +54,17 @@ def main():
         running_training_losses.append(training_loss_mean)
 
         training_epsilon = game_results["training_epsilon"]
+        training_curr_step = game_results["training_curr_step"]
 
         # Print out the accumulated rewards for each game size
         for snake_count in running_accumulated_rewards:
             rewards_for_snake_count = running_accumulated_rewards[snake_count]
             
-            print(f'{i+1} / {args.games}) {snake_count}-player, Reward Mean: {sum(rewards_for_snake_count) * 1.0 / len(rewards_for_snake_count):.2f}')
-    
-        if (i + 1) % REPORT_FREQUENCY == 0:
+            print(f'{i+1} / {args.games}) {snake_count}-player, Reward Mean: {sum(rewards_for_snake_count) * 1.0 / len(rewards_for_snake_count):.2f}')        
+
+        if (training_curr_step // REPORT_STEP_FREQUENCY > last_report_step_count):
+            last_report_step_count = training_curr_step // REPORT_STEP_FREQUENCY
+
             mean_max_predicted_q_value = track_mean_max_predicted_q_on_holdout_states(training_snake)
             running_mean_max_predicted_q_values.append(mean_max_predicted_q_value)
 
@@ -77,11 +81,11 @@ def main():
             }
             # report to discord periodically
             if (args.discord_webhook_url):            
-                discord_utils.report_to_discord(args.discord_webhook_url, report_data, epoch_size=REPORT_FREQUENCY)
+                discord_utils.report_to_discord(args.discord_webhook_url, report_data, epoch_size=2000)
 
             # log to tensorboard periodically
             if (args.tensor_board_dir):
-                tensorboard_utils.log(args.tensor_board_dir, report_data, epoch_size=REPORT_FREQUENCY)
+                tensorboard_utils.log(args.tensor_board_dir, report_data, epoch_size=2000)
 
     for snake_count in running_winners:
         winners = running_winners[snake_count]

@@ -22,14 +22,14 @@ def report_to_discord(discord_webhook_url, data, epoch_size):
     mean_max_predicted_q_value = data['mean_max_predicted_q_value']
     mean_max_predicted_q_value = float("{:.5f}".format(mean_max_predicted_q_value))
 
-    # trim out the data so we're only dealing with the latest epoch
-    training_losses = training_losses[-epoch_size:]
+    # # trim out the data so we're only dealing with the latest epoch
+    # training_losses = training_losses[-epoch_size:]
 
-    for snake_count in running_winners:
-        running_winners[snake_count] = running_winners[snake_count][-epoch_size:]
-        running_turns_count[snake_count] = running_turns_count[snake_count][-epoch_size:]
-        training_food_consumed[snake_count] = training_food_consumed[snake_count][-epoch_size:]
-        running_accumulated_rewards[snake_count] = running_accumulated_rewards[snake_count][-epoch_size:]
+    # for snake_count in running_winners:
+    #     running_winners[snake_count] = running_winners[snake_count][-epoch_size:]
+    #     running_turns_count[snake_count] = running_turns_count[snake_count][-epoch_size:]
+    #     training_food_consumed[snake_count] = training_food_consumed[snake_count][-epoch_size:]
+    #     running_accumulated_rewards[snake_count] = running_accumulated_rewards[snake_count][-epoch_size:]
     
     # Training Loss
     mean_training_loss = np.mean(training_losses) if len(training_losses) > 0 else 0

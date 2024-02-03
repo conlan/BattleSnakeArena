@@ -79,7 +79,7 @@ def report_to_discord(discord_webhook_url, data, epoch_size):
     discord_message += ":regional_indicator_q:  **Mean Max Predicted Q**: " + str(mean_max_predicted_q_value) + "\n\n"
     discord_message += "------------------------------------------------------------\n\n"
 
-    for snake_count in range(2, 99):
+    for snake_count in range(1, 99):
         if not snake_count in stats_per_snake_count:
             continue
 

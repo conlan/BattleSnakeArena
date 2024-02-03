@@ -14,7 +14,7 @@ def log(dir, data, epoch_size):
     for i in range(len(running_mean_max_predicted_q_values)):
         writer.add_scalar('Mean Max Predicted Q Value', running_mean_max_predicted_q_values[i], i)
 
-    for snake_count in range(2, 99):
+    for snake_count in range(1, 99):
         if not snake_count in training_food_consumed:
             continue
 

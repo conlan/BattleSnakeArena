@@ -57,6 +57,16 @@ SNAKES = [
         "color": COLORS["red"]
     },
     {
+        "name": "DQNConlan2024_reward-3_asset-2_solo",
+        "start":conlan_snakes.DQNConlan2024.main.start,
+        "move": conlan_snakes.DQNConlan2024.main.move,
+        "cache" : conlan_snakes.DQNConlan2024.main.cache,        
+        "training_reward_index" : 3,
+        "should_action_mask" : True,
+        "model_save_path" : "/content/drive/MyDrive/ColabOutput/snake_net_reward_3_asset-2_solo.chkpt",
+        "color": COLORS["red"]
+    },
+    {
         "name": "DQNConlan2024_reward-3_asset-2_no_action_mask",
         "start":conlan_snakes.DQNConlan2024.main.start,
         "move": conlan_snakes.DQNConlan2024.main.move,

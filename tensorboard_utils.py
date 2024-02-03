@@ -2,13 +2,14 @@ from torch.utils.tensorboard import SummaryWriter
 
 
 def log(dir, data, epoch_size):
+    training_snake_name = data['training_snake_name']
     training_food_consumed = data["training_food_consumed"]
     running_accumulated_rewards = data["running_accumulated_rewards"]
     running_winners = data["running_winners"]
     training_snake_name = data['training_snake_name']
     running_mean_max_predicted_q_values = data["running_mean_max_predicted_q_values"]
 
-    writer = SummaryWriter(dir)
+    writer = SummaryWriter(dir + training_snake_name)
 
     # Track the mean max predicted q value over time
     for i in range(len(running_mean_max_predicted_q_values)):

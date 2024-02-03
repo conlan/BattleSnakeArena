@@ -73,7 +73,7 @@ def report_to_discord(discord_webhook_url, data, epoch_size):
         stats_per_snake_count[snake_count]['accumulated_rewards'] = ":moneybag:   **{}-P Mean Rewards**: {:.5f}".format(snake_count, sum(accumulated_rewards_for_snake_count) * 1.0 / len(accumulated_rewards_for_snake_count)) + "\n\n"
     
     # build the message to post to discord
-    discord_message = ""        
+    discord_message = ":snake:  **Training Snake**: " + training_snake_name + "\n\n"
     discord_message += ":game_die:  **Epsilon**: " + str(training_epsilon) + "\n\n"
     discord_message += ":skull:  **Mean Loss**: " + str(mean_training_loss) + "\n\n"
     discord_message += ":regional_indicator_q:  **Mean Max Predicted Q**: " + str(mean_max_predicted_q_value) + "\n\n"

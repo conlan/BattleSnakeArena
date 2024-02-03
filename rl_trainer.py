@@ -12,6 +12,8 @@ def main():
     running_accumulated_rewards = {}
     running_winners = {}
     running_training_losses = []
+
+    running_mean_max_predicted_q_values = []
     
     training_snake = args.snake_types[0]
     training_snake_name = training_snake["name"]
@@ -60,6 +62,7 @@ def main():
     
         if (i + 1) % REPORT_FREQUENCY == 0:
             mean_max_predicted_q_value = track_mean_max_predicted_q_on_holdout_states(training_snake)
+            running_mean_max_predicted_q_values.append(mean_max_predicted_q_value)
 
             report_data = {
                 "running_turns_count" : running_turns_count,
@@ -69,7 +72,8 @@ def main():
                 "running_accumulated_rewards" : running_accumulated_rewards,
                 "running_winners" : running_winners,
                 "training_snake_name" : training_snake_name,
-                "mean_max_predicted_q_value" : mean_max_predicted_q_value
+                "mean_max_predicted_q_value" : mean_max_predicted_q_value,
+                "running_mean_max_predicted_q_values" : running_mean_max_predicted_q_values
             }
             # report to discord periodically
             if (args.discord_webhook_url):            

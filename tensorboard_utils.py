@@ -6,8 +6,13 @@ def log(dir, data, epoch_size):
     running_accumulated_rewards = data["running_accumulated_rewards"]
     running_winners = data["running_winners"]
     training_snake_name = data['training_snake_name']
+    running_mean_max_predicted_q_values = data["running_mean_max_predicted_q_values"]
 
     writer = SummaryWriter(dir)
+
+    # Track the mean max predicted q value over time
+    for i in range(len(running_mean_max_predicted_q_values)):
+        writer.add_scalar('Mean Max Predicted Q Value', running_mean_max_predicted_q_values[i], i)
 
     for snake_count in range(2, 99):
         if not snake_count in training_food_consumed:

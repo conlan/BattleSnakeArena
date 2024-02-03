@@ -18,7 +18,7 @@ def main():
     training_snake = args.snake_types[0]
     training_snake_name = training_snake["name"]
     
-    REPORT_STEP_FREQUENCY = 150_000 # every 50k model steps
+    REPORT_STEP_FREQUENCY = 30_000 # every 50k model steps
     last_report_step_count = 0
 
     for i in range(args.games):

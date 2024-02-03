@@ -69,7 +69,7 @@ def main():
         if (training_curr_step // REPORT_STEP_FREQUENCY > last_report_step_count):
             last_report_step_count = training_curr_step // REPORT_STEP_FREQUENCY
 
-            mean_max_predicted_q_value = track_mean_max_predicted_q_on_holdout_states(training_snake)
+            mean_max_predicted_q_value = track_mean_max_predicted_q_on_holdout_states(training_snake, "conlan_snakes/DQNConlan2024/held-out-states-solo/")
             running_mean_max_predicted_q_values.append(mean_max_predicted_q_value)
 
             report_data = {
@@ -100,14 +100,14 @@ def main():
             else:
                 print(f'{snake_count}-player, {winner} Won: {sum([1 for s in winners if s == winner])}')
 
-def track_mean_max_predicted_q_on_holdout_states(training_snake):
+def track_mean_max_predicted_q_on_holdout_states(training_snake, held_out_states_path):
     print("Tracking mean max predicted Q value on holdout states...")
 
     all_max_q_values = []
 
     for i in range(1000):
         # load hold out state
-        json_path = "conlan_snakes/DQNConlan2024/held-out-states/state-" + str(i) + ".json"
+        json_path = held_out_states_path + "state-" + str(i) + ".json"
         with open(json_path, 'r') as json_file:
             board_data = json.load(json_file)
 

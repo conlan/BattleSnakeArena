@@ -7,9 +7,9 @@ import os
 import random
 import bottle
 import rl_utils
-from conlan_snakes.DQNConlan2024.dqn_snake_model import DQNSnakeModel
+from conlan_snakes.DQNConlan2024.dqn_snake_model_no_health import DQNSnakeModel_NoHealth
 
-model = DQNSnakeModel(4)
+model = DQNSnakeModel_NoHealth()
 
 @bottle.route('/')
 def index():

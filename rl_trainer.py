@@ -1,3 +1,5 @@
+import json
+import torch
 import battlesnake
 import discord_utils
 import tensorboard_utils
@@ -11,8 +13,9 @@ def main():
     running_winners = {}
     running_training_losses = []
     
-    training_snake_name = args.snake_types[0]["name"]
-
+    training_snake = args.snake_types[0]
+    training_snake_name = training_snake["name"]
+    
     REPORT_FREQUENCY = 500
 
     for i in range(args.games):
@@ -56,7 +59,7 @@ def main():
             print(f'{i+1} / {args.games}) {snake_count}-player, Reward Mean: {sum(rewards_for_snake_count) * 1.0 / len(rewards_for_snake_count):.2f}')
     
         if (i + 1) % REPORT_FREQUENCY == 0:
-            mean_max_predicted_q_value = track_mean_max_predicted_q_on_holdout_states()
+            mean_max_predicted_q_value = track_mean_max_predicted_q_on_holdout_states(training_snake)
 
             report_data = {
                 "running_turns_count" : running_turns_count,
@@ -85,8 +88,26 @@ def main():
             else:
                 print(f'{snake_count}-player, {winner} Won: {sum([1 for s in winners if s == winner])}')
 
-def track_mean_max_predicted_q_on_holdout_states():
-    return 0
+def track_mean_max_predicted_q_on_holdout_states(training_snake):
+    print("Tracking mean max predicted Q value on holdout states...")
+
+    all_max_q_values = []
+
+    for i in range(1000):
+        # load hold out state
+        json_path = "conlan_snakes/DQNConlan2024/held-out-states/state-" + str(i) + ".json"
+        with open(json_path, 'r') as json_file:
+            board_data = json.load(json_file)
+
+        # run model and get max predicted Q_value
+        move = training_snake["move"](board_data)
+        q_values = move["q_values"] # tensor of q values
+        max_q_value = torch.max(q_values).item()
+        
+        all_max_q_values.append(max_q_value)
+
+    # return the average of the max predicted Q_values
+    return sum(all_max_q_values) * 1.0 / len(all_max_q_values)
 
 if __name__ == "__main__":
     main()

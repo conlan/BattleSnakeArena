@@ -607,7 +607,8 @@ def run_game(snake_types, food_spawn_chance, min_food, dims=(BOARD_SIZE_MEDIUM,B
     game_results["total_accumulated_reward"] = snake_in_training.total_accumulated_reward
 
     if not silent:
-        print("Winner: {}, Turns: {}, Seed: {}".format(game_results["winner"], game_results["turns"], game_results["seed"] ))
+        print("Winner: {}, Turns: {}, Reward: {}, Seed: {}".format(game_results["winner"], \
+            game_results["turns"], game_results["total_accumulated_reward"], game_results["seed"] ))
 
     return game_results
 

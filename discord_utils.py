@@ -18,6 +18,10 @@ def report_to_discord(discord_webhook_url, data, epoch_size):
 
     training_epsilon = data['training_epsilon']
 
+    # mean max predicted q value
+    mean_max_predicted_q_value = data['mean_max_predicted_q_value']
+    mean_max_predicted_q_value = float("{:.5f}".format(mean_max_predicted_q_value))
+
     # trim out the data so we're only dealing with the latest epoch
     training_losses = training_losses[-epoch_size:]
 
@@ -72,6 +76,7 @@ def report_to_discord(discord_webhook_url, data, epoch_size):
     discord_message = ""        
     discord_message += ":game_die:  **Epsilon**: " + str(training_epsilon) + "\n\n"
     discord_message += ":skull:  **Mean Loss**: " + str(mean_training_loss) + "\n\n"
+    discord_message += ":regional_indicator_q:  **Mean Max Predicted Q**: " + str(mean_max_predicted_q_value) + "\n\n"
     discord_message += "------------------------------------------------------------\n\n"
 
     for snake_count in range(2, 99):
@@ -80,8 +85,8 @@ def report_to_discord(discord_webhook_url, data, epoch_size):
 
         # discord_message += stats_per_snake_count[snake_count]['num_games']
         discord_message += stats_per_snake_count[snake_count]['win_rate']
-        discord_message += stats_per_snake_count[snake_count]['food_consumed']        
-        discord_message += stats_per_snake_count[snake_count]['turn_count']
+        # discord_message += stats_per_snake_count[snake_count]['food_consumed']        
+        # discord_message += stats_per_snake_count[snake_count]['turn_count']
         discord_message += stats_per_snake_count[snake_count]['accumulated_rewards']
         discord_message += "------------------------------------------------------------\n\n"
 

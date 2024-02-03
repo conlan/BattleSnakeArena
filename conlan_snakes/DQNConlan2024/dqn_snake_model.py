@@ -46,17 +46,19 @@ class DQNSnakeModel():
         self.model_save_path = None
 
     def act(self, state_obj, use_action_masking=False):
+        q_values = None
+
         if (self.random.random() < self.exploration_rate):
             # random move
             # if we're using action masking, grab a random move from a non-losing direction
             if (use_action_masking):
                 # initialize tensor with 3 random values
-                results = torch.randn(1, 3)
+                q_values = torch.randn(1, 3)
                 # mask out the losing moves
-                results = self.perform_action_mask(results, \
+                q_values = self.perform_action_mask(q_values, \
                                     state_obj['json'], state_obj['next_move_coordinates'])            
                 # grab the highest remaining option after mask
-                action_idx = torch.argmax(results).item()
+                action_idx = torch.argmax(q_values).item()
             else:
                 action_idx = self.random.randint(0, 2)
         else:
@@ -69,18 +71,18 @@ class DQNSnakeModel():
 
             state = torch.cat((state.unsqueeze(3), state_health), dim=3).to(self.device)
             
-            results = self.network(state)
+            q_values = self.network(state)
 
             # if we should mask out moves that are guaranteed to lose
             if (use_action_masking):
-                results = self.perform_action_mask(results, state_obj['json'], state_obj['next_move_coordinates'])
+                q_values = self.perform_action_mask(q_values, state_obj['json'], state_obj['next_move_coordinates'])
 
-            action_idx = torch.argmax(results).item()
+            action_idx = torch.argmax(q_values).item()
 
         self.exploration_rate *= self.exploration_rate_decay
         self.exploration_rate = max(self.exploration_rate_min, self.exploration_rate)
             
-        return action_idx
+        return action_idx, q_values
     
     def perform_action_mask(self, action_values, board_data, next_move_coordinates):
         MIN_Q_VALUE = -99999

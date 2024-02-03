@@ -88,12 +88,13 @@ def move(data=None):
             rl_utils.getLocalDirectionAsCoordinate(local_dir, snakeHead, snakeNeck)
          
     # get move index from move [STRAIGHT, LEFT, RIGHT]
-    dir_index = model.act(state_obj, use_action_masking=use_action_masking)
+    dir_index, q_values = model.act(state_obj, use_action_masking=use_action_masking)
     local_dir = rl_utils.LocalDirection(dir_index)
 
     return {
          'move' : rl_utils.getLocalDirectionAsMove(local_dir, snakeHead, snakeNeck),
-         'local_direction' : local_dir
+         'local_direction' : local_dir,
+         'q_values' : q_values
     }    
 
 # Expose WSGI app (so gunicorn can find it)

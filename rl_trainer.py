@@ -99,6 +99,8 @@ def run_validation_round(args):
     args.is_validating_training = True
 
     for i in range(NUM_GAMES_PER_VALIDATION_ROUND):
+        print(f'    {i+1} / {NUM_GAMES_PER_VALIDATION_ROUND}')
+        
         game_results = battlesnake._run_game_from_args(args)
 
         num_snakes = game_results["num_snakes"]

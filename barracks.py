@@ -17,35 +17,28 @@ from recorder import Recorder
 
 import constants
 
-REWARD_SETS = {
-    "reward-set-v1" : {
-        constants.REWARD_KEY_LOSE : -1000,
-        constants.REWARD_KEY_WIN : 1000,
-        constants.REWARD_KEY_SURVIVE : 1,
-        constants.REWARD_KEY_EAT : 10
-    }
-}
-
 def main() -> None:
+    observer = Observer()
+
     # TODO load these from disk
     model_save_path = "models/snake_net.chkpt"
     
     # TODO epsilon info
     epsilon_info = {
         "epsilon" : 1,
-        "epsilon_decay" : 0.0000009,
+        "epsilon_decay" : 0.0000009, # 1.0 -> 0.1 in 1,000,000 steps
         "epislon_min" : 0.1
     }
     # TODO learning rate
     learning_rate = 0.00025
     
-    model = DQNModel(model_save_path=model_save_path, epsilon_info=epsilon_info, learning_rate=learning_rate)
+    # Load the model that we're training
+    model = DQNModel(model_save_path=model_save_path, learning_rate=learning_rate)
     
-    trainee_controller = DQNController(model)
+    trainee_controller = DQNController(model, epsilon_info, convert_to_image=observer.convert_to_image)
 
-    observer = Observer()
     recorder = Recorder()
-    trainer = Trainer(trainee_controller, REWARD_SETS[model.reward_set_key])
+    trainer = Trainer(trainee_controller)
 
     controllers = [
         trainee_controller

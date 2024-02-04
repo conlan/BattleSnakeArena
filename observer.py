@@ -30,12 +30,7 @@ class Observer():
         y = tuple['y']
         return (x * (GRID_SIZE - 1), y * (GRID_SIZE - 1))        
     
-    def observe(self, json, should_store_observation) -> None:
-        game_id = json["game"]["id"]
-
-        if (game_id not in self.observations):
-            self.observations[game_id] = []
-
+    def convert_to_image(self, json) -> Image:
         board_width = json['board']['width']
         board_height = json['board']['height']
         snakes = json['board']['snakes']
@@ -189,6 +184,7 @@ class Observer():
         # Convert to greyscale
         board_image = board_image.convert("L")
 
+        return board_image
         # # Put normalized snake healths in an array
         # # in the order of length descending
         # # POV snake is index-0 always though
@@ -237,8 +233,16 @@ class Observer():
 
         # snakes_health_in_length_descending_order = [obj['health'] for obj in snakes_health_in_length_descending_order]    
 
+    def observe(self, json, should_store_observation) -> None:
+        image = self.convert_to_image(json)
+
+        game_id = json["game"]["id"]
+
+        if (game_id not in self.observations):
+            self.observations[game_id] = []
+
         observation = {
-            "image" : board_image
+            "image" : image
         }
 
         if (should_store_observation):

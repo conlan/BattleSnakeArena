@@ -26,6 +26,15 @@ REWARD_KEY_EAT = "eat"
 REWARD_KEY_WIN = "win"
 REWARD_KEY_LOSE = "lose"
 
+REWARD_SETS = {
+    "reward-set-v1" : {
+        REWARD_KEY_LOSE : -1000,
+        REWARD_KEY_WIN : 1000,
+        REWARD_KEY_SURVIVE : 1,
+        REWARD_KEY_EAT : 10
+    }
+}
+
 class LocalDirection(IntEnum):
     STRAIGHT = 0,
     LEFT = 1,

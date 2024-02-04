@@ -186,10 +186,7 @@ class BattleSnake():
             # if we're training RL then convert the current board to an image
             rl_state_image, snakes_health = None, None    
             if (train_reinforcement) or (record_train_reinforcement_video):
-                rl_state_image, snakes_health = rl_utils.convertBoardToState(self._get_board_json(), snake_in_training.id)                
-                
-                if record_train_reinforcement_video:
-                    board_image_frames_for_recording.append(rl_state_image)
+                rl_state_image, snakes_health = rl_utils.convertBoardToState(self._get_board_json(), snake_in_training.id)
 
             t1 = time.time()
             self._move_snakes()            
@@ -202,6 +199,15 @@ class BattleSnake():
             # if we're training RL then grab an updated board image as the next state
             # OR if we're recording RL video and this is the final turn after game over
             if (train_reinforcement) or (record_train_reinforcement_video):
+                # add frame to recording *after* it's moved so we have last_move_q_values set
+                if record_train_reinforcement_video:
+                    board_image_frames_for_recording.append({
+                        "image" : rl_state_image,
+                        "q_values" : snake_in_training.last_move_q_values,
+                        "local_dir" : snake_in_training.last_move_local_direction,
+                        "move" : snake_in_training.last_move
+                    })
+                    
                 # if the training snake was killed
                 training_snake_was_killed = (snake_in_training not in self.snakes)
                 # generate a new state after all the snakes have moved
@@ -254,7 +260,9 @@ class BattleSnake():
 
                 # append final frame if we're recording video
                 if (record_train_reinforcement_video and is_game_over):
-                    board_image_frames_for_recording.append(next_rl_state_image)  
+                    board_image_frames_for_recording.append({
+                        "image" : next_rl_state_image
+                    })
 
             self.turn += 1
 
@@ -460,7 +468,11 @@ class Snake():
         self.health = MAX_SNAKE_HEALTH
         self.ate_food = False
         self.num_food_consumed = 0
+        
+        self.last_move = None
         self.last_move_local_direction = 0
+        self.last_move_q_values = None
+
         self.color = color if color else snakes.COLORS["red"]
         self.id = id if id else str(uuid.uuid4())
         self.name = name if name else self.id
@@ -502,8 +514,9 @@ class Snake():
 
         snake_move = r["move"]
         snake_move_local_direction = r["local_direction"] if "local_direction" in r else None
+        move_q_values = r["q_values"] if "q_values" in r else None
         
-        self._move_snake(snake_move, snake_move_local_direction)
+        self._move_snake(snake_move, snake_move_local_direction, move_q_values)
 
     def start(self, data):
         data["you"] = self.jsonize()
@@ -551,8 +564,10 @@ class Snake():
         except Exception as e:
             traceback.print_exc()
 
-    def _move_snake(self, mv, local_dir):
+    def _move_snake(self, mv, local_dir, move_q_values):
+        self.last_move = mv
         self.last_move_local_direction = local_dir
+        self.last_move_q_values = move_q_values
 
         head = self.body[0]
 

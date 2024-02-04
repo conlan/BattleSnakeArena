@@ -48,17 +48,17 @@ class DQNSnakeModel_NoHealth():
 
         if (not force_greedy_move) and (self.random.random() < self.exploration_rate):
             # random move
+            # initialize tensor with 3 random values
+            q_values = torch.randn(1, 3)
+
             # if we're using action masking, grab a random move from a non-losing direction
-            if (use_action_masking):
-                # initialize tensor with 3 random values
-                q_values = torch.randn(1, 3)
+            if (use_action_masking):                
                 # mask out the losing moves
                 q_values = self.perform_action_mask(q_values, \
-                                    state_obj['json'], state_obj['next_move_coordinates'])            
-                # grab the highest remaining option after mask
-                action_idx = torch.argmax(q_values).item()
-            else:
-                action_idx = self.random.randint(0, 2)
+                                    state_obj['json'], state_obj['next_move_coordinates'])
+            
+            # grab the highest q value option
+            action_idx = torch.argmax(q_values).item()
         else:
             state, _ = self.get_state_and_health_tensors_from_state_obj(state_obj)
             # convert to current device

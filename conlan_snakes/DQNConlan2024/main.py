@@ -38,7 +38,7 @@ def start(data=None):
     if (model.model_save_path == None) and (data["model_save_path"]):
         model.set_model_save_path(data["model_save_path"])
     else:
-        print(f'Exploration Rate: {model.exploration_rate:.5f}, Current Step: {model.curr_step}')
+        print(f'    Exploration Rate: {model.exploration_rate:.5f}, Current Step: {model.curr_step}')
 
     return {
         'color': '#EADA50',

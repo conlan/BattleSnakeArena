@@ -6,22 +6,99 @@ import tensorboard_utils
 
 def main():
     args = battlesnake.parse_args()
-
-    running_turns_count = {}
-    running_food_consumed = {}
-    running_accumulated_rewards = {}
-    running_winners = {}
-    running_training_losses = []
-
-    running_mean_max_predicted_q_values = []
     
     training_snake = args.snake_types[0]
     training_snake_name = training_snake["name"]
     
     REPORT_STEP_FREQUENCY = 30_000 # every 50k model steps
-    last_report_step_count = 0
+    last_report_step_count = -1
 
     for i in range(args.games):
+        # Don't fix the epsilon for normal learning (only for validation)
+        args.is_validating_training = False
+
+        print("-----")
+        game_results = battlesnake._run_game_from_args(args)
+
+        # num_snakes = game_results["num_snakes"]
+
+        # winner tracking
+        # winner = game_results["winner"]
+        # turn count tracking
+        # turns = game_results["turns"]
+        # game_results["training_food_consumed"]
+        
+        # game_results["total_accumulated_reward"]
+
+        # game_results["training_losses"]
+
+        training_epsilon = game_results["training_epsilon"]
+        training_curr_step = game_results["training_curr_step"]
+
+        # # Print out the accumulated rewards for each game size
+        # for snake_count in running_accumulated_rewards:
+        #     rewards_for_snake_count = running_accumulated_rewards[snake_count]
+            
+        #     print(f'    {i+1} / {args.games}')
+        #     print(f'        {snake_count}-player, Reward Mean: {sum(rewards_for_snake_count) * 1.0 / len(rewards_for_snake_count):.2f}')
+        #     # print turn mean
+        #     turns_for_snake_count = running_turns_count[snake_count]
+        #     print(f'        {snake_count}-player, Turn Mean: {sum(turns_for_snake_count) * 1.0 / len(turns_for_snake_count):.2f}')
+
+        # Initialize last_report_step_count
+        if (last_report_step_count == -1):
+            last_report_step_count = training_curr_step // REPORT_STEP_FREQUENCY
+        
+        if (training_curr_step // REPORT_STEP_FREQUENCY > last_report_step_count):
+            # Run a validation round with a fixed epsilon
+            last_report_step_count = training_curr_step // REPORT_STEP_FREQUENCY
+            
+            # get the mean max predicted q value on held out states
+            mean_max_predicted_q_value = track_mean_max_predicted_q_on_holdout_states(training_snake, "conlan_snakes/DQNConlan2024/held-out-states-solo/")
+
+            # run a validation round with fixed epsilon
+            validation_results = run_validation_round(args)
+            validation_results["mean_max_predicted_q_value"] = mean_max_predicted_q_value
+            validation_results["training_epsilon"] = training_epsilon
+
+            if (args.discord_webhook_url):
+                discord_utils.report_to_discord(args.discord_webhook_url, validation_results)
+        
+            # running_mean_max_predicted_q_values.append(mean_max_predicted_q_value)
+
+            # report_data = {
+            #     "running_turns_count" : running_turns_count,
+            #     "running_training_losses" : running_training_losses,
+            #     "training_epsilon" : training_epsilon,
+            #     "training_food_consumed" : running_food_consumed,
+            #     "running_accumulated_rewards" : running_accumulated_rewards,
+            #     "running_winners" : running_winners,
+            #     "training_snake_name" : training_snake_name,
+            #     "mean_max_predicted_q_value" : mean_max_predicted_q_value,
+            #     "running_mean_max_predicted_q_values" : running_mean_max_predicted_q_values
+            # }
+
+            # # log to tensorboard periodically
+            # if (args.tensor_board_dir):
+            #     tensorboard_utils.log(args.tensor_board_dir, report_data, epoch_size=2000)
+
+def run_validation_round(args):
+    NUM_GAMES_PER_VALIDATION_ROUND = 1000
+
+    print("-----")
+    print("Running validation round for " + str(NUM_GAMES_PER_VALIDATION_ROUND) + " games...")
+
+    training_snake = args.snake_types[0]
+    training_snake_name = training_snake["name"]
+
+    running_winners = {}
+    running_turns_count = {}
+    running_accumulated_rewards = {}
+    running_food_consumed = {}
+        
+    args.is_validating_training = True
+
+    for i in range(NUM_GAMES_PER_VALIDATION_ROUND):
         game_results = battlesnake._run_game_from_args(args)
 
         num_snakes = game_results["num_snakes"]
@@ -43,62 +120,19 @@ def main():
             running_food_consumed[num_snakes] = []
         running_food_consumed[num_snakes].append(game_results["training_food_consumed"])
 
-        # total accumulated reward
+         # total accumulated reward
         if (num_snakes not in running_accumulated_rewards):
             running_accumulated_rewards[num_snakes] = []
         running_accumulated_rewards[num_snakes].append(game_results["total_accumulated_reward"])
 
-        # Training losses and epsilon
-        training_losses_for_game = game_results["training_losses"]
-        training_loss_mean = sum(training_losses_for_game) * 1.0 / len(training_losses_for_game) if len(training_losses_for_game) > 0 else 0
-        running_training_losses.append(training_loss_mean)
 
-        training_epsilon = game_results["training_epsilon"]
-        training_curr_step = game_results["training_curr_step"]
-
-        # Print out the accumulated rewards for each game size
-        for snake_count in running_accumulated_rewards:
-            rewards_for_snake_count = running_accumulated_rewards[snake_count]
-            
-            print(f'    {i+1} / {args.games}')
-            print(f'        {snake_count}-player, Reward Mean: {sum(rewards_for_snake_count) * 1.0 / len(rewards_for_snake_count):.2f}')
-            # print turn mean
-            turns_for_snake_count = running_turns_count[snake_count]
-            print(f'        {snake_count}-player, Turn Mean: {sum(turns_for_snake_count) * 1.0 / len(turns_for_snake_count):.2f}')
-
-        if (training_curr_step // REPORT_STEP_FREQUENCY > last_report_step_count):
-            last_report_step_count = training_curr_step // REPORT_STEP_FREQUENCY
-
-            mean_max_predicted_q_value = track_mean_max_predicted_q_on_holdout_states(training_snake, "conlan_snakes/DQNConlan2024/held-out-states-solo/")
-            running_mean_max_predicted_q_values.append(mean_max_predicted_q_value)
-
-            report_data = {
-                "running_turns_count" : running_turns_count,
-                "running_training_losses" : running_training_losses,
-                "training_epsilon" : training_epsilon,
-                "training_food_consumed" : running_food_consumed,
-                "running_accumulated_rewards" : running_accumulated_rewards,
-                "running_winners" : running_winners,
-                "training_snake_name" : training_snake_name,
-                "mean_max_predicted_q_value" : mean_max_predicted_q_value,
-                "running_mean_max_predicted_q_values" : running_mean_max_predicted_q_values
-            }
-            # report to discord periodically
-            if (args.discord_webhook_url):            
-                discord_utils.report_to_discord(args.discord_webhook_url, report_data, epoch_size=2000)
-
-            # log to tensorboard periodically
-            if (args.tensor_board_dir):
-                tensorboard_utils.log(args.tensor_board_dir, report_data, epoch_size=2000)
-
-    for snake_count in running_winners:
-        winners = running_winners[snake_count]
-
-        for winner in set(winners):
-            if (winner == battlesnake.GAME_RESULT_DRAW):
-                print(f'{snake_count}-player, Games Tied: {sum([1 for s in winners if s == winner])}')
-            else:
-                print(f'{snake_count}-player, {winner} Won: {sum([1 for s in winners if s == winner])}')
+    return {
+        "running_winners" : running_winners,
+        "running_turns_count" : running_turns_count,
+        "training_snake_name" : training_snake_name,
+        "running_accumulated_rewards" : running_accumulated_rewards,
+        "training_food_consumed" : running_food_consumed
+    }
 
 def track_mean_max_predicted_q_on_holdout_states(training_snake, held_out_states_path):
     print("Tracking mean max predicted Q value on holdout states...")

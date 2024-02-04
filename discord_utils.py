@@ -3,14 +3,13 @@ import json
 import numpy as np
 import copy
 
-def report_to_discord(discord_webhook_url, data, epoch_size):    
+def report_to_discord(discord_webhook_url, data):    
     # make a deep copy of the data so we don't modify the original
     data = copy.deepcopy(data)
 
     running_winners = data['running_winners']
     
     training_snake_name = data['training_snake_name']
-    training_losses = data['running_training_losses']
     
     running_turns_count = data['running_turns_count']
     running_accumulated_rewards = data['running_accumulated_rewards']
@@ -21,19 +20,6 @@ def report_to_discord(discord_webhook_url, data, epoch_size):
     # mean max predicted q value
     mean_max_predicted_q_value = data['mean_max_predicted_q_value']
     mean_max_predicted_q_value = float("{:.5f}".format(mean_max_predicted_q_value))
-
-    # # trim out the data so we're only dealing with the latest epoch
-    # training_losses = training_losses[-epoch_size:]
-
-    # for snake_count in running_winners:
-    #     running_winners[snake_count] = running_winners[snake_count][-epoch_size:]
-    #     running_turns_count[snake_count] = running_turns_count[snake_count][-epoch_size:]
-    #     training_food_consumed[snake_count] = training_food_consumed[snake_count][-epoch_size:]
-    #     running_accumulated_rewards[snake_count] = running_accumulated_rewards[snake_count][-epoch_size:]
-    
-    # Training Loss
-    mean_training_loss = np.mean(training_losses) if len(training_losses) > 0 else 0
-    mean_training_loss = float("{:.5f}".format(mean_training_loss))
 
     stats_per_snake_count = {}
     for snake_count in running_winners:
@@ -73,9 +59,10 @@ def report_to_discord(discord_webhook_url, data, epoch_size):
         stats_per_snake_count[snake_count]['accumulated_rewards'] = ":moneybag:   **{}-P Mean Rewards**: {:.5f}".format(snake_count, sum(accumulated_rewards_for_snake_count) * 1.0 / len(accumulated_rewards_for_snake_count)) + "\n\n"
     
     # build the message to post to discord
-    discord_message = ":snake:  **Training Snake**: " + training_snake_name + "\n\n"
+    discord_message = "Validation Results\n\n"
+    discord_message += ":snake:  **Training Snake**: " + training_snake_name + "\n\n"
     discord_message += ":game_die:  **Epsilon**: " + str(training_epsilon) + "\n\n"
-    discord_message += ":skull:  **Mean Loss**: " + str(mean_training_loss) + "\n\n"
+    # discord_message += ":skull:  **Mean Loss**: " + str(mean_training_loss) + "\n\n"
     discord_message += ":regional_indicator_q:  **Mean Max Predicted Q**: " + str(mean_max_predicted_q_value) + "\n\n"
     discord_message += "------------------------------------------------------------\n\n"
 
@@ -83,13 +70,14 @@ def report_to_discord(discord_webhook_url, data, epoch_size):
         if not snake_count in stats_per_snake_count:
             continue
 
-        # discord_message += stats_per_snake_count[snake_count]['num_games']
+        discord_message += stats_per_snake_count[snake_count]['num_games']
         discord_message += stats_per_snake_count[snake_count]['win_rate']
         discord_message += stats_per_snake_count[snake_count]['food_consumed']        
         discord_message += stats_per_snake_count[snake_count]['turn_count']
         discord_message += stats_per_snake_count[snake_count]['accumulated_rewards']
         discord_message += "------------------------------------------------------------\n\n"
-
+    print(discord_message)
+    return # TODO remove
     payload = {
         "content": discord_message
     }

@@ -613,7 +613,10 @@ def run_game(snake_types, food_spawn_chance, min_food, dims=(BOARD_SIZE_MEDIUM,B
     game.place_snakes(snakes)    
     game.place_food()
     
-    print("Starting game with snakes: ", [s.name for s in snakes])    
+    if (is_validating_training):
+        print("Validating training with snakes: ", [s.name for s in snakes])
+    else:
+        print("Starting game with snakes: ", [s.name for s in snakes])
 
     game_results = {}
     game_results["winner"] = game.start_game(speed=speed, output_board=(not suppress_board), train_reinforcement=train_reinforcement, record_train_reinforcement_video=record_train_reinforcement_video, is_validating_training=is_validating_training)

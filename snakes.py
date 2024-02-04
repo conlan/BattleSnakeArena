@@ -27,83 +27,13 @@ COLORS = {
 
 SNAKES = [
     {
-        "name": "DQNConlan2024",
+        "name": "DQNConlan2024_v4",
         "start":conlan_snakes.DQNConlan2024.main.start,
         "move": conlan_snakes.DQNConlan2024.main.move,
         "cache" : conlan_snakes.DQNConlan2024.main.cache,        
-        "training_reward_index" : 1,
-        "should_action_mask" : True,
-        "model_save_path" : "/content/drive/MyDrive/ColabOutput/snake_net.chkpt",
-        "color": COLORS["red"]
-    },
-    {
-        "name": "DQNConlan2024_v2",
-        "start":conlan_snakes.DQNConlan2024.main.start,
-        "move": conlan_snakes.DQNConlan2024.main.move,
-        "cache" : conlan_snakes.DQNConlan2024.main.cache,        
-        "training_reward_index" : 2,
-        "should_action_mask" : True,
-        "model_save_path" : "/content/drive/MyDrive/ColabOutput/snake_net_v2.chkpt",
-        "color": COLORS["red"]
-    },
-    {
-        "name": "DQNConlan2024_reward-3_asset-2",
-        "start":conlan_snakes.DQNConlan2024.main.start,
-        "move": conlan_snakes.DQNConlan2024.main.move,
-        "cache" : conlan_snakes.DQNConlan2024.main.cache,        
-        "training_reward_index" : 3,
-        "should_action_mask" : True,
-        "model_save_path" : "/content/drive/MyDrive/ColabOutput/snake_net_reward_3_asset-2.chkpt",
-        "color": COLORS["red"]
-    },
-    {
-        "name": "DQNConlan2024_reward-3_asset-2_solo",
-        "start":conlan_snakes.DQNConlan2024.main.start,
-        "move": conlan_snakes.DQNConlan2024.main.move,
-        "cache" : conlan_snakes.DQNConlan2024.main.cache,        
-        "training_reward_index" : 3,
-        "should_action_mask" : True,
-        "model_save_path" : "/content/drive/MyDrive/ColabOutput/snake_net_reward_3_asset-2_solo.chkpt",
-        "color": COLORS["red"]
-    },
-    {
-        "name": "DQNConlan2024_reward-3_asset-2_no_action_mask",
-        "start":conlan_snakes.DQNConlan2024.main.start,
-        "move": conlan_snakes.DQNConlan2024.main.move,
-        "cache" : conlan_snakes.DQNConlan2024.main.cache,        
-        "training_reward_index" : 3,
+        "training_reward_index" : 4,
         "should_action_mask" : False,
-        "model_save_path" : "/content/drive/MyDrive/ColabOutput/snake_net_reward_3_asset-2_no_action_mask.chkpt",
-        "color": COLORS["red"]
-    },
-    {
-        "name": "DQNConlan2024_reward-3_asset-2_no_health",
-        "start":conlan_snakes.DQNConlan2024.main.start,
-        "move": conlan_snakes.DQNConlan2024.main.move,
-        "cache" : conlan_snakes.DQNConlan2024.main.cache,        
-        "training_reward_index" : 3,
-        "should_action_mask" : True,
-        "model_save_path" : "/content/drive/MyDrive/ColabOutput/snake_net_reward_3_asset-2_no_health.chkpt",
-        "color": COLORS["red"]
-    },
-    {
-        "name": "DQNConlan2024_reward-3_asset-2_solo_no_health",
-        "start":conlan_snakes.DQNConlan2024.main.start,
-        "move": conlan_snakes.DQNConlan2024.main.move,
-        "cache" : conlan_snakes.DQNConlan2024.main.cache,        
-        "training_reward_index" : 3,
-        "should_action_mask" : True,
-        "model_save_path" : "/content/drive/MyDrive/ColabOutput/snake_net_reward_3_asset-2_solo_no_health.chkpt",
-        "color": COLORS["red"]
-    },
-    {
-        "name": "DQNConlan2024_reward-3_asset-2_no_action_mask_no_health",
-        "start":conlan_snakes.DQNConlan2024.main.start,
-        "move": conlan_snakes.DQNConlan2024.main.move,
-        "cache" : conlan_snakes.DQNConlan2024.main.cache,        
-        "training_reward_index" : 3,
-        "should_action_mask" : False,
-        "model_save_path" : "/content/drive/MyDrive/ColabOutput/snake_net_reward_3_asset-2_no_action_mask_no_health.chkpt",
+        "model_save_path" : "/content/drive/MyDrive/ColabOutput/snake_net_v4.chkpt",
         "color": COLORS["red"]
     },
     {
@@ -127,3 +57,76 @@ SNAKES = [
         "color": COLORS["yellow"]
     }
 ]
+
+
+
+# {
+#     "name": "DQNConlan2024_v2",
+#     "start":conlan_snakes.DQNConlan2024.main.start,
+#     "move": conlan_snakes.DQNConlan2024.main.move,
+#     "cache" : conlan_snakes.DQNConlan2024.main.cache,        
+#     "training_reward_index" : 2,
+#     "should_action_mask" : True,
+#     "model_save_path" : "/content/drive/MyDrive/ColabOutput/snake_net_v2.chkpt",
+#     "color": COLORS["red"]
+# },
+# {
+#     "name": "DQNConlan2024_reward-3_asset-2",
+#     "start":conlan_snakes.DQNConlan2024.main.start,
+#     "move": conlan_snakes.DQNConlan2024.main.move,
+#     "cache" : conlan_snakes.DQNConlan2024.main.cache,        
+#     "training_reward_index" : 3,
+#     "should_action_mask" : True,
+#     "model_save_path" : "/content/drive/MyDrive/ColabOutput/snake_net_reward_3_asset-2.chkpt",
+#     "color": COLORS["red"]
+# },
+# {
+#     "name": "DQNConlan2024_reward-3_asset-2_solo",
+#     "start":conlan_snakes.DQNConlan2024.main.start,
+#     "move": conlan_snakes.DQNConlan2024.main.move,
+#     "cache" : conlan_snakes.DQNConlan2024.main.cache,        
+#     "training_reward_index" : 3,
+#     "should_action_mask" : True,
+#     "model_save_path" : "/content/drive/MyDrive/ColabOutput/snake_net_reward_3_asset-2_solo.chkpt",
+#     "color": COLORS["red"]
+# },
+# {
+#     "name": "DQNConlan2024_reward-3_asset-2_no_action_mask",
+#     "start":conlan_snakes.DQNConlan2024.main.start,
+#     "move": conlan_snakes.DQNConlan2024.main.move,
+#     "cache" : conlan_snakes.DQNConlan2024.main.cache,        
+#     "training_reward_index" : 3,
+#     "should_action_mask" : False,
+#     "model_save_path" : "/content/drive/MyDrive/ColabOutput/snake_net_reward_3_asset-2_no_action_mask.chkpt",
+#     "color": COLORS["red"]
+# },
+# {
+#     "name": "DQNConlan2024_reward-3_asset-2_no_health",
+#     "start":conlan_snakes.DQNConlan2024.main.start,
+#     "move": conlan_snakes.DQNConlan2024.main.move,
+#     "cache" : conlan_snakes.DQNConlan2024.main.cache,        
+#     "training_reward_index" : 3,
+#     "should_action_mask" : True,
+#     "model_save_path" : "/content/drive/MyDrive/ColabOutput/snake_net_reward_3_asset-2_no_health.chkpt",
+#     "color": COLORS["red"]
+# },
+# {
+#     "name": "DQNConlan2024_reward-3_asset-2_solo_no_health",
+#     "start":conlan_snakes.DQNConlan2024.main.start,
+#     "move": conlan_snakes.DQNConlan2024.main.move,
+#     "cache" : conlan_snakes.DQNConlan2024.main.cache,        
+#     "training_reward_index" : 3,
+#     "should_action_mask" : True,
+#     "model_save_path" : "/content/drive/MyDrive/ColabOutput/snake_net_reward_3_asset-2_solo_no_health.chkpt",
+#     "color": COLORS["red"]
+# },
+# {
+#     "name": "DQNConlan2024_reward-3_asset-2_no_action_mask_no_health",
+#     "start":conlan_snakes.DQNConlan2024.main.start,
+#     "move": conlan_snakes.DQNConlan2024.main.move,
+#     "cache" : conlan_snakes.DQNConlan2024.main.cache,        
+#     "training_reward_index" : 3,
+#     "should_action_mask" : False,
+#     "model_save_path" : "/content/drive/MyDrive/ColabOutput/snake_net_reward_3_asset-2_no_action_mask_no_health.chkpt",
+#     "color": COLORS["red"]
+# },

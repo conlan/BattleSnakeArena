@@ -146,6 +146,7 @@ def track_mean_max_predicted_q_on_holdout_states(training_snake, held_out_states
         json_path = held_out_states_path + "state-" + str(i) + ".json"
         with open(json_path, 'r') as json_file:
             board_data = json.load(json_file)
+            board_data["should_action_mask"] = False # don't mask actions in case we saved them with it on
 
         # run model and get max predicted Q_value
         move = training_snake["move"](board_data, force_greedy_move=True)

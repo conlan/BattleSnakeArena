@@ -21,7 +21,7 @@ ENEMY_BODY_IMAGE_CURVE = Image.open(ASSET_FOLDER + "enemy_body_curve.png")
 
 FOOD_IMAGE = Image.open(ASSET_FOLDER + "food.png")
 
-class Observer():
+class Observer():    
     def __init__(self) -> None:
         self.observations = {}
 
@@ -52,7 +52,6 @@ class Observer():
         draw.line([(0, height - 1), (width, height - 1)], fill=border_color, width=border_width)
         draw.line([(0, 0), (0, height)], fill=border_color, width=border_width)
         draw.line([(width - 1, 0), (width - 1, height)], fill=border_color, width=border_width)
-
         
         x = 0
         y = 0
@@ -237,10 +236,14 @@ class Observer():
         #         })
 
         # snakes_health_in_length_descending_order = [obj['health'] for obj in snakes_health_in_length_descending_order]    
-        
-        self.observations[arena_id].append(board_image)
 
-        return board_image# snakes_health_in_length_descending_order
+        observation = {
+            "image" : board_image
+        }
+
+        self.observations[arena_id].append(observation)
+
+        return observation# snakes_health_in_length_descending_order
 
     def print_arena(self, arena) -> None:
         width = arena.width()

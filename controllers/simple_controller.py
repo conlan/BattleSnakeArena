@@ -8,7 +8,6 @@ FOOD_SEARCH_DIST = 10
 
 class SimpleController (SnakeController):
     def __init__(self, seed=1):
-        self.id = "SimpleController" + "-" + str(uuid.uuid4())
         self.random = random.Random()
         self.random.seed(seed)
 
@@ -18,7 +17,7 @@ class SimpleController (SnakeController):
         you['body'] = [ (b['x'], b['y']) for b in you['body'] ]
         you['head'] = you['body'][0]
         you['size'] = len(you['body'])
-        health = you["health"]
+        # health = you["health"]
         walls = (data['board']['width'], data['board']['height'])
         snakesTogether = []
         [ [ snakesTogether.append(( b['x'], b['y'] )) for b in s["body"] ] for s in data['board']['snakes'] ]

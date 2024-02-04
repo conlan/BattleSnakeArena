@@ -1,3 +1,5 @@
+from enum import IntEnum
+
 MAX_SNAKE_HEALTH = 100
 
 SNAKE_START_SIZE = 3
@@ -5,7 +7,7 @@ SNAKE_START_SIZE = 3
 DEFAULT_MIN_FOOD = 1
 DEFAULT_FOOD_SPAN_CHANCE = 0.15
 
-BOARD_SIZE_MEDIUM = 11
+BOARD_SIZE_MEDIUM = (11, 11)
 
 COLORS = {
     "black": "\033[1;37;40m",
@@ -18,3 +20,8 @@ COLORS = {
     "grey": "\033[1;37;47m",
     "default": "\033[0m"
     }
+
+class LocalDirection(IntEnum):
+    STRAIGHT = 0,
+    LEFT = 1,
+    RIGHT = 2

@@ -65,7 +65,7 @@ class Snake():
         jsonobj = {}
         jsonobj["health"] = self.health
         jsonobj["body"] = [{"x": b[0], "y": b[1]} for b in self.body]
-        jsonobj["id"] = self.controller.id
+        jsonobj["id"] = self.id
         jsonobj["name"] = self.name
         return jsonobj
 

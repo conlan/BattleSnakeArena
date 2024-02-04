@@ -5,7 +5,10 @@ from arena import ArenaParameters, Arena
 from snake import Snake
 
 from observer import Observer
+
 from controllers.simple_controller import SimpleController
+
+from recorder import Recorder
 
 import constants
 
@@ -17,12 +20,14 @@ def main() -> None:
 
         SimpleController()
     ]
+
     colors = [
         constants.COLORS["red"],
         constants.COLORS["blue"]
     ]
 
     observer = Observer()
+    recorder = Recorder()
 
     training_config = {
         "speed" : 100,
@@ -48,8 +53,10 @@ def main() -> None:
     for process in threads:
         process.join()
 
-    # for result in game_results:
-    #     print_game_result(result)
+    for result in game_results:
+        arena_id = result["id"]
+
+        recorder.record(observer.observations[arena_id], "output_video.mp4")
         
     # print(observer.observations)
 
@@ -70,14 +77,14 @@ def run_training_game(config, results) -> dict:
     
     observer = config["observer"]
     
-    parameters = ArenaParameters((constants.BOARD_SIZE_MEDIUM, constants.BOARD_SIZE_MEDIUM), constants.DEFAULT_FOOD_SPAN_CHANCE, constants.DEFAULT_MIN_FOOD)
+    parameters = ArenaParameters(constants.BOARD_SIZE_MEDIUM, constants.DEFAULT_FOOD_SPAN_CHANCE, constants.DEFAULT_MIN_FOOD)
 
     snakes = []
     training_snake = None
 
     for i in range(len(controllers)):
         controller = controllers[i]
-        snake = Snake("Snake" + str(i), colors[i], controller)    
+        snake = Snake("Snake-" + str(i), colors[i], controller)    
         snakes.append(snake)
 
         if (controller == controller_being_trained):
@@ -100,6 +107,8 @@ def run_training_game(config, results) -> dict:
             while(time.time()-t1 <= float(100-speed)/float(100)): pass
 
     if (print_board): observer.print_arena(arena)
+
+    observer.observe(arena.get_board_json(training_snake))
 
     results.append(arena.get_game_results())
 

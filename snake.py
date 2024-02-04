@@ -3,10 +3,10 @@ import uuid
 
 class Snake():
     def __init__(self, name, color, controller) -> None:
-        self.name = name
-        self.id = self.name + "-" + str(uuid.uuid4())
+        self.name = name        
         self.color = color
         self.controller = controller
+        self.id = "snake" + "-" + str(uuid.uuid4())
         
         self.reset()        
 
@@ -30,13 +30,18 @@ class Snake():
     
     def head(self) -> tuple:
         return self.body[0]
+    
+    def length(self) -> int:
+        return len(self.body)
 
     def kill(self, reason) -> None:
         self.is_dead = True
         self.death_reason = reason
 
     def move(self, data) -> None:
-        move_obj = self.controller.move(data)
+        # query controller for move
+        move_obj = self.controller.act(data)
+
         mv = move_obj["move"]
         
         head = self.body[0]
@@ -60,7 +65,7 @@ class Snake():
         jsonobj = {}
         jsonobj["health"] = self.health
         jsonobj["body"] = [{"x": b[0], "y": b[1]} for b in self.body]
-        jsonobj["id"] = self.id
+        jsonobj["id"] = self.controller.id
         jsonobj["name"] = self.name
         return jsonobj
 

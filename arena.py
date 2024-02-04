@@ -1,6 +1,11 @@
 import time
 import random
-import constants
+# import constants
+from threading import Thread
+
+import uuid
+
+# from snake import Snake
 
 class ArenaParameters():
     def __init__(self, dims, food_spawn_chance, min_food, seed=None) -> None:
@@ -19,8 +24,8 @@ class ArenaParameters():
 class Arena():
     def __init__(self, parameters, snakes) -> None:
         self.parameters = parameters
-        
-        self.all_snakes = snakes        
+        self.id = "game-" + str(uuid.uuid4())
+        self.all_snakes = snakes
         
         self.reset()
 
@@ -44,15 +49,37 @@ class Arena():
         self._detect_death()
         self._check_for_eaten_food()
         self._spawn_food()
+
+        self.turn += 1
         
         is_game_over = self._check_winner()
         
         return is_game_over
     
-    def _check_winner(self):
+    def get_game_results(self) -> dict:
+        is_game_over = self._check_winner()
+
+        if (not is_game_over):
+            return None
+        
+        winning_snake = None
+
+        if (self.is_solo_game):
+            winning_snake = self.all_snakes[0]
+        elif (len(self.live_snakes) == 1):
+            winning_snake = self.live_snakes[0]
+
+        return {
+            "id" : self.id,
+            "turns" : self.turn,
+            "winner" : winning_snake,
+            "snakes" : self.all_snakes
+        }
+    
+    def _check_winner(self) -> bool:
         return (len(self.live_snakes) == 1 and not self.is_solo_game) or (len(self.live_snakes) == 0)
     
-    def _spawn_food(self):
+    def _spawn_food(self) -> None:
         # Following Standard rules at
         # https://github.com/BattlesnakeOfficial/rules/blob/main/standard.go#L368
         numCurrFood = len(self.food)
@@ -72,8 +99,24 @@ class Arena():
                 self.food.append(spot)
     
     def _move_snakes(self) -> None:
+        threads = []
+        
         for snake in self.live_snakes:
-            snake.move(self._get_board_json())
+            snake_pov_json = self.get_board_json(snake)
+                        
+            process = Thread(target=snake.move, args=(snake_pov_json,))
+            threads.append(process)
+        
+        # Print game id, turn
+        # print(f"{self.id} Turn: {self.turn}")
+        for process in threads:
+            process.start()
+            
+        for process in threads:
+            process.join()
+
+        # Print game id 
+        # print(f"{self.id} Turn: {self.turn} completed")
 
     def _check_for_eaten_food(self):
         removed_food = []
@@ -98,13 +141,19 @@ class Arena():
         del_snakes = []
 
         for s1 in self.live_snakes:
+            if (s1 in del_snakes):
+                continue
+            
             for s2 in self.live_snakes:
+                if (s2 in del_snakes):
+                    continue
+
                 if s1 != s2:
                     if s2.head() == s1.head():
-                        if len(s1.body) > len(s2.body):
+                        if (s1.length() > s2.length()):
                             del_snakes.append(s2)
 
-                        elif len(s1.body) < len(s2.body):
+                        elif (s1.length()) < (s2.length()):
                             del_snakes.append(s1)
                         else:
                             del_snakes.append(s1)
@@ -152,14 +201,20 @@ class Arena():
             s.kill(reason)
             self.live_snakes.remove(s)    
 
-    def _get_board_json(self):
+    def get_board_json(self, pov_snake):
         jsonobj = {}
+        jsonobj["arena"] = {
+            "id" : self.id
+        }
         jsonobj["turn"] = self.turn
         jsonobj["board"] = {}
         jsonobj["board"]["height"] = self.height()
         jsonobj["board"]["width"] = self.width()
         jsonobj["board"]["snakes"] = [s.jsonize() for s in self.live_snakes]
         jsonobj["board"]["food"] = [{"x":f[0], "y":f[1]} for f in self.food]
+        
+        jsonobj["you"] = pov_snake.jsonize()
+            
         return jsonobj
     
     def width(self) -> int:
@@ -198,6 +253,7 @@ class Arena():
                 
         return unoccupiedPoints
 
+    # TODO move into rules module
     def _place_food(self) -> None:
         # Follow standard placement rules at
         # https://github.com/BattlesnakeOfficial/rules/blob/main/board.go#L387

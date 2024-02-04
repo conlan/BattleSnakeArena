@@ -7,7 +7,7 @@ import uuid
 
 # from snake import Snake
 
-class ArenaParameters():
+class GameParameters():
     def __init__(self, dims, food_spawn_chance, min_food, seed=None) -> None:
         self.seed = seed if seed else int(time.time()*10000)
         self.random = random.Random(self.seed)
@@ -21,7 +21,7 @@ class ArenaParameters():
     def is_small_board(self) -> bool:
         return (self.width * self.height) < (11 * 11) # TODO pull out magic number
 
-class Arena():
+class Game():
     def __init__(self, parameters, snakes) -> None:
         self.parameters = parameters
         self.id = "game-" + str(uuid.uuid4())
@@ -203,7 +203,7 @@ class Arena():
 
     def get_board_json(self, pov_snake):
         jsonobj = {}
-        jsonobj["arena"] = {
+        jsonobj["game"] = {
             "id" : self.id
         }
         jsonobj["turn"] = self.turn

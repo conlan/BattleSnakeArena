@@ -30,11 +30,11 @@ class Observer():
         y = tuple['y']
         return (x * (GRID_SIZE - 1), y * (GRID_SIZE - 1))        
     
-    def observe(self, json) -> None:
-        arena_id = json["arena"]["id"]
+    def observe(self, json, should_store_observation) -> None:
+        game_id = json["game"]["id"]
 
-        if (arena_id not in self.observations):
-            self.observations[arena_id] = []
+        if (game_id not in self.observations):
+            self.observations[game_id] = []
 
         board_width = json['board']['width']
         board_height = json['board']['height']
@@ -241,13 +241,14 @@ class Observer():
             "image" : board_image
         }
 
-        self.observations[arena_id].append(observation)
+        if (should_store_observation):
+            self.observations[game_id].append(observation)
 
         return observation# snakes_health_in_length_descending_order
 
-    def print_arena(self, arena) -> None:
-        width = arena.width()
-        height = arena.height()
+    def print_game(self, game) -> None:
+        width = game.width()
+        height = game.height()
 
         ywall = " " * 2 * width + "  "
 
@@ -256,16 +257,16 @@ class Observer():
         for j in range(height):
             print(f"{BORDER_COLOR} {DEFAULT_COLOR}", end="") # X Border
             for i in range(width):
-                if (i, j) in arena.food:
+                if (i, j) in game.food:
                     print(f"{FOOD_COLOR}  {DEFAULT_COLOR}", end="") # Food
                 else:
                     no_snake = True
-                    for ind, s in enumerate(arena.live_snakes):                        
+                    for ind, s in enumerate(game.live_snakes):                        
                         if (i, j) in s.body:
                             if s.body[0] == (i, j):
-                                print(f"{arena.live_snakes[ind].color}OO{DEFAULT_COLOR}", end="") # Head
+                                print(f"{game.live_snakes[ind].color}OO{DEFAULT_COLOR}", end="") # Head
                             else:
-                                print(f"{arena.live_snakes[ind].color}  {DEFAULT_COLOR}", end="") # Body
+                                print(f"{game.live_snakes[ind].color}  {DEFAULT_COLOR}", end="") # Body
                             no_snake = False
                     if no_snake:
                         print(f"{DEFAULT_COLOR}  {DEFAULT_COLOR}", end="") # Empty

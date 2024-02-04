@@ -1,118 +1,43 @@
-import time
-from threading import Thread
-
-from arena import ArenaParameters, Arena
-from snake import Snake
-
-from observer import Observer
-
-from controllers.simple_controller import SimpleController
-
-from recorder import Recorder
-
 import constants
 
-def main() -> None:
-    trainee_controller = SimpleController()
+class Trainer():
+    def __init__(self, controller, reward_set) -> None:
+        if controller is None:
+            raise Exception("controller cannot be None")
 
-    controllers = [
-        trainee_controller,
-
-        SimpleController()
-    ]
-
-    colors = [
-        constants.COLORS["red"],
-        constants.COLORS["blue"]
-    ]
-
-    observer = Observer()
-    recorder = Recorder()
-
-    training_config = {
-        "speed" : 100,
-        "print_board" : False,
-        "colors" : colors,
-        "controllers" : controllers,
-        "observer" : observer,
-        "trainee" : trainee_controller
-    }
-    game_results = []
-
-    num_games = 1
-
-    threads = []
-
-    for i in range(num_games):
-        process = Thread(target=run_training_game, args=(training_config,game_results,))
-        threads.append(process)
-
-    for process in threads:
-        process.start()
+        if reward_set is None:
+            raise Exception("reward_set cannot be None")
         
-    for process in threads:
-        process.join()
+        self.controller = controller
+        self.reward_set = reward_set
 
-    for result in game_results:
-        arena_id = result["id"]
+    def determine_reward(self, training_snake, game_results) -> int:
+        total_reward = 0
 
-        recorder.record(observer.observations[arena_id], "output_video.mp4")
+        if (training_snake.is_dead):
+            total_reward += self.reward_set[constants.REWARD_KEY_LOSE]
+        else:
+            total_reward += self.reward_set[constants.REWARD_KEY_SURVIVE]
+
+        if (training_snake.ate_food):
+            total_reward += self.reward_set[constants.REWARD_KEY_EAT]
+
+        # check if training snake is winner
+        if game_results is not None:
+            winner = game_results["winner"]
+
+            if (winner == training_snake):
+                total_reward += self.reward_set[constants.REWARD_KEY_WIN]
         
-    # print(observer.observations)
+        return total_reward
 
-    print(f'All {num_games} games have finished')
-
-def print_game_result(result) -> None:
-    arena_id = result["id"]
-    winner = result["winner"].name
-    print(f'{arena_id} finished. Winner: {winner}')
-
-def run_training_game(config, results) -> dict:
-    speed = config["speed"]
-    print_board = config["print_board"]
-    colors = config["colors"]
-    
-    controllers = config["controllers"]
-    controller_being_trained = config["trainee"]
-    
-    observer = config["observer"]
-    
-    parameters = ArenaParameters(constants.BOARD_SIZE_MEDIUM, constants.DEFAULT_FOOD_SPAN_CHANCE, constants.DEFAULT_MIN_FOOD)
-
-    snakes = []
-    training_snake = None
-
-    for i in range(len(controllers)):
-        controller = controllers[i]
-        snake = Snake("Snake-" + str(i), colors[i], controller)    
-        snakes.append(snake)
-
-        if (controller == controller_being_trained):
-            training_snake = snake
+    def train(self, observation, next_observation, action, reward, done) -> None:
+        if (action == None):
+            raise Exception("action cannot be None")
         
-    arena = Arena(parameters, snakes)
-
-    is_done = arena.reset()    
-
-    while not is_done:
-        t1 = time.time()
-
-        if (print_board): observer.print_arena(arena)
-
-        observer.observe(arena.get_board_json(training_snake))
-
-        is_done = arena.step()
-
-        if (speed < 100):
-            while(time.time()-t1 <= float(100-speed)/float(100)): pass
-
-    if (print_board): observer.print_arena(arena)
-
-    observer.observe(arena.get_board_json(training_snake))
-
-    results.append(arena.get_game_results())
-
-if __name__ == "__main__":
-    main()
-
+        state = observation["image"]
+        next_state = observation["image"]
+        
+        print("Training: " + str(state) + " " + str(next_state) + " " + str(action) + " " + str(reward) + " " + str(done))
+        pass
     

@@ -8,6 +8,8 @@ FOOD_SEARCH_DIST = 10
 
 class SimpleController (SnakeController):
     def __init__(self, seed=1):
+        super().__init__()
+
         self.random = random.Random()
         self.random.seed(seed)
 
@@ -78,6 +80,10 @@ class SimpleController (SnakeController):
             else:
                 # if no possible moves then at this point just move up
                 move = 'up'
+
+        # game_id = data["game"]["id"]
+        # if (game_id not in self.moves_made):
+        #     self.moves_made[game_id] = []
 
         return {
             'move': move

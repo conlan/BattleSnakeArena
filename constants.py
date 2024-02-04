@@ -21,6 +21,11 @@ COLORS = {
     "default": "\033[0m"
     }
 
+REWARD_KEY_SURVIVE = "survive"
+REWARD_KEY_EAT = "eat"
+REWARD_KEY_WIN = "win"
+REWARD_KEY_LOSE = "lose"
+
 class LocalDirection(IntEnum):
     STRAIGHT = 0,
     LEFT = 1,

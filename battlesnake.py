@@ -168,7 +168,7 @@ class BattleSnake():
 
             self.snakes.append(snake)
 
-    def start_game(self, speed=DEFAULT_SPEED, output_board=True, train_reinforcement=False, record_train_reinforcement_video=False):
+    def start_game(self, speed=DEFAULT_SPEED, output_board=True, train_reinforcement=False, record_train_reinforcement_video=False, is_validating_training=False):
         is_solo_game = (len(self.snakes) == 1)
         
         for s in self.snakes:
@@ -181,6 +181,7 @@ class BattleSnake():
 
         # keep a reference to the training snake it case it gets killed
         snake_in_training = self.snakes[0]
+        snake_in_training.is_validating_training = is_validating_training
 
         while (True):                       
             # if we're training RL then convert the current board to an image
@@ -243,16 +244,17 @@ class BattleSnake():
 
                     snake_in_training.total_accumulated_reward += training_reward
 
-                    # send to snake in training for cache
-                    rl_state_obj = {
-                        "image" : rl_state_image,
-                        "health" : snakes_health
-                    }
-                    next_rl_state_obj = {
-                        "image" : next_rl_state_image,
-                        "health" : next_snake_healths
-                    }
-                    snake_in_training.cache(rl_state_obj, next_rl_state_obj, training_reward, training_is_done)
+                    if not is_validating_training:
+                        # send to snake in training for cache
+                        rl_state_obj = {
+                            "image" : rl_state_image,
+                            "health" : snakes_health
+                        }
+                        next_rl_state_obj = {
+                            "image" : next_rl_state_image,
+                            "health" : next_snake_healths
+                        }
+                        snake_in_training.cache(rl_state_obj, next_rl_state_obj, training_reward, training_is_done)
 
                 # when snakes > 2, end game if training_snake_was_killed
                 if not is_solo_game and training_snake_was_killed:
@@ -481,6 +483,7 @@ class Snake():
         
         self.training_losses = []
         self.training_epsilon = 0
+        self.is_validating_training = False
         self.training_curr_step = 0
         self.training_reward_index = training_reward_index if training_reward_index else 0
         self.should_action_mask = should_action_mask
@@ -502,6 +505,8 @@ class Snake():
 
     def move(self, data):
         data["you"] = self.jsonize()
+        data["training_fixed_epsilon"] = 0.05 if self.is_validating_training else -1
+
         try:
             if self._move:
                 r = self._move(data)
@@ -594,7 +599,7 @@ def verbose_print(*args, **kwargs):
     if VERBOSE:
         print(*args, **kwargs)
 
-def run_game(snake_types, food_spawn_chance, min_food, dims=(BOARD_SIZE_MEDIUM,BOARD_SIZE_MEDIUM), suppress_board=False, train_reinforcement=False, record_train_reinforcement_video=False, randomize_opponent_count=False, speed=DEFAULT_SPEED, silent=False, seed=None):
+def run_game(snake_types, food_spawn_chance, min_food, dims=(BOARD_SIZE_MEDIUM,BOARD_SIZE_MEDIUM), suppress_board=False, train_reinforcement=False, record_train_reinforcement_video=False, is_validating_training=False, randomize_opponent_count=False, speed=DEFAULT_SPEED, silent=False, seed=None):
     snakes = [Snake(**snake_type) for snake_type in snake_types]
 
     if (randomize_opponent_count):
@@ -607,12 +612,11 @@ def run_game(snake_types, food_spawn_chance, min_food, dims=(BOARD_SIZE_MEDIUM,B
     game = BattleSnake(food_spawn_chance=food_spawn_chance, min_food=min_food, dims=dims, seed=seed)
     game.place_snakes(snakes)    
     game.place_food()
-
-    print("-----")
+    
     print("Starting game with snakes: ", [s.name for s in snakes])    
 
     game_results = {}
-    game_results["winner"] = game.start_game(speed=speed, output_board=(not suppress_board), train_reinforcement=train_reinforcement, record_train_reinforcement_video=record_train_reinforcement_video)
+    game_results["winner"] = game.start_game(speed=speed, output_board=(not suppress_board), train_reinforcement=train_reinforcement, record_train_reinforcement_video=record_train_reinforcement_video, is_validating_training=is_validating_training)
     game_results["turns"] = game.turn
     game_results["seed"] = game.seed
     game_results["num_snakes"] = len(snakes)
@@ -641,6 +645,7 @@ def _run_game_from_args(args):
         suppress_board=args.suppress_board,
         train_reinforcement=args.train_reinforcement,
         record_train_reinforcement_video=args.record_train_reinforcement_video,
+        is_validating_training=args.is_validating_training,
         randomize_opponent_count=args.randomize_opponent_count,
         speed=args.speed,
         silent=args.silent,

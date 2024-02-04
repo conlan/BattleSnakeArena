@@ -86,9 +86,12 @@ def move(data=None, force_greedy_move=False):
         for local_dir in rl_utils.LocalDirection:
             state_obj["next_move_coordinates"][local_dir.value] = \
                 rl_utils.getLocalDirectionAsCoordinate(local_dir, snakeHead, snakeNeck)
+            
+    training_fixed_epsilon = data["training_fixed_epsilon"] if "training_fixed_epsilon" in data else -1
          
     # get move index from move [STRAIGHT, LEFT, RIGHT]
-    dir_index, q_values = model.act(state_obj, force_greedy_move=force_greedy_move, use_action_masking=should_action_mask)
+    dir_index, q_values = model.act(state_obj, force_greedy_move=force_greedy_move, \
+                            use_action_masking=should_action_mask, training_fixed_epsilon=training_fixed_epsilon)
     local_dir = rl_utils.LocalDirection(dir_index)
 
     return {

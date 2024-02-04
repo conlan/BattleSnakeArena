@@ -43,10 +43,14 @@ class DQNSnakeModel_NoHealth():
         # where to save the model to
         self.model_save_path = None
 
-    def act(self, state_obj, force_greedy_move=False, use_action_masking=False):
+    def act(self, state_obj, force_greedy_move=False, use_action_masking=False, training_fixed_epsilon=-1):
+        epsilon = self.exploration_rate
+        if (training_fixed_epsilon >= 0):
+            epsilon = training_fixed_epsilon
+
         q_values = None
 
-        if (not force_greedy_move) and (self.random.random() < self.exploration_rate):
+        if (not force_greedy_move) and (self.random.random() < epsilon):
             # random move
             # initialize tensor with 3 random values
             q_values = torch.randn(1, 3)
@@ -70,10 +74,7 @@ class DQNSnakeModel_NoHealth():
             if (use_action_masking):
                 q_values = self.perform_action_mask(q_values, state_obj['json'], state_obj['next_move_coordinates'])
 
-            action_idx = torch.argmax(q_values).item()
-
-        self.exploration_rate *= self.exploration_rate_decay
-        self.exploration_rate = max(self.exploration_rate_min, self.exploration_rate)
+            action_idx = torch.argmax(q_values).item()        
             
         return action_idx, q_values
     
@@ -148,6 +149,9 @@ class DQNSnakeModel_NoHealth():
             'epsilon': self.exploration_rate,
             'curr_step': self.curr_step,
         }
+
+        self.exploration_rate *= self.exploration_rate_decay
+        self.exploration_rate = max(self.exploration_rate_min, self.exploration_rate)
         
         # wait until memory builds before learning
         if (self.curr_step < self.burnin):

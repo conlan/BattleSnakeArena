@@ -359,7 +359,7 @@ def output_to_video(board_history_frames):
             final_image.paste(image, (FRAME_PADDING, FRAME_PADDING))
 
             if q_values is not None:
-                print(q_values)
+                # print(q_values)
 
                 draw = ImageDraw.Draw(final_image)
 

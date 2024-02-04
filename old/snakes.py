@@ -33,7 +33,7 @@ SNAKES = [
         "cache" : conlan_snakes.DQNConlan2024.main.cache,        
         "training_reward_index" : 4,
         "should_action_mask" : False,
-        "model_save_path" : "/content/drive/MyDrive/ColabOutput/snake_net_v4.chkpt",
+        "model_save_path" : "saved/snake_net_v4.chkpt",
         "color": COLORS["red"]
     },
     {

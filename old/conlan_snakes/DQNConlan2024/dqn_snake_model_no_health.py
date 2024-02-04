@@ -47,7 +47,7 @@ class DQNSnakeModel_NoHealth():
         epsilon = self.exploration_rate
         if (training_fixed_epsilon >= 0):
             epsilon = training_fixed_epsilon
-
+        epsilon = 0
         q_values = None
 
         if (not force_greedy_move) and (self.random.random() < epsilon):

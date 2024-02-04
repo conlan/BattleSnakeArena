@@ -1,8 +1,9 @@
 import time
 import random
+import constants
 
 class ArenaParameters():
-    def __init__(self, dims, food_spawn_chance, seed=None) -> None:
+    def __init__(self, dims, food_spawn_chance, min_food, seed=None) -> None:
         self.seed = seed if seed else int(time.time()*10000)
         self.random = random.Random(self.seed)
 
@@ -10,6 +11,7 @@ class ArenaParameters():
         self.height = dims[1]
 
         self.food_spawn_chance = food_spawn_chance
+        self.min_food = min_food
 
     def is_small_board(self) -> bool:
         return (self.width * self.height) < (11 * 11) # TODO pull out magic number
@@ -17,12 +19,20 @@ class ArenaParameters():
 class Arena():
     def __init__(self, parameters, snakes) -> None:
         self.parameters = parameters
-        self.snakes = snakes
-        self.food = []
+        
+        self.all_snakes = snakes        
+        
+        self.reset()
 
     def reset(self) -> bool:
-        for snake in self.snakes:
+        self.turn = 0
+        self.food = []
+        self.live_snakes = []
+        self.is_solo_game = len(self.all_snakes) == 1
+
+        for snake in self.all_snakes:
             snake.reset()
+            self.live_snakes.append(snake)
 
         self._place_snakes()
         self._place_food()
@@ -30,8 +40,127 @@ class Arena():
         return False
     
     def step(self) -> bool:
-        print("Step")
-        return True
+        self._move_snakes()            
+        self._detect_death()
+        self._check_for_eaten_food()
+        self._spawn_food()
+        
+        is_game_over = self._check_winner()
+        
+        return is_game_over
+    
+    def _check_winner(self):
+        return (len(self.live_snakes) == 1 and not self.is_solo_game) or (len(self.live_snakes) == 0)
+    
+    def _spawn_food(self):
+        # Following Standard rules at
+        # https://github.com/BattlesnakeOfficial/rules/blob/main/standard.go#L368
+        numCurrFood = len(self.food)
+
+        if (numCurrFood < self.parameters.min_food):
+            self._place_food_randomly(self.parameters.min_food - numCurrFood)
+        elif (self.parameters.food_spawn_chance > 0):            
+            if (self.parameters.random.random() < self.parameters.food_spawn_chance):
+                self._place_food_randomly(1)
+
+    def _place_food_randomly(self, num_food):
+        for _ in range(num_food):
+            unoccupiedPoints = self._get_unoccupied_points(False)
+
+            if (len(unoccupiedPoints) > 0):
+                spot = self.parameters.random.choice(unoccupiedPoints)
+                self.food.append(spot)
+    
+    def _move_snakes(self) -> None:
+        for snake in self.live_snakes:
+            snake.move(self._get_board_json())
+
+    def _check_for_eaten_food(self):
+        removed_food = []
+
+        for f in self.food:
+            for s in self.live_snakes:
+                if f in s.body:
+                    s.eat()                    
+
+                    removed_food.append(f)
+                    break
+
+        self.food = [f for f in self.food if f not in removed_food]
+
+    def _detect_death(self):
+        self._detect_starvation()
+        self._detect_wall_collision()
+        self._detect_snake_collision()
+        self._resolve_head_collisions()
+
+    def _resolve_head_collisions(self):
+        del_snakes = []
+
+        for s1 in self.live_snakes:
+            for s2 in self.live_snakes:
+                if s1 != s2:
+                    if s2.head() == s1.head():
+                        if len(s1.body) > len(s2.body):
+                            del_snakes.append(s2)
+
+                        elif len(s1.body) < len(s2.body):
+                            del_snakes.append(s1)
+                        else:
+                            del_snakes.append(s1)
+                            del_snakes.append(s2)
+
+        self._delete_snakes(del_snakes, reason="HEAD-ON-HEAD")
+
+    def _detect_snake_collision(self):
+        snake_bodies = []
+
+        for s in self.live_snakes:
+            snake_bodies.extend(s.body[1:])
+
+        del_snakes = []
+        for s in self.live_snakes:
+            head = s.head()
+            if head in snake_bodies:
+                del_snakes.append(s)
+
+        self._delete_snakes(del_snakes, reason="SNAKE COLLISION")
+    
+    def _detect_starvation(self):
+        del_snakes = []
+
+        for s in self.live_snakes:
+            if(s.health <= 0):
+                del_snakes.append(s)
+        
+        self._delete_snakes(del_snakes, reason="STARVATION")
+
+    def _detect_wall_collision(self):
+        del_snakes = []
+
+        for s in self.live_snakes:
+            head = s.head()
+            if( head[0] < 0 or head[1] < 0 or
+                head[0] >= self.width() or
+                head[1] >= self.height()):
+                del_snakes.append(s)          
+
+        self._delete_snakes(del_snakes, reason="SNAKE COLLISION")
+
+    def _delete_snakes(self, snakes, reason):
+        for s in snakes:
+            s.kill(reason)
+            self.live_snakes.remove(s)    
+
+    def _get_board_json(self):
+        jsonobj = {}
+        jsonobj["turn"] = self.turn
+        jsonobj["board"] = {}
+        jsonobj["board"]["height"] = self.height()
+        jsonobj["board"]["width"] = self.width()
+        jsonobj["board"]["snakes"] = [s.jsonize() for s in self.live_snakes]
+        jsonobj["board"]["food"] = [{"x":f[0], "y":f[1]} for f in self.food]
+        return jsonobj
     
     def width(self) -> int:
         return self.parameters.width
@@ -42,12 +171,12 @@ class Arena():
     def _get_unoccupied_points(self, includePossibleMoves):
         occupied_points = list(self.food)
 
-        for snake in self.snakes:
+        for snake in self.live_snakes:
             occupied_points.extend(snake.body)
 
             # if we're including possible moves then look at where this snake can go
             if (includePossibleMoves):
-                head_point = snake.body[0]
+                head_point = snake.head()
 
                 nextMovePoints = [
                     (head_point[0] - 1, head_point[1]),
@@ -60,8 +189,8 @@ class Arena():
 
         unoccupiedPoints = []
 
-        for y in range(self.parameters.height):
-            for x in range(self.parameters.width):
+        for y in range(self.height()):
+            for x in range(self.width()):
                 point = (x, y)
 
                 if (point not in occupied_points):
@@ -74,10 +203,10 @@ class Arena():
         # https://github.com/BattlesnakeOfficial/rules/blob/main/board.go#L387
         centerCoord = ((self.parameters.width - 1) // 2, (self.parameters.height - 1) // 2)
 
-        if (len(self.snakes) <= 4) or not self.parameters.is_small_board():
+        if (len(self.live_snakes) <= 4) or not self.parameters.is_small_board():
             # place 1 food within exactly 2 moves of each snake, but never towards the center or in a corner
-            for snake in self.snakes:
-                snakeHead = snake.body[0]
+            for snake in self.live_snakes:
+                snakeHead = snake.head()
 
                 possibleFoodLocations = [
                     (snakeHead[0] - 1, snakeHead[1] - 1),
@@ -143,7 +272,7 @@ class Arena():
 		    [max, mid]
         ]
 
-        if (len(self.snakes) > (len(cornerPoints) + len(cardinalPoints))):
+        if (len(self.live_snakes) > (len(cornerPoints) + len(cardinalPoints))):
             raise ValueError("Too many snakes for the board size")                
 
         self.parameters.random.shuffle(cornerPoints)
@@ -156,8 +285,8 @@ class Arena():
         else:
             startPoints = cardinalPoints + cornerPoints
 
-        for i in range(len(self.snakes)):
-            snake = self.snakes[i]
+        for i in range(len(self.live_snakes)):
+            snake = self.live_snakes[i]
 
             spot = tuple(startPoints[i])
 

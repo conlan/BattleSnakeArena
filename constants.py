@@ -1,3 +1,9 @@
+MAX_SNAKE_HEALTH = 100
+
+SNAKE_START_SIZE = 3
+
+DEFAULT_MIN_FOOD = 1
+
 COLORS = {
     "black": "\033[1;37;40m",
     "red": "\033[1;37;41m",

@@ -20,12 +20,12 @@ class Observer():
                     print(f"{FOOD_COLOR}  {DEFAULT_COLOR}", end="") # Food
                 else:
                     no_snake = True
-                    for ind, s in enumerate(arena.snakes):                        
+                    for ind, s in enumerate(arena.live_snakes):                        
                         if (i, j) in s.body:
                             if s.body[0] == (i, j):
-                                print(f"{arena.snakes[ind].color}OO{DEFAULT_COLOR}", end="") # Head
+                                print(f"{arena.live_snakes[ind].color}OO{DEFAULT_COLOR}", end="") # Head
                             else:
-                                print(f"{arena.snakes[ind].color}  {DEFAULT_COLOR}", end="") # Body
+                                print(f"{arena.live_snakes[ind].color}  {DEFAULT_COLOR}", end="") # Body
                             no_snake = False
                     if no_snake:
                         print(f"{DEFAULT_COLOR}  {DEFAULT_COLOR}", end="") # Empty

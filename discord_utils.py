@@ -76,8 +76,7 @@ def report_to_discord(discord_webhook_url, data):
         discord_message += stats_per_snake_count[snake_count]['turn_count']
         discord_message += stats_per_snake_count[snake_count]['accumulated_rewards']
         discord_message += "------------------------------------------------------------\n\n"
-    print(discord_message)
-    return # TODO remove
+    
     payload = {
         "content": discord_message
     }

@@ -77,10 +77,14 @@ class Trainer():
         
         return total_reward
 
-    def cache(self, game, observation, next_observation, action, reward, done) -> None:
-        if (action == None):
-            # print(f'    Action is None, skipping cache...')
+    def cache(self, game, observation, next_observation, action_idx, reward, done) -> None:
+        if (action_idx == None):
+            print(f'    Action is None, skipping cache...')
             return
+        
+        # convert action_idx to an action tensor
+        action = [0, 0, 0]        
+        action[action_idx] = 1
 
         self.model.cache(observation["image"], next_observation["image"], action, reward, done)
 

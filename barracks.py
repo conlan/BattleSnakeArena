@@ -1,5 +1,6 @@
 import time
 import constants
+import argparse
 
 from threading import Thread
 
@@ -17,30 +18,24 @@ from recorder import Recorder
 from validator import Validator
 from reporter import Reporter
 
-def main() -> None:
+def main(model_save_path, history_save_path, discord_webhook_url) -> None:
     # ========================================================================
-    # TODO pass in as args parameter
-    MODEL_SAVE_PATH = "./models/snake_net_v5.chkpt"
-    HISTORY_SAVE_PATH = "./models/snake_net_v5_history.json"
-    DISCORD_WEBHOOK_URL = ''
-
     NUM_GAMES_TO_PLAY = 500_000
     NUM_GAMES_PER_VALIDATION = 1_000
     VALIDATE_EVERY_N_GAMES = 30_000
 
     LEARNING_RATE = 0.00025
-
     # ========================================================================
     
     observer = Observer()
     
-    reporter = Reporter(DISCORD_WEBHOOK_URL)
-    reporter.load_history(HISTORY_SAVE_PATH)
+    reporter = Reporter(discord_webhook_url)
+    reporter.load_history(history_save_path)
 
     # Load the model that we're training
     model = DQNModel(learning_rate=LEARNING_RATE)
     
-    training_info = model.load_model(MODEL_SAVE_PATH)
+    training_info = model.load_model(model_save_path)
 
     trainee_controller = DQNController(model, training_info, convert_data_to_image=observer.convert_data_to_image)
     trainer = Trainer(trainee_controller, training_info["curr_step"])
@@ -190,6 +185,23 @@ def run_training_game(training_config, game_config) -> dict:
     return game_results
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser()
+    
+    parser.add_argument("-dis", "--discord_webhook_url", nargs='+', help="Discord webhook for reporting", type=str, default=None)
+    parser.add_argument("-mod", "--model_save_path", nargs='+', help="Model save path", type=str, default=None)
+    parser.add_argument("-his", "--history_save_path", nargs='+', help="History save path", type=str, default=None)
+
+    args = parser.parse_args()
+    
+    model_save_path = args.model_save_path[0] if args.model_save_path is not None else None
+    history_save_path = args.history_save_path[0] if args.history_save_path is not None else None
+    discord_webhook_url = args.discord_webhook_url[0] if args.discord_webhook_url is not None else None    
+
+    # exit if not all required arguments are provided
+    if (model_save_path is None or history_save_path is None or discord_webhook_url is None):
+        print("Missing required arguments")
+        exit(1)
+
+    main(model_save_path, history_save_path, discord_webhook_url)
 
     

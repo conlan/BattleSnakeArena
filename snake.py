@@ -30,6 +30,9 @@ class Snake():
         self.health = constants.MAX_SNAKE_HEALTH
         self.ate_food = True
         self.num_food_consumed += 1
+
+        # add another body segment at same position of the tail
+        self.body.append(self.body[-1])
     
     def head(self) -> tuple:
         return self.body[0]
@@ -58,8 +61,8 @@ class Snake():
         else:
             self.body = [(head[0], head[1]-1)] + self.body
 
-        if len(self.body) > constants.SNAKE_START_SIZE and not self.ate_food:
-            self.body = self.body[:-1]
+        # remove the tail
+        self.body = self.body[:-1]
 
         self.ate_food = False
         self.health = self.health -1
@@ -78,4 +81,5 @@ class Snake():
         if (len(self.body) > 0):
             raise ValueError("Snake already placed")
         
-        self.body.append(spot)
+        for i in range (constants.SNAKE_START_SIZE):
+            self.body.append(spot)

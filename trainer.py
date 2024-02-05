@@ -79,7 +79,7 @@ class Trainer():
 
     def cache(self, game, observation, next_observation, action_idx, reward, done) -> None:
         if (action_idx == None):
-            print(f'    Action is None, skipping cache...')
+            # print(f'    Action is None, skipping cache...')
             return
         
         # convert action_idx to an action tensor

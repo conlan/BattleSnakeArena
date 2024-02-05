@@ -95,8 +95,11 @@ def main(model_save_path, history_save_path, discord_webhook_url) -> None:
             # save the trainer so we don't get out of sync (e.g. reporter saved but trainer didn't)
             trainer.save_state()
 
-    # recorder = Recorder()
-    # recorder.record(observer.observations[game_id], "output_video.mp4")
+        # recorder = Recorder()
+        # game_id = result["id"]
+        # recorder.record(observer.observations[game_id], "output_video.mp4")
+
+    
 
 def print_game_result(game_results, game_index, num_games) -> None:
     # game_id = game_results["id"]

@@ -71,6 +71,7 @@ def main() -> None:
         "epsilon_min" : 0.05
     }    
     validation_controller = DQNController(model, validation_info, convert_data_to_image=observer.convert_data_to_image)
+    validation_trainer = Trainer(validation_controller, 0)
     validator = Validator()
 
     validation_config = {
@@ -78,7 +79,7 @@ def main() -> None:
             validation_controller
         ],
         "controller_under_valuation" : validation_controller,
-        "trainer" : trainer
+        "trainer" : validation_trainer
     }
 
     for i in range(NUM_GAMES_TO_PLAY):
@@ -108,12 +109,16 @@ def print_game_result(game_results, game_index, num_games) -> None:
     num_turns = game_results["turns"]
 
     total_collected_reward = game_results["training"]["total_reward"]
+    max_reward_collected = game_results["training"]["max_reward_collected"]
+    
     total_food_consumed = game_results["training"]["total_food_consumed"]
+    max_food_consumed = game_results["training"]["max_food_consumed"]
+    
     mean_learning_loss = game_results["training"]["mean_learning_loss"]
-
+    
     curr_step = game_results["training"]["curr_step"]
 
-    print(f'[{game_index + 1}/{num_games}] Turns={num_turns}, Result={winner}, Food={total_food_consumed}, Reward={total_collected_reward}, Loss={mean_learning_loss}, Curr Step={curr_step}')
+    print(f'[{game_index + 1}/{num_games}] Turns={num_turns}, Result={winner}, Food={total_food_consumed}, MaxFood={max_food_consumed}, Reward={total_collected_reward}, MaxReward={max_reward_collected}, Loss={mean_learning_loss}, Curr Step={curr_step}')
 
 def run_training_game(training_config, game_config) -> dict:
     speed = training_config["speed"]

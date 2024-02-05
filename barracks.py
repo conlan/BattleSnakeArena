@@ -104,12 +104,15 @@ def main() -> None:
 
 def print_game_result(game_results, game_index, num_games) -> None:
     # game_id = game_results["id"]
-    winner = game_results["winner"].name if game_results["winner"] is not None else "Draw"
-    total_collected_reward = game_results["training"]["total_reward"]
-    mean_learning_loss = game_results["training"]["mean_learning_loss"]
+    winner = game_results["winner"].name if game_results["winner"] is not None else "Draw"    
     num_turns = game_results["turns"]
 
-    print(f'[{game_index + 1}/{num_games}] Turns={num_turns}, Result={winner}, Reward={total_collected_reward}, Loss={mean_learning_loss}')
+    total_collected_reward = game_results["training"]["total_reward"]
+    mean_learning_loss = game_results["training"]["mean_learning_loss"]
+
+    curr_step = game_results["training"]["curr_step"]
+
+    print(f'[{game_index + 1}/{num_games}] Turns={num_turns}, Result={winner}, Reward={total_collected_reward}, Loss={mean_learning_loss}, Curr Step={curr_step}')
 
 def run_training_game(training_config, game_config) -> dict:
     speed = training_config["speed"]

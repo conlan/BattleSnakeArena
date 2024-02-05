@@ -117,7 +117,7 @@ class DQNModel():
 
         torch.save(data_to_save, self.model_save_path)
 
-        print(f"Saved model to {self.model_save_path}")
+        print(f"\nSaved model to {self.model_save_path}")
 
     def load_model(self, path) -> dict:
         self.model_save_path = path
@@ -148,6 +148,6 @@ class DQNModel():
             "curr_step" : saved_dict["curr_step"]
         }
 
-        print(f"Loaded model from {path}, epsilon: {training_info['epsilon']}, epsilon_decay: {training_info['epsilon_decay']}, epsilon_min: {training_info['epsilon_min']}, curr_step: {training_info['curr_step']}")
+        print(f"\nLoaded model from {path}, epsilon: {training_info['epsilon']}, epsilon_decay: {training_info['epsilon_decay']}, epsilon_min: {training_info['epsilon_min']}, curr_step: {training_info['curr_step']}")
 
         return training_info

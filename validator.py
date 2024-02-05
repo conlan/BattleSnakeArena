@@ -6,7 +6,7 @@ class Validator():
     def run_validation(self, validation_config, game_config) -> None:
         NUM_VALIDATION_GAMES = 10
         
-        print("VALIDATING MODEL...")
+        print("\nVALIDATING MODEL...")
 
         rewards_collected = []
 
@@ -20,8 +20,6 @@ class Validator():
             rewards_collected.append(total_collected_reward)
 
         mean_reward = sum(rewards_collected) / len(rewards_collected)
-
-        print(f'MEAN VALIDATION REWARD = : {mean_reward}')
 
         return mean_reward
 

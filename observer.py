@@ -16,6 +16,7 @@ ME_HEAD_IMAGE_MID_HEALTH = Image.open(ASSET_FOLDER + "me_head_mid_health.png")
 ME_HEAD_IMAGE_LOW_HEALTH = Image.open(ASSET_FOLDER + "me_head_low_health.png")
 
 ME_BODY_IMAGE_STRAIGHT = Image.open(ASSET_FOLDER + "me_body_straight.png")
+ME_BODY_IMAGE_STRAIGHT_COILED = Image.open(ASSET_FOLDER + "me_body_straight_coiled.png")
 ME_BODY_IMAGE_CURVE = Image.open(ASSET_FOLDER + "me_body_curve.png")
 
 THRESHOLD_FOR_MID_HEALTH_HEAD = 98
@@ -26,6 +27,7 @@ ENEMY_HEAD_IMAGE_MID_HEALTH = Image.open(ASSET_FOLDER + "enemy_head_mid_health.p
 ENEMY_HEAD_IMAGE_LOW_HEALTH = Image.open(ASSET_FOLDER + "enemy_head_low_health.png")
 
 ENEMY_BODY_IMAGE_STRAIGHT = Image.open(ASSET_FOLDER + "enemy_body_straight.png")
+ENEMY_BODY_IMAGE_STRAIGHT_COILED = Image.open(ASSET_FOLDER + "enemy_body_straight_coiled.png")
 ENEMY_BODY_IMAGE_CURVE = Image.open(ASSET_FOLDER + "enemy_body_curve.png")
 
 FOOD_IMAGE = Image.open(ASSET_FOLDER + "food.png")
@@ -142,19 +144,23 @@ class Observer():
                 else:
                     next_body_x, next_body_y = None, None
 
-                # print("prev: " + str(prev_body_x) + ", " + str(prev_body_y))
-                # print("body: " + str(body_x) + ", " + str(body_y))
-                # print("next: " + str(next_body_x) + ", " + str(next_body_y))
-
                 # there's no body after this segment, we're the tail
-                if (next_body_x == None) or (next_body_y == None):
+                # OR if the next segment is on top of this one, we're still the tail
+                if ((next_body_x == None) or (next_body_y == None)) or \
+                    ((next_body_x == body_x) and (next_body_y == body_y)):
+
                     image_to_use = straight_body_image
+
+                    # If there's a next body segment AND it's on top of this segment,
+                    # it means we're still coiled or just ate
+                    if (next_body_x == body_x) and (next_body_y == body_y):
+                        image_to_use = ME_BODY_IMAGE_STRAIGHT_COILED if is_pov_snake else ENEMY_BODY_IMAGE_STRAIGHT_COILED
 
                     # rotate 90 if we're on the same row ====
                     if (body_y == prev_body_y):
                         image_rotation = 90
                 else:
-                    # there's a body after this segment, determine if straight or curved
+                    # there's a body after this segment, determine if this is straight or curved
                     if (prev_body_x > body_x) and (next_body_x == body_x):
                         image_to_use = curve_body_image      
 
@@ -226,7 +232,7 @@ class Observer():
         if (should_store_observation):
             self.observations[game_id].append(observation)
 
-        return observation# snakes_health_in_length_descending_order
+        return observation
 
     def print_game(self, game) -> None:
         width = game.width()

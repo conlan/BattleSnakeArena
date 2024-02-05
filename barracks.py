@@ -108,11 +108,12 @@ def print_game_result(game_results, game_index, num_games) -> None:
     num_turns = game_results["turns"]
 
     total_collected_reward = game_results["training"]["total_reward"]
+    total_food_consumed = game_results["training"]["total_food_consumed"]
     mean_learning_loss = game_results["training"]["mean_learning_loss"]
 
     curr_step = game_results["training"]["curr_step"]
 
-    print(f'[{game_index + 1}/{num_games}] Turns={num_turns}, Result={winner}, Reward={total_collected_reward}, Loss={mean_learning_loss}, Curr Step={curr_step}')
+    print(f'[{game_index + 1}/{num_games}] Turns={num_turns}, Result={winner}, Food={total_food_consumed}, Reward={total_collected_reward}, Loss={mean_learning_loss}, Curr Step={curr_step}')
 
 def run_training_game(training_config, game_config) -> dict:
     speed = training_config["speed"]

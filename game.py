@@ -64,11 +64,9 @@ class Game():
         
         winning_snake = None
 
-        if (self.is_solo_game):
-            winning_snake = self.all_snakes[0]
-        elif (len(self.live_snakes) == 1):
+        if (len(self.live_snakes) == 1) and not (self.is_solo_game):
             winning_snake = self.live_snakes[0]
-
+            
         return {
             "id" : self.id,
             "turns" : self.turn,

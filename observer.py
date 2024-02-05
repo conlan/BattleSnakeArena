@@ -30,7 +30,7 @@ class Observer():
         y = tuple['y']
         return (x * (GRID_SIZE - 1), y * (GRID_SIZE - 1))        
     
-    def convert_to_image(self, json) -> Image:
+    def convert_data_to_image(self, json) -> Image:
         board_width = json['board']['width']
         board_height = json['board']['height']
         snakes = json['board']['snakes']
@@ -233,10 +233,10 @@ class Observer():
 
         # snakes_health_in_length_descending_order = [obj['health'] for obj in snakes_health_in_length_descending_order]    
 
-    def observe(self, json, should_store_observation) -> None:
-        image = self.convert_to_image(json)
+    def observe(self, data, should_store_observation) -> None:
+        image = self.convert_data_to_image(data)
 
-        game_id = json["game"]["id"]
+        game_id = data["game"]["id"]
 
         if (game_id not in self.observations):
             self.observations[game_id] = []

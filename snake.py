@@ -6,7 +6,7 @@ class Snake():
         self.name = name        
         self.color = color
         self.controller = controller
-        self.id = "snake" + "-" + str(uuid.uuid4())
+        self.id = "snake" + "-" + str(uuid.uuid4())        
         
         self.reset()        
 
@@ -20,6 +20,8 @@ class Snake():
 
         self.is_dead = False
         self.death_reason = None
+
+        self.total_collected_reward = 0
 
     def is_alive(self) -> bool:
         return not self.is_dead

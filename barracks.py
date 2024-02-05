@@ -1,4 +1,6 @@
 import time
+import constants
+
 from threading import Thread
 
 from game import GameParameters, Game
@@ -9,36 +11,29 @@ from observer import Observer
 from trainer import Trainer
 
 from dqn.dqn_controller import DQNController
-from controllers.simple_controller import SimpleController
-
 from dqn.dqn_model import DQNModel
 
 from recorder import Recorder
-
-import constants
 
 def main() -> None:
     observer = Observer()
 
     # TODO load these from disk
-    model_save_path = "models/snake_net.chkpt"
-    
-    # TODO epsilon info
-    epsilon_info = {
-        "epsilon" : 1,
-        "epsilon_decay" : 0.0000009, # 1.0 -> 0.1 in 1,000,000 steps
-        "epislon_min" : 0.1
-    }
-    # TODO learning rate
+    model_save_path = "./models/snake_net_v5.chkpt"
+        
+    # learning rate
     learning_rate = 0.00025
     
     # Load the model that we're training
-    model = DQNModel(model_save_path=model_save_path, learning_rate=learning_rate)
+    model = DQNModel(learning_rate=learning_rate)
     
-    trainee_controller = DQNController(model, epsilon_info, convert_to_image=observer.convert_to_image)
+    training_info = model.load_model(model_save_path)
+    
+    trainee_controller = DQNController(model, training_info, convert_data_to_image=observer.convert_data_to_image)
+
+    trainer = Trainer(trainee_controller, training_info["curr_step"])
 
     recorder = Recorder()
-    trainer = Trainer(trainee_controller)
 
     controllers = [
         trainee_controller
@@ -50,8 +45,8 @@ def main() -> None:
     ]
 
     training_config = {
-        "speed" : 90,
-        "print_board" : True,
+        "speed" : 100,
+        "print_board" : False,
         "colors" : colors,
         "controllers" : controllers,
         "observer" : observer,
@@ -59,23 +54,13 @@ def main() -> None:
     }
     game_results = []
 
-    num_games = 1
-
-    threads = []
+    num_games = 50
 
     for i in range(num_games):
-        process = Thread(target=run_training_game, args=(training_config,game_results,))
-        threads.append(process)
+        game_results.append(run_training_game(training_config))
 
-    for process in threads:
-        process.start()
-        
-    for process in threads:
-        process.join()
-
-    for result in game_results:
-        print_game_result(result)
-        game_id = result["id"]
+    # for result in game_results:
+    #     game_id = result["id"]
 
         # recorder.record(observer.observations[game_id], "output_video.mp4")
         # print(len(observer.observations[game_id]))
@@ -83,12 +68,14 @@ def main() -> None:
 
     print(f'All {num_games} games have finished')
 
-def print_game_result(result) -> None:
-    game_id = result["id"]
-    winner = result["winner"].name
-    print(f'{game_id} finished. Winner: {winner}')
+def print_game_result(game_results) -> None:
+    game_id = game_results["id"]
+    winner = game_results["winner"].name if game_results["winner"] is not None else "No Winner"
+    num_turns = game_results["turns"]
 
-def run_training_game(config, results) -> dict:
+    print(f'{game_id} finished in {num_turns} turns. Winner: {winner}')
+
+def run_training_game(config) -> dict:
     speed = config["speed"]
     print_board = config["print_board"]
     colors = config["colors"]
@@ -115,6 +102,8 @@ def run_training_game(config, results) -> dict:
 
     is_done = game.reset()    
 
+    game_results = None
+
     while not is_done:
         t1 = time.time()
 
@@ -133,19 +122,15 @@ def run_training_game(config, results) -> dict:
         # get move made from the controller
         action = trainer.controller.get_last_move_made(game)
 
-        game_results = None
-
         if (is_done):
             # get final game results
             game_results = game.get_game_results()
-            
-            results.append(game_results)
         
-        # determine reward for the controller
+        # determine reward for the controller        
         reward = trainer.determine_reward(training_snake, game_results)
 
-        # train on the results
-        trainer.train(observation, next_observation, action, reward, is_done)
+        # cache and possibly train on results
+        trainer.cache(observation, next_observation, action, reward, is_done)
 
         # delay if necessary
         if (speed < 100):
@@ -153,6 +138,10 @@ def run_training_game(config, results) -> dict:
         
     # print the final board if necessary
     if (print_board): observer.print_game(game)
+
+    print_game_result(game_results)
+
+    return game_results
 
 if __name__ == "__main__":
     main()

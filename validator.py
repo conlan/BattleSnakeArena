@@ -23,11 +23,13 @@ class Validator():
 
     def print_validation_result(self, game_results, game_index, num_games) -> None:
         # game_id = game_results["id"]
-        winner = game_results["winner"].name if game_results["winner"] is not None else "Draw"
-        total_collected_reward = game_results["training"]["total_reward"]
+        winner = game_results["winner"].name if game_results["winner"] is not None else "Draw"        
         num_turns = game_results["turns"]
 
-        print(f'    [{game_index + 1}/{num_games}] Turns={num_turns}, Result={winner}, Reward={total_collected_reward}')
+        total_collected_reward = game_results["training"]["total_reward"]
+        total_food_consumed = game_results["training"]["total_food_consumed"]
+
+        print(f'    [{game_index + 1}/{num_games}] Turns={num_turns}, Result={winner}, Food={total_food_consumed}, Reward={total_collected_reward}')
     
     def _run_validation_round(self, validation_config, game_config) -> None:
         parameters = GameParameters(game_config)

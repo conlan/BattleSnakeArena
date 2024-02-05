@@ -119,9 +119,9 @@ class DQNModel():
 
         print(f"\nSaved model to {self.model_save_path}")
 
-    def load_model(self, path) -> dict:
+    def load_model(self, path, default_reward_set_key) -> dict:
         self.model_save_path = path
-        self.reward_set_key = "reward-set-v1"
+        self.reward_set_key = default_reward_set_key
 
         # check if file exists first
         if (os.path.exists(path) == False):
@@ -148,6 +148,6 @@ class DQNModel():
             "curr_step" : saved_dict["curr_step"]
         }
 
-        print(f"\nLoaded model from {path}, epsilon: {training_info['epsilon']}, epsilon_decay: {training_info['epsilon_decay']}, epsilon_min: {training_info['epsilon_min']}, curr_step: {training_info['curr_step']}")
+        print(f"\nLoaded model from {path}, epsilon: {training_info['epsilon']}, epsilon_decay: {training_info['epsilon_decay']}, epsilon_min: {training_info['epsilon_min']}, reward_set: {self.reward_set_key} curr_step: {training_info['curr_step']}")
 
         return training_info

@@ -25,6 +25,8 @@ def main(model_save_path, history_save_path, discord_webhook_url) -> None:
     VALIDATE_EVERY_N_GAMES = 30_000
 
     LEARNING_RATE = 0.00025
+
+    DEFAULT_REWARD_SET_KEY = "reward-set-v2"
     # ========================================================================
     
     observer = Observer()
@@ -35,7 +37,7 @@ def main(model_save_path, history_save_path, discord_webhook_url) -> None:
     # Load the model that we're training
     model = DQNModel(learning_rate=LEARNING_RATE)
     
-    training_info = model.load_model(model_save_path)
+    training_info = model.load_model(model_save_path, DEFAULT_REWARD_SET_KEY)
 
     trainee_controller = DQNController(model, training_info, convert_data_to_image=observer.convert_data_to_image)
     trainer = Trainer(trainee_controller, training_info["curr_step"])

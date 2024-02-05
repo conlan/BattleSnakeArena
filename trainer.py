@@ -17,6 +17,7 @@ class Trainer():
         self.learning_losses = {}
         self.max_food_consumed = 0
         self.max_reward_collected = -99999999999999
+        self.max_turns_survived = 0
 
     def _lookup_reward(self, key) -> int:
         return constants.REWARD_SETS[self.model.reward_set_key][key]
@@ -37,6 +38,10 @@ class Trainer():
         if (training_snake.total_collected_reward > self.max_reward_collected):
             self.max_reward_collected = training_snake.total_collected_reward
 
+        num_turns = game_results["turns"]
+        if (num_turns > self.max_turns):
+            self.max_turns_survived = num_turns
+
         game_results["training"] = {
             "curr_step" : self.curr_step,
             "curr_epsilon" : self.controller.get_epsilon_info()["epsilon"],
@@ -44,7 +49,8 @@ class Trainer():
             "max_reward_collected" : self.max_reward_collected,
             "total_food_consumed" : training_snake.num_food_consumed,
             "max_food_consumed" : self.max_food_consumed,
-            "num_turns" : game_results["turns"],
+            "num_turns" : num_turns,
+            "max_turns_survived" : self.max_turns_survived,
             "death_reason" : training_snake.death_reason,
             "mean_learning_loss" : mean_learning_loss
         }

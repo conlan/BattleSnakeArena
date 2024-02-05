@@ -15,17 +15,16 @@ from dqn.dqn_model import DQNModel
 
 from recorder import Recorder
 
+LEARNING_RATE = 0.00025
+
 def main() -> None:
     observer = Observer()
 
     # TODO load these from disk
     model_save_path = "./models/snake_net_v5.chkpt"
-        
-    # learning rate
-    learning_rate = 0.00025
     
     # Load the model that we're training
-    model = DQNModel(learning_rate=learning_rate)
+    model = DQNModel(learning_rate=LEARNING_RATE)
     
     training_info = model.load_model(model_save_path)
     
@@ -33,38 +32,33 @@ def main() -> None:
 
     trainer = Trainer(trainee_controller, training_info["curr_step"])
 
-    recorder = Recorder()
-
     controllers = [
         trainee_controller
-    ]
-
-    colors = [
-        constants.COLORS["red"],
-        constants.COLORS["blue"]
     ]
 
     training_config = {
         "speed" : 100,
         "print_board" : False,
-        "colors" : colors,
+        "colors" : [
+            constants.COLORS["red"],
+            constants.COLORS["blue"]
+        ],
         "controllers" : controllers,
         "observer" : observer,
         "trainer" : trainer
     }
-    game_results = []
 
-    num_games = 50
+    num_games = 5
 
     for i in range(num_games):
-        game_results.append(run_training_game(training_config))
+        result = run_training_game(training_config)
 
-    # for result in game_results:
-    #     game_id = result["id"]
+        print(result["training"])
 
-        # recorder.record(observer.observations[game_id], "output_video.mp4")
-        # print(len(observer.observations[game_id]))
-        # print(observer.observations[game_id][0])
+        print_game_result(result)
+
+    # recorder = Recorder()
+    # recorder.record(observer.observations[game_id], "output_video.mp4")
 
     print(f'All {num_games} games have finished')
 
@@ -88,6 +82,7 @@ def run_training_game(config) -> dict:
     parameters = GameParameters(constants.BOARD_SIZE_MEDIUM, constants.DEFAULT_FOOD_SPAN_CHANCE, constants.DEFAULT_MIN_FOOD)
 
     snakes = []
+    
     training_snake = None
 
     for i in range(len(controllers)):
@@ -139,7 +134,7 @@ def run_training_game(config) -> dict:
     # print the final board if necessary
     if (print_board): observer.print_game(game)
 
-    print_game_result(game_results)
+    trainer.finalize(game_results, training_snake)    
 
     return game_results
 

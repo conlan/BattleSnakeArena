@@ -16,6 +16,14 @@ class Trainer():
 
     def _lookup_reward(self, key) -> int:
         return constants.REWARD_SETS[self.model.reward_set_key][key]
+    
+    def finalize(self, game_results, training_snake) -> None:
+        game_results["training"] = {
+            "curr_step" : self.curr_step,
+            "total_reward" : training_snake.total_collected_reward,
+            "total_food_consumed" : training_snake.num_food_consumed,
+            "death_reason" : training_snake.death_reason
+        }
 
     def determine_reward(self, training_snake, game_results) -> int:
         total_reward = 0

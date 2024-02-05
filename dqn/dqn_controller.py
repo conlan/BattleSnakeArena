@@ -11,10 +11,17 @@ class DQNController (SnakeController):
 
         self.load_epsilon(epsilon_info)
 
+    def get_epsilon_info(self) -> dict:
+        return {
+            "epsilon" : self.epsilon,
+            "epsilon_decay" : self.epsilon_decay,
+            "epsilon_min" : self.epsilon_min
+        }
+
     def load_epsilon(self, epsilon_info) -> None:
         self.epsilon = epsilon_info["epsilon"]
         self.epsilon_decay = epsilon_info["epsilon_decay"]
-        self.epsilon_min = epsilon_info["epislon_min"]
+        self.epsilon_min = epsilon_info["epsilon_min"]
 
     def act(self, data) -> dict:
         game_id = data["game"]["id"]
@@ -34,7 +41,7 @@ class DQNController (SnakeController):
             else:
                 obs = self.convert_data_to_image(data)
 
-                local_dir = self.model.predict(obs)
+                local_dir, q_values = self.model.predict(obs)
 
             snakeHead = you['body'][0]
             snakeHead = (snakeHead['x'], snakeHead['y'])

@@ -14,22 +14,34 @@ from dqn.dqn_controller import DQNController
 from dqn.dqn_model import DQNModel
 
 from recorder import Recorder
-
 from validator import Validator
-
-LEARNING_RATE = 0.00025
+from reporter import Reporter
 
 def main() -> None:
-    observer = Observer()
+    # ========================================================================
+    # TODO pass in as args parameter
+    MODEL_SAVE_PATH = "./models/snake_net_v5.chkpt"
+    HISTORY_SAVE_PATH = "./models/snake_net_v5_history.json"
+    DISCORD_WEBHOOK_URL = ''
 
-    # TODO load these from disk
-    model_save_path = "./models/snake_net_v5.chkpt"
+    NUM_GAMES_TO_PLAY = 500_000
+    NUM_GAMES_PER_VALIDATION = 1_000
+    VALIDATE_EVERY_N_GAMES = 30_000
+
+    LEARNING_RATE = 0.00025
+
+    # ========================================================================
     
+    observer = Observer()
+    
+    reporter = Reporter(DISCORD_WEBHOOK_URL)
+    reporter.load_history(HISTORY_SAVE_PATH)
+
     # Load the model that we're training
     model = DQNModel(learning_rate=LEARNING_RATE)
     
-    training_info = model.load_model(model_save_path)
-    
+    training_info = model.load_model(MODEL_SAVE_PATH)
+
     trainee_controller = DQNController(model, training_info, convert_data_to_image=observer.convert_data_to_image)
     trainer = Trainer(trainee_controller, training_info["curr_step"])
 
@@ -69,31 +81,35 @@ def main() -> None:
         "trainer" : trainer
     }
 
-    NUM_GAMES_TO_PLAY = 5
-    
-    VALIDATE_EVERY_N_GAMES = 2
-
     for i in range(NUM_GAMES_TO_PLAY):
         result = run_training_game(training_config, game_config)
-
-        # print(result["training"])
 
         print_game_result(result, i, NUM_GAMES_TO_PLAY)
 
         # validate our model
         if ((i + 1) % VALIDATE_EVERY_N_GAMES == 0):
-            mean_validation_reward = validator.run_validation(validation_config, game_config)
+            mean_validation_reward = validator.run_validation(validation_config, game_config, NUM_GAMES_PER_VALIDATION)
+
+            # report data
+            reporter.report(mean_validation_reward, trainer.curr_step)
+            
+            # save the history for now (we can chart it later)
+            reporter.save_history()
+
+            # save the trainer so we don't get out of sync (e.g. reporter saved but trainer didn't)
+            trainer.save_state()
 
     # recorder = Recorder()
     # recorder.record(observer.observations[game_id], "output_video.mp4")
 
 def print_game_result(game_results, game_index, num_games) -> None:
-    game_id = game_results["id"]
+    # game_id = game_results["id"]
     winner = game_results["winner"].name if game_results["winner"] is not None else "Draw"
     total_collected_reward = game_results["training"]["total_reward"]
+    mean_learning_loss = game_results["training"]["mean_learning_loss"]
     num_turns = game_results["turns"]
 
-    print(f'[{game_index + 1}/{num_games}] Turns={num_turns}, Result={winner}, Reward={total_collected_reward}')
+    print(f'[{game_index + 1}/{num_games}] Turns={num_turns}, Result={winner}, Reward={total_collected_reward}, Loss={mean_learning_loss}')
 
 def run_training_game(training_config, game_config) -> dict:
     speed = training_config["speed"]

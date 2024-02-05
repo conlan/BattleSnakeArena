@@ -10,9 +10,9 @@ class Trainer():
 
         self.curr_step = curr_step
 
-        self.burnin = 1000#10_000
+        self.burnin = 10_000
         self.learn_every = 3
-        self.save_every = 50
+        self.save_every = 5_000
 
         self.learning_losses = {}
 
@@ -85,11 +85,14 @@ class Trainer():
             if (loss is not None):
                 self.learning_losses[game.id].append(loss)
 
-        # save every few steps
+        # save every N steps
         if (self.curr_step % self.save_every == 0):
-            training_info = self.controller.get_epsilon_info()
-            training_info['curr_step'] = self.curr_step
+            self.save_state()            
 
-            self.model.save_model(training_info)
+    def save_state(self):
+        training_info = self.controller.get_epsilon_info()
+        training_info['curr_step'] = self.curr_step
 
-            print("SAVED " + str(self.curr_step) + " " + str(training_info))
+        self.model.save_model(training_info)
+
+        print("\nSAVED " + str(self.curr_step) + " " + str(training_info) + "\n")

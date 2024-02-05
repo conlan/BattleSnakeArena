@@ -3,17 +3,15 @@ from game import GameParameters, Game
 from snake import Snake
 
 class Validator():    
-    def run_validation(self, validation_config, game_config) -> None:
-        NUM_VALIDATION_GAMES = 10
-        
+    def run_validation(self, validation_config, game_config, num_validation_games) -> None:
         print("\nVALIDATING MODEL...")
 
         rewards_collected = []
 
-        for i in range(NUM_VALIDATION_GAMES):
+        for i in range(num_validation_games):
             game_results = self._run_validation_round(validation_config, game_config)
             
-            self.print_validation_result(game_results, i, NUM_VALIDATION_GAMES)
+            self.print_validation_result(game_results, i, num_validation_games)
 
             total_collected_reward = game_results["training"]["total_reward"]
 

@@ -34,7 +34,7 @@ class DQNController (SnakeController):
         local_dir = None
 
         if (data['turn'] == 0):
-            move = 'up'
+            move = random.choice(['up', 'down', 'left', 'right'])
         else:
             you = data['you']
 

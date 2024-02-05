@@ -203,7 +203,7 @@ if __name__ == "__main__":
     discord_webhook_url = args.discord_webhook_url[0] if args.discord_webhook_url is not None else None    
 
     # exit if not all required arguments are provided
-    if (model_save_path is None or history_save_path is None or discord_webhook_url is None):
+    if (model_save_path is None or history_save_path is None):
         print("Missing required arguments")
         exit(1)
 

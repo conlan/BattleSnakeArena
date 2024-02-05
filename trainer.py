@@ -39,7 +39,7 @@ class Trainer():
             self.max_reward_collected = training_snake.total_collected_reward
 
         num_turns = game_results["turns"]
-        if (num_turns > self.max_turns):
+        if (num_turns > self.max_turns_survived):
             self.max_turns_survived = num_turns
 
         game_results["training"] = {

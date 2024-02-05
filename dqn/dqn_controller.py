@@ -23,6 +23,8 @@ class DQNController (SnakeController):
         self.epsilon_decay = epsilon_info["epsilon_decay"]
         self.epsilon_min = epsilon_info["epsilon_min"]
 
+        # print(f'Loaded epsilon: {self.epsilon}, decay: {self.epsilon_decay}, min: {self.epsilon_min}')
+
     def act(self, data) -> dict:
         game_id = data["game"]["id"]
         if (game_id not in self.moves_made):

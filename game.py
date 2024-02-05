@@ -8,15 +8,16 @@ import uuid
 # from snake import Snake
 
 class GameParameters():
-    def __init__(self, dims, food_spawn_chance, min_food, seed=None) -> None:
+    def __init__(self, config, seed=None) -> None:
         self.seed = seed if seed else int(time.time()*10000)
         self.random = random.Random(self.seed)
 
+        dims = config["board_size"]
         self.width = dims[0]
         self.height = dims[1]
 
-        self.food_spawn_chance = food_spawn_chance
-        self.min_food = min_food
+        self.food_spawn_chance = config["food_spawn_chance"]
+        self.min_food = config["min_food"]
 
     def is_small_board(self) -> bool:
         return (self.width * self.height) < (11 * 11) # TODO pull out magic number

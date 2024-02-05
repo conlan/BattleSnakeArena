@@ -15,6 +15,8 @@ from dqn.dqn_model import DQNModel
 
 from recorder import Recorder
 
+from validator import Validator
+
 LEARNING_RATE = 0.00025
 
 def main() -> None:
@@ -29,12 +31,7 @@ def main() -> None:
     training_info = model.load_model(model_save_path)
     
     trainee_controller = DQNController(model, training_info, convert_data_to_image=observer.convert_data_to_image)
-
     trainer = Trainer(trainee_controller, training_info["curr_step"])
-
-    controllers = [
-        trainee_controller
-    ]
 
     training_config = {
         "speed" : 100,
@@ -43,43 +40,72 @@ def main() -> None:
             constants.COLORS["red"],
             constants.COLORS["blue"]
         ],
-        "controllers" : controllers,
+        "controllers" : [
+            trainee_controller
+        ],
         "observer" : observer,
         "trainer" : trainer
     }
 
-    num_games = 5
+    game_config = {
+        "food_spawn_chance" : constants.DEFAULT_FOOD_SPAN_CHANCE,
+        "min_food" : constants.DEFAULT_MIN_FOOD,
+        "board_size" : constants.BOARD_SIZE_MEDIUM
+    }
 
-    for i in range(num_games):
-        result = run_training_game(training_config)
+    validation_info = {
+        "epsilon" : 0.05,
+        "epsilon_decay" : 0,
+        "epsilon_min" : 0.05
+    }    
+    validation_controller = DQNController(model, validation_info, convert_data_to_image=observer.convert_data_to_image)
+    validator = Validator()
 
-        print(result["training"])
+    validation_config = {
+        "controllers" : [
+            validation_controller
+        ],
+        "controller_under_valuation" : validation_controller,
+        "trainer" : trainer
+    }
 
-        print_game_result(result, i, num_games)
+    NUM_GAMES_TO_PLAY = 5
+    
+    VALIDATE_EVERY_N_GAMES = 2
+
+    for i in range(NUM_GAMES_TO_PLAY):
+        result = run_training_game(training_config, game_config)
+
+        # print(result["training"])
+
+        print_game_result(result, i, NUM_GAMES_TO_PLAY)
+
+        # validate our model
+        if ((i + 1) % VALIDATE_EVERY_N_GAMES == 0):
+            mean_validation_reward = validator.run_validation(validation_config, game_config)
 
     # recorder = Recorder()
     # recorder.record(observer.observations[game_id], "output_video.mp4")
 
-    print(f'All {num_games} games have finished')
-
 def print_game_result(game_results, game_index, num_games) -> None:
     game_id = game_results["id"]
-    winner = game_results["winner"].name if game_results["winner"] is not None else "No Winner"
+    winner = game_results["winner"].name if game_results["winner"] is not None else "Draw"
+    total_collected_reward = game_results["training"]["total_reward"]
     num_turns = game_results["turns"]
 
-    print(f'{game_index + 1} / {num_games} finished in {num_turns} turns. Winner: {winner}')
+    print(f'[{game_index + 1}/{num_games}] Turns={num_turns}, Result={winner}, Reward={total_collected_reward}')
 
-def run_training_game(config) -> dict:
-    speed = config["speed"]
-    print_board = config["print_board"]
-    colors = config["colors"]
+def run_training_game(training_config, game_config) -> dict:
+    speed = training_config["speed"]
+    print_board = training_config["print_board"]
+    colors = training_config["colors"]
     
-    controllers = config["controllers"]
-    trainer = config["trainer"]
+    controllers = training_config["controllers"]
+    trainer = training_config["trainer"]
     
-    observer = config["observer"]
-    
-    parameters = GameParameters(constants.BOARD_SIZE_MEDIUM, constants.DEFAULT_FOOD_SPAN_CHANCE, constants.DEFAULT_MIN_FOOD)
+    observer = training_config["observer"]
+
+    parameters = GameParameters(game_config)
 
     snakes = []
     
@@ -87,7 +113,7 @@ def run_training_game(config) -> dict:
 
     for i in range(len(controllers)):
         controller = controllers[i]
-        snake = Snake("Snake-" + str(i), colors[i], controller)    
+        snake = Snake("S-" + str(i), colors[i], controller)    
         snakes.append(snake)
 
         if (controller == trainer.controller):
@@ -134,7 +160,7 @@ def run_training_game(config) -> dict:
     # print the final board if necessary
     if (print_board): observer.print_game(game)
 
-    trainer.finalize(game_results, training_snake)    
+    trainer.finalize(game_results, training_snake)
 
     return game_results
 

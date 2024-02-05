@@ -52,7 +52,7 @@ class DQNModel():
         
     def learn(self):        
         if (len(self.memory) < self.batch_size):
-            print(f"    Not enough memory to learn, skipping...")
+            # print(f"    Not enough memory to learn, skipping...")
             return None
         
         state, next_state, action, reward, done = self.recall()

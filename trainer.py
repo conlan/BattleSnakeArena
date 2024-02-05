@@ -10,9 +10,9 @@ class Trainer():
 
         self.curr_step = curr_step
 
-        self.burnin = 1_00
+        self.burnin = 1000#10_000
         self.learn_every = 3
-        self.save_every = 100
+        self.save_every = 50
 
         self.learning_losses = {}
 
@@ -22,11 +22,16 @@ class Trainer():
     def finalize(self, game_results, training_snake) -> None:
         game_id = game_results["id"]
 
-        learning_losses_for_game = self.learning_losses[game_id]
-        mean_learning_loss = sum(learning_losses_for_game) / len(learning_losses_for_game)
+        learning_losses_for_game = self.learning_losses[game_id] if game_id in self.learning_losses else []
+        
+        if (len(learning_losses_for_game) == 0):
+            mean_learning_loss = 0
+        else:
+            mean_learning_loss = sum(learning_losses_for_game) / len(learning_losses_for_game)
 
         game_results["training"] = {
             "curr_step" : self.curr_step,
+            "curr_epsilon" : self.controller.get_epsilon_info()["epsilon"],
             "total_reward" : training_snake.total_collected_reward,
             "total_food_consumed" : training_snake.num_food_consumed,
             "num_turns" : game_results["turns"],

@@ -14,15 +14,24 @@ class Trainer():
         self.learn_every = 3
         self.save_every = 100
 
+        self.learning_losses = {}
+
     def _lookup_reward(self, key) -> int:
         return constants.REWARD_SETS[self.model.reward_set_key][key]
     
     def finalize(self, game_results, training_snake) -> None:
+        game_id = game_results["id"]
+
+        learning_losses_for_game = self.learning_losses[game_id]
+        mean_learning_loss = sum(learning_losses_for_game) / len(learning_losses_for_game)
+
         game_results["training"] = {
             "curr_step" : self.curr_step,
             "total_reward" : training_snake.total_collected_reward,
             "total_food_consumed" : training_snake.num_food_consumed,
-            "death_reason" : training_snake.death_reason
+            "num_turns" : game_results["turns"],
+            "death_reason" : training_snake.death_reason,
+            "mean_learning_loss" : mean_learning_loss
         }
 
     def determine_reward(self, training_snake, game_results) -> int:
@@ -47,7 +56,7 @@ class Trainer():
         
         return total_reward
 
-    def cache(self, observation, next_observation, action, reward, done) -> None:
+    def cache(self, game, observation, next_observation, action, reward, done) -> None:
         if (action == None):
             # print(f'    Action is None, skipping cache...')
             return
@@ -64,6 +73,12 @@ class Trainer():
         # learn every few steps
         if (self.curr_step % self.learn_every == 0):
             loss = self.model.learn()
+
+            if game.id not in self.learning_losses:
+                self.learning_losses[game.id] = []
+            
+            if (loss is not None):
+                self.learning_losses[game.id].append(loss)
 
         # save every few steps
         if (self.curr_step % self.save_every == 0):

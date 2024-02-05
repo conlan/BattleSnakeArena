@@ -55,19 +55,19 @@ def main() -> None:
 
         print(result["training"])
 
-        print_game_result(result)
+        print_game_result(result, i, num_games)
 
     # recorder = Recorder()
     # recorder.record(observer.observations[game_id], "output_video.mp4")
 
     print(f'All {num_games} games have finished')
 
-def print_game_result(game_results) -> None:
+def print_game_result(game_results, game_index, num_games) -> None:
     game_id = game_results["id"]
     winner = game_results["winner"].name if game_results["winner"] is not None else "No Winner"
     num_turns = game_results["turns"]
 
-    print(f'{game_id} finished in {num_turns} turns. Winner: {winner}')
+    print(f'{game_index + 1} / {num_games} finished in {num_turns} turns. Winner: {winner}')
 
 def run_training_game(config) -> dict:
     speed = config["speed"]
@@ -125,7 +125,7 @@ def run_training_game(config) -> dict:
         reward = trainer.determine_reward(training_snake, game_results)
 
         # cache and possibly train on results
-        trainer.cache(observation, next_observation, action, reward, is_done)
+        trainer.cache(game, observation, next_observation, action, reward, is_done)
 
         # delay if necessary
         if (speed < 100):

@@ -12,10 +12,19 @@ GRID_IMAGE = Image.open(ASSET_FOLDER + "grid.png")
 GRID_SIZE = GRID_IMAGE.size[0]
 
 ME_HEAD_IMAGE = Image.open(ASSET_FOLDER + "me_head.png")
+ME_HEAD_IMAGE_MID_HEALTH = Image.open(ASSET_FOLDER + "me_head_mid_health.png")
+ME_HEAD_IMAGE_LOW_HEALTH = Image.open(ASSET_FOLDER + "me_head_low_health.png")
+
 ME_BODY_IMAGE_STRAIGHT = Image.open(ASSET_FOLDER + "me_body_straight.png")
 ME_BODY_IMAGE_CURVE = Image.open(ASSET_FOLDER + "me_body_curve.png")
 
+THRESHOLD_FOR_MID_HEALTH_HEAD = 98
+THRESHOLD_FOR_LOW_HEALTH_HEAD = 95
+
 ENEMY_HEAD_IMAGE = Image.open(ASSET_FOLDER + "enemy_head.png")
+ENEMY_HEAD_IMAGE_MID_HEALTH = Image.open(ASSET_FOLDER + "enemy_head_mid_health.png")
+ENEMY_HEAD_IMAGE_LOW_HEALTH = Image.open(ASSET_FOLDER + "enemy_head_low_health.png")
+
 ENEMY_BODY_IMAGE_STRAIGHT = Image.open(ASSET_FOLDER + "enemy_body_straight.png")
 ENEMY_BODY_IMAGE_CURVE = Image.open(ASSET_FOLDER + "enemy_body_curve.png")
 
@@ -90,9 +99,25 @@ class Observer():
                 head_rotation = 180
             elif (neck_x == head_x) and (neck_y > head_y):
                 head_rotation = 0
+            
+            snake_health = snake['health']
 
-            # setup the images based on whether this snake is the POV or not
-            head_image = ME_HEAD_IMAGE if is_pov_snake else ENEMY_HEAD_IMAGE
+            # set the head image based on how much health the snake has
+            if is_pov_snake:
+                if (snake_health <= THRESHOLD_FOR_LOW_HEALTH_HEAD):
+                    head_image = ME_HEAD_IMAGE_LOW_HEALTH
+                elif (snake_health <= THRESHOLD_FOR_MID_HEALTH_HEAD):
+                    head_image = ME_HEAD_IMAGE_MID_HEALTH
+                else:
+                    head_image = ME_HEAD_IMAGE                
+            else:                
+                if (snake_health <= THRESHOLD_FOR_LOW_HEALTH_HEAD):
+                    head_image = ENEMY_HEAD_IMAGE_LOW_HEALTH
+                elif (snake_health <= THRESHOLD_FOR_MID_HEALTH_HEAD):
+                    head_image = ENEMY_HEAD_IMAGE_MID_HEALTH
+                else:
+                    head_image = ENEMY_HEAD_IMAGE
+
             straight_body_image = ME_BODY_IMAGE_STRAIGHT if is_pov_snake else ENEMY_BODY_IMAGE_STRAIGHT
             curve_body_image = ME_BODY_IMAGE_CURVE if is_pov_snake else ENEMY_BODY_IMAGE_CURVE
 
@@ -184,54 +209,7 @@ class Observer():
         # Convert to greyscale
         board_image = board_image.convert("L")
 
-        return board_image
-        # # Put normalized snake healths in an array
-        # # in the order of length descending
-        # # POV snake is index-0 always though
-        # snakes_health_in_length_descending_order = []
-        
-        # for snake in snakes:        
-        #     snake_id = snake['id']
-        #     snake_length = len(snake['body'])
-        #     snake_health = snake['health']
-        #     # normalize from 0.0 -> 1.0
-        #     snake_health = snake_health / 100.0
-
-        #     if (snake_id == pov_snake_id):
-        #         snakes_health_in_length_descending_order.insert(0, {
-        #             "length" : snake_length,
-        #             "health" : snake_health,
-        #             "is_pov" : True
-        #         })
-        #         continue
-
-        #     did_insert = False
-        #     for i in range(len(snakes_health_in_length_descending_order)):
-        #         snake_obj = snakes_health_in_length_descending_order[i]
-                
-        #         # skip over the pov snake if we already inserted at index 0
-        #         is_other_pov = snake_obj['is_pov']
-        #         if is_other_pov:
-        #             continue
-
-        #         other_length = snake_obj['length']
-        #         if (snake_length > other_length):                
-        #             snakes_health_in_length_descending_order.insert(i, {
-        #                 "length" : snake_length,
-        #                 "health" : snake_health,
-        #                 "is_pov" : False
-        #             })
-        #             did_insert = True
-        #             break
-                
-        #     if not did_insert:
-        #         snakes_health_in_length_descending_order.append({
-        #             "length" : snake_length,
-        #             "health" : snake_health,
-        #             "is_pov" : False
-        #         })
-
-        # snakes_health_in_length_descending_order = [obj['health'] for obj in snakes_health_in_length_descending_order]    
+        return board_image        
 
     def observe(self, data, should_store_observation) -> None:
         image = self.convert_data_to_image(data)

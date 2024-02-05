@@ -47,17 +47,20 @@ class Reporter():
         
         discord_message += "------------------------------------------------------------\n\n"
 
-        payload = {
-            "content": discord_message
-        }
-
-        headers = {
-            "Content-Type": "application/json"
-        }
-
-        response = requests.post(self.webhook_url, data=json.dumps(payload), headers=headers)
-
-        if response.status_code == 204:
-            print("Message sent successfully to discord")
+        if (self.webhook_url == None) or (self.webhook_url == ""):
+            print(discord_message)
         else:
-            print(f"Failed to send message. Status code: {response.status_code}")
+            payload = {
+                "content": discord_message
+            }
+
+            headers = {
+                "Content-Type": "application/json"
+            }
+
+            response = requests.post(self.webhook_url, data=json.dumps(payload), headers=headers)
+
+            if response.status_code == 204:
+                print("Message sent successfully to discord")
+            else:
+                print(f"Failed to send message. Status code: {response.status_code}")

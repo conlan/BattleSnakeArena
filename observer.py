@@ -5,7 +5,7 @@ FOOD_COLOR = constants.COLORS["green"]
 BORDER_COLOR = constants.COLORS["grey"]
 DEFAULT_COLOR = constants.COLORS["default"]
 
-ASSET_VERSION = 1
+ASSET_VERSION = 2
 ASSET_FOLDER = "assets-v" + str(ASSET_VERSION) + "/"
 
 GRID_IMAGE = Image.open(ASSET_FOLDER + "grid.png")

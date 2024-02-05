@@ -19,8 +19,8 @@ ME_BODY_IMAGE_STRAIGHT = Image.open(ASSET_FOLDER + "me_body_straight.png")
 ME_BODY_IMAGE_STRAIGHT_COILED = Image.open(ASSET_FOLDER + "me_body_straight_coiled.png")
 ME_BODY_IMAGE_CURVE = Image.open(ASSET_FOLDER + "me_body_curve.png")
 
-THRESHOLD_FOR_MID_HEALTH_HEAD = 98
-THRESHOLD_FOR_LOW_HEALTH_HEAD = 95
+THRESHOLD_FOR_MID_HEALTH_HEAD = 75
+THRESHOLD_FOR_LOW_HEALTH_HEAD = 25
 
 ENEMY_HEAD_IMAGE = Image.open(ASSET_FOLDER + "enemy_head.png")
 ENEMY_HEAD_IMAGE_MID_HEALTH = Image.open(ASSET_FOLDER + "enemy_head_mid_health.png")

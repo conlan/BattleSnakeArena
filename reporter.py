@@ -17,7 +17,9 @@ class Reporter():
             with open(path, 'r') as file:
                 self.history = json.load(file)
 
-        print(f"History loaded from {path} containing {len(self.history)} records")
+            print(f"History loaded from {path} containing {len(self.history)} records")
+        else:
+            print(f"History file not found at {path}. Starting new history")
 
     def save_history(self) -> None:
         # save history to json path

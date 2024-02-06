@@ -6,12 +6,14 @@ class Validator():
     def run_validation(self, validation_config, game_config, num_validation_games) -> None:
         print("\nVALIDATING MODEL...")
 
+        trainer = validation_config["trainer"]
+
         rewards_collected = []
 
         for i in range(num_validation_games):
             game_results = self._run_validation_round(validation_config, game_config)
             
-            self.print_validation_result(game_results, i, num_validation_games)
+            trainer.print_training_result(game_results, i, num_validation_games)
 
             total_collected_reward = game_results["training"]["total_reward"]
 
@@ -20,16 +22,6 @@ class Validator():
         mean_reward = sum(rewards_collected) / len(rewards_collected)
 
         return mean_reward
-
-    def print_validation_result(self, game_results, game_index, num_games) -> None:
-        # game_id = game_results["id"]
-        winner = game_results["winner"].name if game_results["winner"] is not None else "Draw"        
-        num_turns = game_results["turns"]
-
-        total_collected_reward = game_results["training"]["total_reward"]
-        total_food_consumed = game_results["training"]["total_food_consumed"]
-
-        print(f'    [{game_index + 1}/{num_games}] Turns={num_turns}, Result={winner}, Food={total_food_consumed}, Reward={total_collected_reward}')
     
     def _run_validation_round(self, validation_config, game_config) -> None:
         parameters = GameParameters(game_config)

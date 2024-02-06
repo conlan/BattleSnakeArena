@@ -14,6 +14,8 @@ from trainer import Trainer
 from dqn.dqn_controller import DQNController
 from dqn.dqn_model import DQNModel
 
+from controllers.simple_controller import SimpleController
+
 from recorder import Recorder
 from validator import Validator
 from reporter import Reporter
@@ -50,7 +52,8 @@ def main(model_save_path, history_save_path, discord_webhook_url) -> None:
             constants.COLORS["blue"]
         ],
         "controllers" : [
-            trainee_controller
+            trainee_controller,
+            SimpleController()
         ],
         "observer" : observer,
         "trainer" : trainer
@@ -73,7 +76,8 @@ def main(model_save_path, history_save_path, discord_webhook_url) -> None:
 
     validation_config = {
         "controllers" : [
-            validation_controller
+            validation_controller,
+            SimpleController()
         ],
         "controller_under_valuation" : validation_controller,
         "trainer" : validation_trainer
@@ -82,7 +86,7 @@ def main(model_save_path, history_save_path, discord_webhook_url) -> None:
     for i in range(NUM_GAMES_TO_PLAY):
         result = run_training_game(training_config, game_config)
 
-        print_game_result(result, i, NUM_GAMES_TO_PLAY)
+        trainer.print_training_result(result, i, NUM_GAMES_TO_PLAY)
 
         # validate our model
         if ((i + 1) % VALIDATE_EVERY_N_GAMES == 0):
@@ -101,34 +105,6 @@ def main(model_save_path, history_save_path, discord_webhook_url) -> None:
         # game_id = result["id"]
         # recorder.output_to_frames(observer.observations[game_id], "output_frames")
         # recorder.output_to_video(observer.observations[game_id], "output_video.mp4")
-
-    
-
-def print_game_result(game_results, game_index, num_games) -> None:
-    winner = game_results["winner"].name if game_results["winner"] is not None else "Draw"    
-    num_turns = game_results["turns"]
-
-    total_collected_reward = game_results["training"]["total_reward"]
-    max_reward_collected = game_results["training"]["max_reward_collected"]
-    
-    total_food_consumed = game_results["training"]["total_food_consumed"]
-    max_food_consumed = game_results["training"]["max_food_consumed"]
-    
-    mean_learning_loss = game_results["training"]["mean_learning_loss"]
-    # reduce to 4 decimal places
-    mean_learning_loss = round(mean_learning_loss, 4)
-    
-    mean_max_q_value = game_results["training"]["mean_max_q_value"]
-    # reduce to 2 decimal places
-    mean_max_q_value = round(mean_max_q_value, 2)
-    
-    max_turns_survived = game_results["training"]["max_turns_survived"]
-
-    training_snake_death_reason = game_results["training"]["death_reason"]
-    
-    curr_step = game_results["training"]["curr_step"]
-
-    print(f'[{game_index + 1}/{num_games}] T={num_turns}, MaxT={max_turns_survived}, W={winner}, F={total_food_consumed}, MaxF={max_food_consumed}, R={total_collected_reward}, MaxR={max_reward_collected}, MeanMaxQ={mean_max_q_value}, Death={training_snake_death_reason}, L={mean_learning_loss}, Step={curr_step}')
 
 def run_training_game(training_config, game_config) -> dict:
     speed = training_config["speed"]

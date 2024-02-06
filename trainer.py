@@ -24,6 +24,32 @@ class Trainer():
     def _lookup_reward(self, key) -> int:
         return constants.REWARD_SETS[self.model.reward_set_key][key]
     
+    def print_training_result(self, game_results, game_index, num_games) -> None:
+        winner = game_results["winner"].name if game_results["winner"] is not None else "Draw"    
+        num_turns = game_results["turns"]
+
+        total_collected_reward = game_results["training"]["total_reward"]
+        max_reward_collected = game_results["training"]["max_reward_collected"]
+        
+        total_food_consumed = game_results["training"]["total_food_consumed"]
+        max_food_consumed = game_results["training"]["max_food_consumed"]
+        
+        mean_learning_loss = game_results["training"]["mean_learning_loss"]
+        # reduce to 4 decimal places
+        mean_learning_loss = round(mean_learning_loss, 4)
+        
+        mean_max_q_value = game_results["training"]["mean_max_q_value"]
+        # reduce to 2 decimal places
+        mean_max_q_value = round(mean_max_q_value, 2)
+        
+        max_turns_survived = game_results["training"]["max_turns_survived"]
+
+        training_snake_death_reason = game_results["training"]["death_reason"]
+        
+        curr_step = game_results["training"]["curr_step"]
+
+        print(f'[{game_index + 1}/{num_games}] T={num_turns}, MaxT={max_turns_survived}, W={winner}, F={total_food_consumed}, MaxF={max_food_consumed}, R={total_collected_reward}, MaxR={max_reward_collected}, MeanMaxQ={mean_max_q_value}, Death={training_snake_death_reason}, L={mean_learning_loss}, Step={curr_step}')
+    
     def finalize(self, game_results, training_snake) -> dict:
         game_id = game_results["id"]
 

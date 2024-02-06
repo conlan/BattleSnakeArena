@@ -16,7 +16,7 @@ class Validator():
 
         return validation_trainer.total_collected_reward * 1.0 / num_validation_games
     
-    def _run_validation_round(self, validation_config, game_config) -> None:
+    def _run_validation_round(self, validation_config, game_config) -> dict:
         parameters = GameParameters(game_config)
 
         controllers = validation_config["controllers"]
@@ -38,7 +38,7 @@ class Validator():
 
         is_done = game.reset()    
 
-        game_results = None
+        game_results : dict
 
         while not is_done:
             # Perform a game step

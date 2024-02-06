@@ -32,7 +32,7 @@ class Game():
 
     def reset(self) -> bool:
         self.turn = 0
-        self.food = []
+        self.food : list[tuple] = [] 
         self.live_snakes = []
         self.is_solo_game = len(self.all_snakes) == 1
 
@@ -61,7 +61,7 @@ class Game():
         is_game_over = self._check_winner()
 
         if (not is_game_over):
-            return None
+            return {}
         
         winning_snake = None
 

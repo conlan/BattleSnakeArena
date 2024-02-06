@@ -34,14 +34,14 @@ FOOD_IMAGE = Image.open(ASSET_FOLDER + "food.png")
 
 class Observer():    
     def __init__(self) -> None:
-        self.observations = {}
+        self.observations:dict = {}
 
     def tupleToXY(self, tuple):
         x = tuple['x']
         y = tuple['y']
         return (x * (GRID_SIZE - 1), y * (GRID_SIZE - 1))        
     
-    def convert_data_to_image(self, json) -> Image:
+    def convert_data_to_image(self, json) -> object:
         board_width = json['board']['width']
         board_height = json['board']['height']
         snakes = json['board']['snakes']
@@ -136,7 +136,7 @@ class Observer():
                 if (body_x == prev_body_x) and (body_y == prev_body_y):
                     continue
 
-                image_to_use = None
+                image_to_use : Image.Image
                 image_rotation = 0
 
                 if (body_index < len(snake_body) - 1):

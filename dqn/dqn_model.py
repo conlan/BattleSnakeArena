@@ -27,21 +27,22 @@ class DQNModel():
         self.optimizer = optim.Adam(self.network.parameters(), lr=learning_rate)
         self.criterion = nn.MSELoss()
     
-        self.model_save_path = None
+        self.model_save_path : str
         self.reward_set_key = None        
 
-    def cache(self, obs, next_obs : int, action : torch.tensor, reward : int, done : bool):
+    def cache(self, obs, next_obs : int, action : torch.tensor, reward_int : int, done_bool : bool):
 
-        # print(f"    Caching: act=" + str(action) + ", reward=" + str(reward) + ", done=" + str(done))        
+        # print(f"    Caching: act=" + str(action) + ", reward=" + str(reward_int) + ", done=" + str(done_bool))        
 
         to_tensor = transforms.ToTensor()
 
         state = to_tensor(obs)
         next_state = to_tensor(next_obs)
+
         # convert reward, action, done to tensors
-        reward = torch.tensor([reward], dtype=torch.float)
+        reward : torch.tensor = torch.tensor([reward_int], dtype=torch.float)
         action = torch.tensor([action], dtype=torch.long)
-        done = torch.tensor([done])
+        done : torch.tensor = torch.tensor([done_bool])
 
         self.memory.add(TensorDict({
                     "state": state,
@@ -92,7 +93,7 @@ class DQNModel():
         
         return state, next_state, action.squeeze(), reward.squeeze(), done.squeeze()       
 
-    def predict(self, observation) -> int:
+    def predict(self, observation) -> tuple:
         to_tensor = transforms.ToTensor()
 
         state = to_tensor(observation).to(self.device)

@@ -30,7 +30,8 @@ class DQNModel():
         self.model_save_path = None
         self.reward_set_key = None        
 
-    def cache(self, obs, next_obs, action, reward, done):
+    def cache(self, obs, next_obs : int, action : torch.tensor, reward : int, done : bool):
+
         # print(f"    Caching: act=" + str(action) + ", reward=" + str(reward) + ", done=" + str(done))        
 
         to_tensor = transforms.ToTensor()

@@ -12,7 +12,6 @@ class Snake():
 
     def reset(self) -> None:
         self.body = []
-        self.last_move = None
         
         self.health = constants.MAX_SNAKE_HEALTH
         self.ate_food = False
@@ -66,8 +65,6 @@ class Snake():
 
         self.ate_food = False
         self.health = self.health -1
-
-        self.last_move = mv
     
     def jsonize(self) -> dict:
         jsonobj = {}

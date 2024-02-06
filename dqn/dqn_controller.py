@@ -26,12 +26,9 @@ class DQNController (SnakeController):
         # print(f'Loaded epsilon: {self.epsilon}, decay: {self.epsilon_decay}, min: {self.epsilon_min}')
 
     def act(self, data) -> dict:
-        game_id = data["game"]["id"]
-        if (game_id not in self.moves_made):
-            self.moves_made[game_id] = []
-
         move = None
         local_dir = None
+        q_values = None
 
         if (data['turn'] == 0):
             move = random.choice(['up', 'down', 'left', 'right'])
@@ -56,9 +53,6 @@ class DQNController (SnakeController):
             # Decay epsilon
             self.epsilon = max(self.epsilon_min, self.epsilon - self.epsilon_decay)
             
-        self.moves_made[game_id].append(local_dir)
+        game_id = data["game"]["id"]
         
-        return {
-            'move': move,
-            'local_direction': local_dir
-        }
+        return self.store_move(game_id, move, local_dir, q_values)

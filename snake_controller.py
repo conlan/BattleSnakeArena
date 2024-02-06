@@ -10,8 +10,25 @@ class SnakeController(ABC):
     def act(self, data) -> dict:
         pass
     
-    def get_last_move_made(self, game) -> int:
+    def get_last_move(self, game) -> dict:
         return self.moves_made[game.id][-1]
+    
+    def get_last_local_direction(self, game) -> int:
+        return self.moves_made[game.id][-1]['local_direction']
+    
+    def store_move(self, game_id, move, local_direction, q_values=None) -> dict:
+        move_obj = {
+            'move': move,
+            'local_direction': local_direction,
+            'q_values': q_values
+        }
+        
+        if (game_id not in self.moves_made):
+            self.moves_made[game_id] = []
+
+        self.moves_made[game_id].append(move_obj)
+
+        return move_obj
     
     # Take head and neck coordinates and convert a local direction to 
     # actual BattleSnake move

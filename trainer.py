@@ -30,7 +30,7 @@ class Trainer():
         return constants.REWARD_SETS[self.model.reward_set_key][key]
     
     def print_training_result(self, game_results, game_index, num_games) -> None:
-        winner = game_results["winner"].name if game_results["winner"] is not None else "Draw"    
+        winner = game_results["winner"].name if game_results["winner"] is not None else "DRAW"
         
         num_turns = game_results["turns"]
 

@@ -70,8 +70,6 @@ class Game():
         else:
             if len(self.live_snakes) == 1:
                 winning_snake = self.live_snakes[0]
-            else:
-                winning_snake = "DRAW"
             
         return {
             "id" : self.id,

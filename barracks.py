@@ -121,7 +121,7 @@ def print_game_result(game_results, game_index, num_games) -> None:
     
     curr_step = game_results["training"]["curr_step"]
 
-    print(f'[{game_index + 1}/{num_games}] T={num_turns}, MaxT={max_turns_survived}, Result={winner}, F={total_food_consumed}, MaxF={max_food_consumed}, R={total_collected_reward}, MaxR={max_reward_collected}, Death={training_snake_death_reason}, L={mean_learning_loss}, Step={curr_step}')
+    print(f'[{game_index + 1}/{num_games}] T={num_turns}, MaxT={max_turns_survived}, W={winner}, F={total_food_consumed}, MaxF={max_food_consumed}, R={total_collected_reward}, MaxR={max_reward_collected}, Death={training_snake_death_reason}, L={mean_learning_loss}, Step={curr_step}')
 
 def run_training_game(training_config, game_config) -> dict:
     speed = training_config["speed"]

@@ -65,8 +65,13 @@ class Game():
         
         winning_snake = None
 
-        if (len(self.live_snakes) == 1) and not (self.is_solo_game):
-            winning_snake = self.live_snakes[0]
+        if self.is_solo_game:
+            winning_snake = self.all_snakes[0]
+        else:
+            if len(self.live_snakes) == 1:
+                winning_snake = self.live_snakes[0]
+            else:
+                winning_snake = "DRAW"
             
         return {
             "id" : self.id,

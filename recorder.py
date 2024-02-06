@@ -3,11 +3,48 @@ from PIL import Image, ImageDraw, ImageFont
 
 from constants import LocalDirection
 
+import os
 import imageio
 import numpy as np
 
 class Recorder():
-    def convert_images_to_np_array(self, observations):
+    def output_to_video(self, observations, output_file):
+        if (len(observations) == 0):
+            print("No observations to output")
+            return
+
+        with imageio.get_writer(output_file, fps=8) as writer:  # Adjust the fps as needed
+            np_img_array = self._convert_images_to_np_array(observations)            
+
+            for np_image in np_img_array:
+                writer.append_data(np_image)
+
+        print("Video saved to: " + output_file)
+
+    def output_to_frames(self, observations, output_dir):
+        if (len(observations) == 0):
+            print("No observations to output")
+            return
+        
+        # make the output dir if it doesn't exist        
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+
+        # convert the observations to np array
+        np_img_array = self._convert_images_to_np_array(observations)
+
+        # output each np array frame to a file
+        for i in range(len(np_img_array)):
+            img = Image.fromarray(np_img_array[i])
+
+            # pad i to 5 digits
+            frame_index = str(i).zfill(5)
+            
+            img.save(f'{output_dir}/frame_{frame_index}.png')
+
+        print(f"Frames saved to: {output_dir}")
+
+    def _convert_images_to_np_array(self, observations):
         SINGLE_FRAME_SIZE = 67
 
         FRAME_PADDING = 50
@@ -162,16 +199,3 @@ class Recorder():
             np_array.append(np.array(final_image))
 
         return np_array
-
-    def record(self, observations, output_file):
-        if (len(observations) == 0):
-            print("No observations to output")
-            return
-
-        with imageio.get_writer(output_file, fps=8) as writer:  # Adjust the fps as needed
-            np_img_array = self.convert_images_to_np_array(observations)            
-
-            for np_image in np_img_array:
-                writer.append_data(np_image)
-
-        print("Video saved to: " + output_file)

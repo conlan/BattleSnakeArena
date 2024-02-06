@@ -38,7 +38,7 @@ class Validator():
 
         is_done = game.reset()    
 
-        game_results : dict
+        game_results : dict = None
 
         while not is_done:
             # Perform a game step

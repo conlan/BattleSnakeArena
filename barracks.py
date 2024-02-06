@@ -115,7 +115,12 @@ def print_game_result(game_results, game_index, num_games) -> None:
     max_food_consumed = game_results["training"]["max_food_consumed"]
     
     mean_learning_loss = game_results["training"]["mean_learning_loss"]
+    # reduce to 4 decimal places
+    mean_learning_loss = round(mean_learning_loss, 4)
+    
     mean_max_q_value = game_results["training"]["mean_max_q_value"]
+    # reduce to 2 decimal places
+    mean_max_q_value = round(mean_max_q_value, 2)
     
     max_turns_survived = game_results["training"]["max_turns_survived"]
 

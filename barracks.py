@@ -105,7 +105,6 @@ def main(model_save_path, history_save_path, discord_webhook_url) -> None:
     
 
 def print_game_result(game_results, game_index, num_games) -> None:
-    # game_id = game_results["id"]
     winner = game_results["winner"].name if game_results["winner"] is not None else "Draw"    
     num_turns = game_results["turns"]
 
@@ -117,10 +116,12 @@ def print_game_result(game_results, game_index, num_games) -> None:
     
     mean_learning_loss = game_results["training"]["mean_learning_loss"]
     max_turns_survived = game_results["training"]["max_turns_survived"]
+
+    training_snake_death_reason = game_results["training"]["death_reason"]
     
     curr_step = game_results["training"]["curr_step"]
 
-    print(f'[{game_index + 1}/{num_games}] Turns={num_turns}, MaxTurns={max_turns_survived}, Result={winner}, Food={total_food_consumed}, MaxFood={max_food_consumed}, Reward={total_collected_reward}, MaxReward={max_reward_collected}, Loss={mean_learning_loss}, Curr Step={curr_step}')
+    print(f'[{game_index + 1}/{num_games}] T={num_turns}, MaxT={max_turns_survived}, Result={winner}, F={total_food_consumed}, MaxF={max_food_consumed}, R={total_collected_reward}, MaxR={max_reward_collected}, Death={training_snake_death_reason}, L={mean_learning_loss}, Step={curr_step}')
 
 def run_training_game(training_config, game_config) -> dict:
     speed = training_config["speed"]

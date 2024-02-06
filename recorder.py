@@ -26,9 +26,15 @@ class Recorder():
             print("No observations to output")
             return
         
+        # delete the folder if it exists
+        if os.path.exists(output_dir):
+            print(f"Deleting existing frames in {output_dir}")
+            for file in os.listdir(output_dir):
+                os.remove(os.path.join(output_dir, file))
+        
         # make the output dir if it doesn't exist        
         if not os.path.exists(output_dir):
-            os.makedirs(output_dir)
+            os.makedirs(output_dir)                            
 
         # convert the observations to np array
         np_img_array = self._convert_images_to_np_array(observations)
@@ -51,7 +57,7 @@ class Recorder():
         
         FINAL_FRAME_SIZE = SINGLE_FRAME_SIZE + FRAME_PADDING * 2
 
-        DEFAULT_FONT = ImageFont.truetype("assets/OpenSans-Bold.ttf", 12)
+        DEFAULT_FONT = ImageFont.truetype("assets/OpenSans-Bold.ttf", 10)
 
         # Define text and font settings    
         active_font_color = (255, 0, 0)  # Red
@@ -63,7 +69,7 @@ class Recorder():
             image = frame_obj['image']
 
             q_values = frame_obj['q_values'] if 'q_values' in frame_obj else None
-            local_dir_of_move_made = frame_obj['local_dir'] if 'local_dir' in frame_obj else 0
+            local_dir_of_move_made = frame_obj['action'] if 'action' in frame_obj else 0
             move_made = frame_obj['move'] if 'move' in frame_obj else None
 
             # paste image onto bigger image

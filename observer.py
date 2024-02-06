@@ -217,7 +217,7 @@ class Observer():
 
         return board_image        
 
-    def observe(self, data, should_store_observation) -> None:
+    def observe(self, data : dict, should_store_observation : bool) -> dict:
         image = self.convert_data_to_image(data)
 
         game_id = data["game"]["id"]

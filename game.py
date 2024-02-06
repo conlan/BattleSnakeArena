@@ -158,7 +158,7 @@ class Game():
                             del_snakes.append(s1)
                             del_snakes.append(s2)
 
-        self._delete_snakes(del_snakes, reason="HEAD-ON-HEAD")
+        self._delete_snakes(del_snakes, reason="HEAD")
 
     def _detect_snake_collision(self):
         snake_bodies = []
@@ -172,7 +172,7 @@ class Game():
             if head in snake_bodies:
                 del_snakes.append(s)
 
-        self._delete_snakes(del_snakes, reason="SNAKE COLLISION")
+        self._delete_snakes(del_snakes, reason="COLLIDE")
     
     def _detect_starvation(self):
         del_snakes = []
@@ -181,7 +181,7 @@ class Game():
             if(s.health <= 0):
                 del_snakes.append(s)
         
-        self._delete_snakes(del_snakes, reason="STARVATION")
+        self._delete_snakes(del_snakes, reason="STARVE")
 
     def _detect_wall_collision(self):
         del_snakes = []
@@ -193,7 +193,7 @@ class Game():
                 head[1] >= self.height()):
                 del_snakes.append(s)          
 
-        self._delete_snakes(del_snakes, reason="SNAKE COLLISION")
+        self._delete_snakes(del_snakes, reason="WALL")
 
     def _delete_snakes(self, snakes, reason):
         for s in snakes:

@@ -27,15 +27,13 @@ class Trainer():
     def finalize(self, game_results, training_snake) -> dict:
         game_id = game_results["id"]
 
-        learning_losses_for_game = self.learning_losses[game_id] if game_id in self.learning_losses else []
-        
+        learning_losses_for_game = self.learning_losses[game_id] if game_id in self.learning_losses else []        
         if (len(learning_losses_for_game) == 0):
             mean_learning_loss = 0
         else:
             mean_learning_loss = sum(learning_losses_for_game) / len(learning_losses_for_game)
 
         q_values_for_game = self.q_values[game_id] if game_id in self.q_values else []
-
         if (len(q_values_for_game) == 0):
             mean_max_q_value = 0
         else:
@@ -105,9 +103,7 @@ class Trainer():
             if game.id not in self.q_values:
                 self.q_values[game.id] = []
                 
-            print(q_values)
             max_q_value = max(q_values[0]).item()
-            print(max_q_value)
 
             self.q_values[game.id].append(max_q_value)
 

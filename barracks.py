@@ -115,13 +115,15 @@ def print_game_result(game_results, game_index, num_games) -> None:
     max_food_consumed = game_results["training"]["max_food_consumed"]
     
     mean_learning_loss = game_results["training"]["mean_learning_loss"]
+    mean_max_q_value = game_results["training"]["mean_max_q_value"]
+    
     max_turns_survived = game_results["training"]["max_turns_survived"]
 
     training_snake_death_reason = game_results["training"]["death_reason"]
     
     curr_step = game_results["training"]["curr_step"]
 
-    print(f'[{game_index + 1}/{num_games}] T={num_turns}, MaxT={max_turns_survived}, W={winner}, F={total_food_consumed}, MaxF={max_food_consumed}, R={total_collected_reward}, MaxR={max_reward_collected}, Death={training_snake_death_reason}, L={mean_learning_loss}, Step={curr_step}')
+    print(f'[{game_index + 1}/{num_games}] T={num_turns}, MaxT={max_turns_survived}, W={winner}, F={total_food_consumed}, MaxF={max_food_consumed}, R={total_collected_reward}, MaxR={max_reward_collected}, MeanMaxQ={mean_max_q_value}, Death={training_snake_death_reason}, L={mean_learning_loss}, Step={curr_step}')
 
 def run_training_game(training_config, game_config) -> dict:
     speed = training_config["speed"]
@@ -171,11 +173,12 @@ def run_training_game(training_config, game_config) -> dict:
         # get move made from the controller
         training_snake_action = trainer.controller.get_last_local_direction(game)
         training_snake_move = trainer.controller.get_last_move(game)
+        training_snake_q_values = training_snake_move["q_values"]
 
         # put the last move details in the initial observation        
         observation["action"] = training_snake_action
         observation["move"] = training_snake_move["move"]
-        observation["q_values"] = training_snake_move["q_values"]
+        observation["q_values"] = training_snake_q_values
 
         if (is_done):
             # get final game results
@@ -185,7 +188,7 @@ def run_training_game(training_config, game_config) -> dict:
         reward = trainer.determine_reward(training_snake, game_results)
 
         # cache and possibly train on results
-        trainer.cache(game, observation, next_observation, training_snake_action, reward, is_done)
+        trainer.cache(game, observation, next_observation, training_snake_action, reward, is_done, training_snake_q_values)
 
         # delay if necessary
         if (speed < 100):

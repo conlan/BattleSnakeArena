@@ -15,6 +15,8 @@ class Trainer():
         self.save_every = 5_000
 
         self.learning_losses = {}
+        self.q_values = {}
+
         self.max_food_consumed = 0
         self.max_reward_collected = -99999999999999
         self.max_turns_survived = 0
@@ -22,7 +24,7 @@ class Trainer():
     def _lookup_reward(self, key) -> int:
         return constants.REWARD_SETS[self.model.reward_set_key][key]
     
-    def finalize(self, game_results, training_snake) -> None:
+    def finalize(self, game_results, training_snake) -> dict:
         game_id = game_results["id"]
 
         learning_losses_for_game = self.learning_losses[game_id] if game_id in self.learning_losses else []
@@ -31,6 +33,13 @@ class Trainer():
             mean_learning_loss = 0
         else:
             mean_learning_loss = sum(learning_losses_for_game) / len(learning_losses_for_game)
+
+        q_values_for_game = self.q_values[game_id] if game_id in self.q_values else []
+
+        if (len(q_values_for_game) == 0):
+            mean_max_q_value = 0
+        else:
+            mean_max_q_value = sum(q_values_for_game) / len(q_values_for_game)
 
         if (training_snake.num_food_consumed > self.max_food_consumed):
             self.max_food_consumed = training_snake.num_food_consumed
@@ -52,7 +61,8 @@ class Trainer():
             "num_turns" : num_turns,
             "max_turns_survived" : self.max_turns_survived,
             "death_reason" : training_snake.death_reason,
-            "mean_learning_loss" : mean_learning_loss
+            "mean_learning_loss" : mean_learning_loss,
+            "mean_max_q_value" : mean_max_q_value
         }
 
     def determine_reward(self, training_snake, game_results) -> int:
@@ -77,7 +87,7 @@ class Trainer():
         
         return total_reward
 
-    def cache(self, game, observation, next_observation, action_idx, reward, done) -> None:
+    def cache(self, game, observation, next_observation, action_idx, reward, done, q_values) -> None:
         if (action_idx == None):
             # print(f'    Action is None, skipping cache...')
             return
@@ -89,6 +99,17 @@ class Trainer():
         self.model.cache(observation["image"], next_observation["image"], action, reward, done)
 
         self.curr_step += 1
+
+        # store max q values for moves made
+        if (q_values is not None):
+            if game.id not in self.q_values:
+                self.q_values[game.id] = []
+                
+            print(q_values)
+            max_q_value = max(q_values[0]).item()
+            print(max_q_value)
+
+            self.q_values[game.id].append(max_q_value)
 
         # print(f'    Current step: {self.curr_step}')
     

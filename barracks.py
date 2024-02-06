@@ -99,7 +99,8 @@ def main(model_save_path, history_save_path, discord_webhook_url) -> None:
 
         # recorder = Recorder()
         # game_id = result["id"]
-        # recorder.record(observer.observations[game_id], "output_video.mp4")
+        # recorder.output_to_frames(observer.observations[game_id], "output_frames")
+        # recorder.output_to_video(observer.observations[game_id], "output_video.mp4")
 
     
 
@@ -167,7 +168,13 @@ def run_training_game(training_config, game_config) -> dict:
         next_observation = observer.observe(game.get_board_json(training_snake), is_done)
 
         # get move made from the controller
-        action = trainer.controller.get_last_local_direction(game)
+        training_snake_action = trainer.controller.get_last_local_direction(game)
+        training_snake_move = trainer.controller.get_last_move(game)
+
+        # put the last move details in the initial observation        
+        observation["action"] = training_snake_action
+        observation["move"] = training_snake_move["move"]
+        observation["q_values"] = training_snake_move["q_values"]
 
         if (is_done):
             # get final game results
@@ -177,7 +184,7 @@ def run_training_game(training_config, game_config) -> dict:
         reward = trainer.determine_reward(training_snake, game_results)
 
         # cache and possibly train on results
-        trainer.cache(game, observation, next_observation, action, reward, is_done)
+        trainer.cache(game, observation, next_observation, training_snake_action, reward, is_done)
 
         # delay if necessary
         if (speed < 100):

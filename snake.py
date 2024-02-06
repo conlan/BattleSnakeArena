@@ -20,10 +20,13 @@ class Snake():
         self.is_dead = False
         self.death_reason = None
 
-        self.total_collected_reward = 0
+        self.collected_reward = 0
 
     def is_alive(self) -> bool:
         return not self.is_dead
+    
+    def collect_reward(self, reward):
+        self.collected_reward += reward
     
     def eat(self) -> None:
         self.health = constants.MAX_SNAKE_HEALTH

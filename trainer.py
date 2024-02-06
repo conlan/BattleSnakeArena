@@ -14,25 +14,29 @@ class Trainer():
         self.learn_every = 3
         self.save_every = 5_000
 
+        self.reset()
+
+    def reset(self):
         self.learning_losses = {}
         self.q_values = {}
 
         self.max_food_consumed = 0
         self.max_reward_collected = -99999999999999
         self.max_turns_survived = 0
+        
+        self.total_collected_reward = 0
 
     def _lookup_reward(self, key) -> int:
         return constants.REWARD_SETS[self.model.reward_set_key][key]
     
     def print_training_result(self, game_results, game_index, num_games) -> None:
         winner = game_results["winner"].name if game_results["winner"] is not None else "Draw"    
+        
         num_turns = game_results["turns"]
 
-        total_collected_reward = game_results["training"]["total_reward"]
-        max_reward_collected = game_results["training"]["max_reward_collected"]
+        collected_reward = game_results["training"]["collected_reward"]
         
-        total_food_consumed = game_results["training"]["total_food_consumed"]
-        max_food_consumed = game_results["training"]["max_food_consumed"]
+        food_consumed = game_results["training"]["food_consumed"]
         
         mean_learning_loss = game_results["training"]["mean_learning_loss"]
         # reduce to 4 decimal places
@@ -41,36 +45,39 @@ class Trainer():
         mean_max_q_value = game_results["training"]["mean_max_q_value"]
         # reduce to 2 decimal places
         mean_max_q_value = round(mean_max_q_value, 2)
-        
-        max_turns_survived = game_results["training"]["max_turns_survived"]
 
         training_snake_death_reason = game_results["training"]["death_reason"]
-        
-        curr_step = game_results["training"]["curr_step"]
 
-        print(f'[{game_index + 1}/{num_games}] T={num_turns}, MaxT={max_turns_survived}, W={winner}, F={total_food_consumed}, MaxF={max_food_consumed}, R={total_collected_reward}, MaxR={max_reward_collected}, MeanMaxQ={mean_max_q_value}, Death={training_snake_death_reason}, L={mean_learning_loss}, Step={curr_step}')
+        print(f'[{game_index + 1}/{num_games}] T={num_turns}, MaxT={self.max_turns_survived}, W={winner}, F={food_consumed}, MaxF={self.max_food_consumed}, R={collected_reward}, MaxR={self.max_reward_collected}, MeanMaxQ={mean_max_q_value}, Death={training_snake_death_reason}, L={mean_learning_loss}, Step={self.curr_step}')
     
     def finalize(self, game_results, training_snake) -> dict:
         game_id = game_results["id"]
 
+        # store learning losses during training
         learning_losses_for_game = self.learning_losses[game_id] if game_id in self.learning_losses else []        
         if (len(learning_losses_for_game) == 0):
             mean_learning_loss = 0
         else:
             mean_learning_loss = sum(learning_losses_for_game) / len(learning_losses_for_game)
 
+        # store q values for moves made
         q_values_for_game = self.q_values[game_id] if game_id in self.q_values else []
         if (len(q_values_for_game) == 0):
             mean_max_q_value = 0
         else:
             mean_max_q_value = sum(q_values_for_game) / len(q_values_for_game)
 
+        # track food consumed
         if (training_snake.num_food_consumed > self.max_food_consumed):
             self.max_food_consumed = training_snake.num_food_consumed
 
-        if (training_snake.total_collected_reward > self.max_reward_collected):
-            self.max_reward_collected = training_snake.total_collected_reward
+        # track reward collected
+        self.total_collected_reward += training_snake.collected_reward
 
+        if (training_snake.collected_reward > self.max_reward_collected):
+            self.max_reward_collected = training_snake.collected_reward
+
+        # track turns survived
         num_turns = game_results["turns"]
         if (num_turns > self.max_turns_survived):
             self.max_turns_survived = num_turns
@@ -78,12 +85,9 @@ class Trainer():
         game_results["training"] = {
             "curr_step" : self.curr_step,
             "curr_epsilon" : self.controller.get_epsilon_info()["epsilon"],
-            "total_reward" : training_snake.total_collected_reward,
-            "max_reward_collected" : self.max_reward_collected,
-            "total_food_consumed" : training_snake.num_food_consumed,
-            "max_food_consumed" : self.max_food_consumed,
+            "collected_reward" : training_snake.collected_reward,
+            "food_consumed" : training_snake.num_food_consumed,
             "num_turns" : num_turns,
-            "max_turns_survived" : self.max_turns_survived,
             "death_reason" : training_snake.death_reason,
             "mean_learning_loss" : mean_learning_loss,
             "mean_max_q_value" : mean_max_q_value
@@ -107,7 +111,7 @@ class Trainer():
             if (winner == training_snake):
                 total_reward += self._lookup_reward(constants.REWARD_KEY_WIN)
 
-        training_snake.total_collected_reward += total_reward
+        training_snake.collect_reward(total_reward)
         
         return total_reward
 
@@ -157,5 +161,3 @@ class Trainer():
         training_info['curr_step'] = self.curr_step
 
         self.model.save_model(training_info)
-
-        print("\nSAVED " + str(self.curr_step) + " " + str(training_info) + "\n")

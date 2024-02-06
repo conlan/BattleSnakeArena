@@ -25,7 +25,7 @@ class Reporter():
         # save history to json path
         json.dump(self.history, open(self.save_path, 'w'))
 
-        print(f"\nHistory saved to {self.save_path}\n")
+        print(f"\n    SAVED history to {self.save_path}")
 
     def report(self, mean_validation_reward, curr_step):
         print(f'\nMEAN VALIDATION REWARD = : {mean_validation_reward}')        

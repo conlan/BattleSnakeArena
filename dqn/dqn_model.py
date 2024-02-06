@@ -118,7 +118,7 @@ class DQNModel():
 
         torch.save(data_to_save, self.model_save_path)
 
-        print(f"\nSaved model to {self.model_save_path}")
+        print(f"\n    SAVED model and training state {training_info} to {self.model_save_path}\n")
 
     def load_model(self, path, default_reward_set_key) -> dict:
         self.model_save_path = path

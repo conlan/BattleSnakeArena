@@ -1,6 +1,14 @@
 import constants
 import uuid
 
+from typing import List, TypedDict, Any 
+
+JsonizedSnakeObj = TypedDict('JsonizedSnakeObj', {
+    'health': int, 
+    'body': List[dict[str, int]], 
+    'id': str, 
+    'name': str})
+
 class Snake():
     def __init__(self, name, color, controller) -> None:
         self.name = name        
@@ -11,7 +19,7 @@ class Snake():
         self.reset()        
 
     def reset(self) -> None:
-        self.body = []
+        self.body:list[tuple] = []
         
         self.health = constants.MAX_SNAKE_HEALTH
         self.ate_food = False
@@ -69,12 +77,13 @@ class Snake():
         self.ate_food = False
         self.health = self.health -1
     
-    def jsonize(self) -> dict:
-        jsonobj = {}
-        jsonobj["health"] = self.health
-        jsonobj["body"] = [{"x": b[0], "y": b[1]} for b in self.body]
-        jsonobj["id"] = self.id
-        jsonobj["name"] = self.name
+    def jsonize(self) -> JsonizedSnakeObj:
+        jsonobj:JsonizedSnakeObj = {
+            "health" : self.health,
+            "body" : [{"x": b[0], "y": b[1]} for b in self.body],
+            "id" : self.id,
+            "name" : self.name
+        }
         return jsonobj
 
     def place_at_spot(self, spot) -> None:

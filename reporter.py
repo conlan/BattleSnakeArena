@@ -9,7 +9,7 @@ class Reporter():
         self.history = []
         self.save_path = None
 
-    def load_history(self, path) -> dict:
+    def load_history(self, path) -> None:
         self.save_path = path
 
         # if file exists, load it

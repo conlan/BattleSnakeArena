@@ -93,6 +93,8 @@ class Trainer():
             "mean_max_q_value" : mean_max_q_value
         }
 
+        return game_results
+
     def determine_reward(self, training_snake, game_results) -> int:
         total_reward = 0
                 

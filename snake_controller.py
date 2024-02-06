@@ -4,7 +4,7 @@ import constants
 
 class SnakeController(ABC):
     def __init__(self) -> None:
-        self.moves_made = {}
+        self.moves_made:dict = {}
 
     @abstractmethod
     def act(self, data) -> dict:

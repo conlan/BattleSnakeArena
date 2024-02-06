@@ -167,7 +167,7 @@ def run_training_game(training_config, game_config) -> dict:
         next_observation = observer.observe(game.get_board_json(training_snake), is_done)
 
         # get move made from the controller
-        action = trainer.controller.get_last_move_made(game)
+        action = trainer.controller.get_last_local_direction(game)
 
         if (is_done):
             # get final game results

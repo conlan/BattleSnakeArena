@@ -83,10 +83,10 @@ class Recorder():
 
                 draw = ImageDraw.Draw(final_image)
 
-                for i in range(len(q_values[0])):
+                for i in range(len(q_values)):
                     was_chosen_move = (i == local_dir_of_move_made)
 
-                    text = "{:.3f}".format(q_values[0][i])
+                    text = "{:.3f}".format(q_values[i])
                     
                     x = 0
                     y = 0

@@ -171,7 +171,7 @@ class Trainer():
             if game.id not in self.q_values:
                 self.q_values[game.id] = []
                 
-            max_q_value = max(q_values[0]).item()
+            max_q_value = max(q_values)
 
             self.q_values[game.id].append(max_q_value)
 

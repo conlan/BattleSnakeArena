@@ -102,7 +102,11 @@ class DQNModel():
 
         action_idx = torch.argmax(q_values).item()
 
-        return action_idx, q_values
+        # return q values as a list so we can write it to frames later
+        # in video replay (but DONT'T store the tensor as this will blow up GPU memory)
+        q_values_as_list = q_values[0].tolist()
+
+        return action_idx, q_values_as_list
         
     def save_model(self, training_info) -> None:        
         data_to_save = {

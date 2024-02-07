@@ -50,7 +50,7 @@ class Observer():
         board_image = Image.new("RGBA", (board_width * (GRID_SIZE - 1) + 1, board_height * (GRID_SIZE - 1) + 1), (255, 255, 255, 255))
 
         # draw border
-        border_color = (255, 255, 0)
+        border_color = (255, 0, 0)
         border_width = 1
         draw = ImageDraw.Draw(board_image)
         width, height = board_image.size

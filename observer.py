@@ -148,13 +148,13 @@ class Observer():
                 # OR if the next segment is on top of this one, we're still the tail
                 if ((next_body_x == None) or (next_body_y == None)) or \
                     ((next_body_x == body_x) and (next_body_y == body_y)):
-
-                    image_to_use = straight_body_image
-
+                    
+                    # TODO fix this properly but for now we're using the coiled tail image as the "safe" tail and the fully filled as the dangerous one
+                    image_to_use = ME_BODY_IMAGE_STRAIGHT_COILED if is_pov_snake else ENEMY_BODY_IMAGE_STRAIGHT_COILED
                     # If there's a next body segment AND it's on top of this segment,
                     # it means we're still coiled or just ate
                     if (next_body_x == body_x) and (next_body_y == body_y):
-                        image_to_use = ME_BODY_IMAGE_STRAIGHT_COILED if is_pov_snake else ENEMY_BODY_IMAGE_STRAIGHT_COILED
+                        image_to_use = straight_body_image
 
                     # rotate 90 if we're on the same row ====
                     if (body_y == prev_body_y):

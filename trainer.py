@@ -25,6 +25,7 @@ class Trainer():
         self.max_reward_collected = -99999999999999
         self.max_turns_survived = 0
         
+        self.num_training_updates_made = 0
         self.total_collected_reward = 0
 
     def _lookup_reward(self, key) -> int:
@@ -36,7 +37,8 @@ class Trainer():
         winner_name = winner.name if winner is not None else "DRAW"        
         num_games_won_by_winner = self.winner_counts[winner_name] if winner_name in self.winner_counts else 0
         total_games = sum(self.winner_counts.values())
-        win_rate = num_games_won_by_winner * 1.0 / total_games * 100.0
+        win_rate = num_games_won_by_winner * 1.0 / total_games * 100.0        
+        win_rate = round(win_rate, 3) # format win rate to 3 decimal places
         
         num_turns = game_results["turns"]
 
@@ -59,13 +61,20 @@ class Trainer():
         output_string += ", W={} ({}%)".format(winner_name, win_rate) # winner"
         output_string += ", F={}, MaxF={}".format(food_consumed, self.max_food_consumed) # food
         output_string += ", R={}, MaxR={}".format(collected_reward, self.max_reward_collected) # reward
-        output_string += ", MeanMaxQ={}".format(mean_max_q_value) # q value
+
+        if (mean_max_q_value != 0):
+            output_string += ", MeanMaxQ={}".format(mean_max_q_value) # q value
+            
         output_string += ", Death={}".format(training_snake_death_reason)
         
         if (mean_learning_loss > 0):
             output_string += ", L={}".format(mean_learning_loss) # learning loss
 
-        output_string += ", S={}".format(self.curr_step) # step
+        if (self.curr_step > 0):
+            output_string += ", S={}".format(self.curr_step) # step
+
+        if (self.num_training_updates_made > 0):
+            output_string += ", U={}".format(self.num_training_updates_made) # updates
 
         print(output_string)
     
@@ -174,11 +183,13 @@ class Trainer():
         # learn every few steps
         if (self.curr_step % self.learn_every == 0):
             loss = self.model.learn()
-
-            if game.id not in self.learning_losses:
-                self.learning_losses[game.id] = []
             
             if (loss is not None):
+                self.num_training_updates_made += 1
+
+                if game.id not in self.learning_losses:
+                    self.learning_losses[game.id] = []
+
                 self.learning_losses[game.id].append(loss)
 
         # save every N steps

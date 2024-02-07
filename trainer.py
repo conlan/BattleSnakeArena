@@ -12,7 +12,7 @@ class Trainer():
 
         self.burnin = 10_000
         self.learn_every = 3
-        self.save_every = 5_000
+        self.save_every = 2_000
 
         self.reset()
 

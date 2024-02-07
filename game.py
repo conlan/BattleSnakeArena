@@ -105,20 +105,16 @@ class Game():
         
         for snake in self.live_snakes:
             snake_pov_json = self.get_board_json(snake)
-                        
-            process = Thread(target=snake.move, args=(snake_pov_json,))
-            threads.append(process)
-        
-        # Print game id, turn
-        # print(f"{self.id} Turn: {self.turn}")
-        for process in threads:
-            process.start()
-            
-        for process in threads:
-            process.join()
 
-        # Print game id 
-        # print(f"{self.id} Turn: {self.turn} completed")
+            snake.move(snake_pov_json)          
+        #     process = Thread(target=snake.move, args=(snake_pov_json,))
+        #     threads.append(process)
+        
+        # for process in threads:
+        #     process.start()
+            
+        # for process in threads:
+        #     process.join()
 
     def _check_for_eaten_food(self):
         removed_food = []

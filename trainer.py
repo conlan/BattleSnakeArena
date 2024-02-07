@@ -19,6 +19,7 @@ class Trainer():
     def reset(self):
         self.learning_losses = {}
         self.q_values = {}
+        self.winner_counts = {}
 
         self.max_food_consumed = 0
         self.max_reward_collected = -99999999999999
@@ -30,7 +31,12 @@ class Trainer():
         return constants.REWARD_SETS[self.model.reward_set_key][key]
     
     def print_training_result(self, game_results, game_index, num_games) -> None:
-        winner = game_results["winner"].name if game_results["winner"] is not None else "DRAW"
+        # determine winner and win rate
+        winner = game_results["winner"] if game_results["winner"] is not None else None
+        winner_name = winner.name if winner is not None else "DRAW"        
+        num_games_won_by_winner = self.winner_counts[winner_name] if winner_name in self.winner_counts else 0
+        total_games = sum(self.winner_counts.values())
+        win_rate = num_games_won_by_winner * 1.0 / total_games * 100.0
         
         num_turns = game_results["turns"]
 
@@ -48,10 +54,31 @@ class Trainer():
 
         training_snake_death_reason = game_results["training"]["death_reason"]
 
-        print(f'[{game_index + 1}/{num_games}] T={num_turns}, MaxT={self.max_turns_survived}, W={winner}, F={food_consumed}, MaxF={self.max_food_consumed}, R={collected_reward}, MaxR={self.max_reward_collected}, MeanMaxQ={mean_max_q_value}, Death={training_snake_death_reason}, L={mean_learning_loss}, Step={self.curr_step}')
+        output_string = "[{}/{}]".format(game_index + 1, num_games) # game count
+        output_string += " T={}, MaxT={}".format(num_turns, self.max_turns_survived) # turns
+        output_string += ", W={} ({}%)".format(winner_name, win_rate) # winner"
+        output_string += ", F={}, MaxF={}".format(food_consumed, self.max_food_consumed) # food
+        output_string += ", R={}, MaxR={}".format(collected_reward, self.max_reward_collected) # reward
+        output_string += ", MeanMaxQ={}".format(mean_max_q_value) # q value
+        output_string += ", Death={}".format(training_snake_death_reason)
+        
+        if (mean_learning_loss > 0):
+            output_string += ", L={}".format(mean_learning_loss) # learning loss
+
+        output_string += ", S={}".format(self.curr_step) # step
+
+        print(output_string)
     
     def finalize(self, game_results, training_snake) -> dict:
         game_id = game_results["id"]
+
+        # store winner so we can determine win rates:
+        winner = game_results["winner"]        
+        winner_name = winner.name if winner is not None else "DRAW"
+        if winner_name not in self.winner_counts:
+            self.winner_counts[winner_name] = 0
+
+        self.winner_counts[winner_name] += 1
 
         # store learning losses during training
         learning_losses_for_game = self.learning_losses[game_id] if game_id in self.learning_losses else []        

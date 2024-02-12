@@ -1,8 +1,7 @@
 import time
 import constants
 import argparse
-
-from threading import Thread
+import random
 
 from game import GameParameters, Game
 from snake import Snake
@@ -21,7 +20,7 @@ from reporter import Reporter
 
 def main(model_save_path, history_save_path, discord_webhook_url) -> None:
     # ========================================================================
-    NUM_GAMES_TO_PLAY = 1_000_000
+    NUM_GAMES_TO_PLAY = 1
     NUM_GAMES_PER_VALIDATION = 1_000
     VALIDATE_EVERY_N_GAMES = 15_000
     # ========================================================================
@@ -31,9 +30,18 @@ def main(model_save_path, history_save_path, discord_webhook_url) -> None:
     reporter = Reporter(discord_webhook_url)
     reporter.load_history(history_save_path)
 
-    trainee_controller = DQNController(model_save_path, convert_data_to_image=observer.convert_data_to_image)
-    
+    trainee_controller = DQNController(model_save_path, convert_data_to_image=observer.convert_data_to_image)    
     trainer = Trainer(trainee_controller, trainee_controller.epsilon_info["curr_step"])
+
+    # ========================================================================
+    # The opponent snakes we'll train against
+    # Simple Controller
+    training_opponent_0 = SimpleController()
+    # Snapshotted DQN Controller that's always greedy
+    training_opponent_1 = DQNController("./trained_opponents/snake_v8.chkpt", convert_data_to_image=observer.convert_data_to_image)
+    training_opponent_1.load_epsilon(constants.EPSILON_INFO_ALWAYS_GREEDY)
+    # ========================================================================
+
     
     training_config = {
         "speed" : 100,
@@ -44,23 +52,18 @@ def main(model_save_path, history_save_path, discord_webhook_url) -> None:
         ],
         "controllers" : [
             trainee_controller,
-            SimpleController()
+            [training_opponent_0, training_opponent_1]            
         ],
         "observer" : observer,
         "trainer" : trainer
     }
-
-    validation_info = {
-        "epsilon" : 0.05,
-        "epsilon_decay" : 0,
-        "epsilon_min" : 0.05
-    }    
+    
     validation_controller = DQNController(model_save_path, convert_data_to_image=observer.convert_data_to_image)
-    validation_controller.load_epsilon(validation_info)
+    validation_controller.load_epsilon(constants.EPSILON_INFO_VALIDATION)
     
     validation_trainer = Trainer(validation_controller, 0)
     validator = Validator()
-
+    
     validation_config = {
         "controllers" : [
             validation_controller,
@@ -110,7 +113,15 @@ def run_training_game(training_config, game_config) -> dict:
     training_snake = None
 
     for i in range(len(controllers)):
-        controller = controllers[i]
+        controller_config = controllers[i]
+
+        # check if config is a list
+        if (isinstance(controller_config, list)):
+            # randomly select a controller from the list
+            controller = random.choice(controller_config)
+        else:
+            controller = controller_config
+
         snake = Snake("S-" + str(i), colors[i], controller)    
         snakes.append(snake)
 

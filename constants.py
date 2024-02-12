@@ -50,6 +50,18 @@ DEFAULT_GAME_CONFIG = {
     "board_size" : BOARD_SIZE_MEDIUM
 }
 
+EPSILON_INFO_ALWAYS_GREEDY = {
+    "epsilon" : 0,
+    "epsilon_decay" : 0,
+    "epsilon_min" : 0
+}
+
+EPSILON_INFO_VALIDATION = {
+    "epsilon" : 0.05,
+    "epsilon_decay" : 0,
+    "epsilon_min" : 0.05
+}
+
 class LocalDirection(IntEnum):
     STRAIGHT = 0,
     LEFT = 1,

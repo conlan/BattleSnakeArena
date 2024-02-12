@@ -42,8 +42,13 @@ REWARD_SETS = {
 }
 
 DEFAULT_REWARD_SET_KEY = "reward-set-v2"
-
 DEFAULT_LEARNING_RATE = 0.00025
+
+DEFAULT_GAME_CONFIG = {
+    "food_spawn_chance" : DEFAULT_FOOD_SPAN_CHANCE,
+    "min_food" : DEFAULT_MIN_FOOD,
+    "board_size" : BOARD_SIZE_MEDIUM
+}
 
 class LocalDirection(IntEnum):
     STRAIGHT = 0,

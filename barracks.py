@@ -50,12 +50,6 @@ def main(model_save_path, history_save_path, discord_webhook_url) -> None:
         "trainer" : trainer
     }
 
-    game_config = {
-        "food_spawn_chance" : constants.DEFAULT_FOOD_SPAN_CHANCE,
-        "min_food" : constants.DEFAULT_MIN_FOOD,
-        "board_size" : constants.BOARD_SIZE_MEDIUM
-    }
-
     validation_info = {
         "epsilon" : 0.05,
         "epsilon_decay" : 0,
@@ -77,13 +71,13 @@ def main(model_save_path, history_save_path, discord_webhook_url) -> None:
     }
 
     for i in range(NUM_GAMES_TO_PLAY):
-        result = run_training_game(training_config, game_config)
+        result = run_training_game(training_config, constants.DEFAULT_GAME_CONFIG)
 
         trainer.print_training_result(result, i, NUM_GAMES_TO_PLAY)
 
         # validate our model
         if ((i + 1) % VALIDATE_EVERY_N_GAMES == 0):
-            mean_validation_reward = validator.run_validation(validation_config, game_config, NUM_GAMES_PER_VALIDATION)
+            mean_validation_reward = validator.run_validation(validation_config, constants.DEFAULT_GAME_CONFIG, NUM_GAMES_PER_VALIDATION)
 
             # report data
             reporter.report(mean_validation_reward, trainer.curr_step)

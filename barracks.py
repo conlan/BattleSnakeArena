@@ -21,7 +21,7 @@ from reporter import Reporter
 def main(model_save_path, history_save_path, discord_webhook_url) -> None:
     # ========================================================================
     NUM_GAMES_TO_PLAY = 1_000_000
-    NUM_GAMES_PER_VALIDATION = 1_000
+    NUM_GAMES_PER_VALIDATION = 2_000
     VALIDATE_EVERY_N_GAMES = 15_000
     # ========================================================================
     

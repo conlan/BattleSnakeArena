@@ -46,10 +46,12 @@ class Reporter():
         validation_results = data["validation_results"]
         
         mean_validation_reward = validation_results["mean_validation_reward"]
+        win_rate = validation_results["win_rate"]
 
         discord_message = "**Validation Report:**\n\n"
-
-        discord_message += f":snake:   **Opponent**: {data['opponent']}\n\n"        
+        
+        discord_message += f":snake:   **Opponent**: {data['opponent']}\n\n"
+        discord_message += f":chart_with_upwards_trend:   **Win Rate**: {win_rate}%\n\n"
         discord_message += f":moneybag:   **Mean Reward**: {mean_validation_reward}\n\n"
         discord_message += f":stopwatch:   **Curr Step**: {data['curr_step']}\n\n"
         

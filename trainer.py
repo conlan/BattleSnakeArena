@@ -31,15 +31,20 @@ class Trainer():
     def _lookup_reward(self, key) -> int:
         return constants.REWARD_SETS[self.model.reward_set_key][key]
     
-    def print_training_result(self, game_results, game_index, num_games) -> None:
-        # determine winner and win rate
-        winner = game_results["winner"] if game_results["winner"] is not None else None
-        winner_name = winner.name if winner is not None else "DRAW"        
+    def calculate_win_rate(self, winner_name) -> float:
         num_games_won_by_winner = self.winner_counts[winner_name] if winner_name in self.winner_counts else 0
         total_games = sum(self.winner_counts.values())
         win_rate = num_games_won_by_winner * 1.0 / total_games * 100.0        
         win_rate = round(win_rate, 3) # format win rate to 3 decimal places
-        
+
+        return win_rate
+    
+    def print_training_result(self, game_results, game_index, num_games) -> None:
+        # determine winner and win rate
+        winner = game_results["winner"] if game_results["winner"] is not None else None
+        winner_name = winner.name if winner is not None else "DRAW"        
+        win_rate = self.calculate_win_rate(winner_name)
+                
         num_turns = game_results["turns"]
 
         collected_reward = game_results["training"]["collected_reward"]

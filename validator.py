@@ -18,7 +18,9 @@ class Validator():
         mean_validation_reward = validation_trainer.total_collected_reward * 1.0 / num_validation_games
 
         validation_results = {
-            "mean_validation_reward" : mean_validation_reward
+            "mean_validation_reward" : mean_validation_reward,
+            
+            "win_rate" : validation_trainer.calculate_win_rate("S-0")
         }
         return validation_results
     

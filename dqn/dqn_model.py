@@ -10,8 +10,10 @@ from torchvision import transforms
 
 from dqn.cnn import CNN
 
+import constants
+
 class DQNModel():
-    def __init__(self, learning_rate) -> None:
+    def __init__(self) -> None:
         self.memory = TensorDictReplayBuffer(storage=LazyMemmapStorage(100_000, \
                                                             device=torch.device("cpu")))
         self.batch_size = 32
@@ -24,11 +26,11 @@ class DQNModel():
 
         self.gamma = 0.9 # Discount factor
 
-        self.optimizer = optim.Adam(self.network.parameters(), lr=learning_rate)
+        self.optimizer = optim.Adam(self.network.parameters(), lr=constants.DEFAULT_LEARNING_RATE)
         self.criterion = nn.MSELoss()
     
         self.model_save_path : str
-        self.reward_set_key = None        
+        self.reward_set_key = constants.DEFAULT_REWARD_SET_KEY       
 
     def cache(self, obs, next_obs : int, action : torch.tensor, reward_int : int, done_bool : bool):
 
@@ -125,9 +127,8 @@ class DQNModel():
 
         print(f"\n    SAVED model and training state {training_info} to {self.model_save_path}\n")
 
-    def load_model(self, path, default_reward_set_key) -> dict:
+    def load_model(self, path) -> dict:
         self.model_save_path = path
-        self.reward_set_key = default_reward_set_key
 
         # check if file exists first
         if (os.path.exists(path) == False):

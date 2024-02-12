@@ -41,6 +41,10 @@ REWARD_SETS = {
     }
 }
 
+DEFAULT_REWARD_SET_KEY = "reward-set-v2"
+
+DEFAULT_LEARNING_RATE = 0.00025
+
 class LocalDirection(IntEnum):
     STRAIGHT = 0,
     LEFT = 1,

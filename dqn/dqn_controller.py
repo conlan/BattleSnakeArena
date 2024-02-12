@@ -2,14 +2,19 @@ import random
 
 from snake_controller import SnakeController
 
+from dqn.dqn_model import DQNModel
+
 class DQNController (SnakeController):
-    def __init__(self, model, epsilon_info, convert_data_to_image):
+    def __init__(self, model_save_path, convert_data_to_image):
         super().__init__()
 
-        self.model = model
         self.convert_data_to_image = convert_data_to_image
 
-        self.load_epsilon(epsilon_info)
+        self.model = DQNModel()
+
+        self.epsilon_info = self.model.load_model(model_save_path)
+
+        self.load_epsilon(self.epsilon_info)
 
     def get_epsilon_info(self) -> dict:
         return {
@@ -23,7 +28,7 @@ class DQNController (SnakeController):
         self.epsilon_decay = epsilon_info["epsilon_decay"]
         self.epsilon_min = epsilon_info["epsilon_min"]
 
-        # print(f'Loaded epsilon: {self.epsilon}, decay: {self.epsilon_decay}, min: {self.epsilon_min}')
+        print(f'Loaded epsilon: {self.epsilon}, decay: {self.epsilon_decay}, min: {self.epsilon_min}')
 
     def act(self, data) -> dict:
         move = None

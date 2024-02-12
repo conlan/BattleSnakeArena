@@ -12,7 +12,6 @@ from observer import Observer
 from trainer import Trainer
 
 from dqn.dqn_controller import DQNController
-from dqn.dqn_model import DQNModel
 
 from controllers.simple_controller import SimpleController
 
@@ -25,10 +24,6 @@ def main(model_save_path, history_save_path, discord_webhook_url) -> None:
     NUM_GAMES_TO_PLAY = 1_000_000
     NUM_GAMES_PER_VALIDATION = 1_000
     VALIDATE_EVERY_N_GAMES = 15_000
-
-    LEARNING_RATE = 0.00025
-
-    DEFAULT_REWARD_SET_KEY = "reward-set-v2"
     # ========================================================================
     
     observer = Observer()
@@ -36,14 +31,10 @@ def main(model_save_path, history_save_path, discord_webhook_url) -> None:
     reporter = Reporter(discord_webhook_url)
     reporter.load_history(history_save_path)
 
-    # Load the model that we're training
-    model = DQNModel(learning_rate=LEARNING_RATE)
+    trainee_controller = DQNController(model_save_path, convert_data_to_image=observer.convert_data_to_image)
     
-    training_info = model.load_model(model_save_path, DEFAULT_REWARD_SET_KEY)
-
-    trainee_controller = DQNController(model, training_info, convert_data_to_image=observer.convert_data_to_image)
-    trainer = Trainer(trainee_controller, training_info["curr_step"])
-
+    trainer = Trainer(trainee_controller, trainee_controller.epsilon_info["curr_step"])
+    
     training_config = {
         "speed" : 100,
         "print_board" : False,
@@ -70,7 +61,9 @@ def main(model_save_path, history_save_path, discord_webhook_url) -> None:
         "epsilon_decay" : 0,
         "epsilon_min" : 0.05
     }    
-    validation_controller = DQNController(model, validation_info, convert_data_to_image=observer.convert_data_to_image)
+    validation_controller = DQNController(model_save_path, convert_data_to_image=observer.convert_data_to_image)
+    validation_controller.load_epsilon(validation_info)
+    
     validation_trainer = Trainer(validation_controller, 0)
     validator = Validator()
 

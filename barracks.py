@@ -20,7 +20,7 @@ from reporter import Reporter
 
 def main(model_save_path, history_save_path, discord_webhook_url) -> None:
     # ========================================================================
-    NUM_GAMES_TO_PLAY = 1
+    NUM_GAMES_TO_PLAY = 1_000_000
     NUM_GAMES_PER_VALIDATION = 1_000
     VALIDATE_EVERY_N_GAMES = 15_000
     # ========================================================================
@@ -42,7 +42,11 @@ def main(model_save_path, history_save_path, discord_webhook_url) -> None:
     training_opponent_1.load_epsilon(constants.EPSILON_INFO_ALWAYS_GREEDY)
     # ========================================================================
 
-    
+    training_opponents = [
+        training_opponent_0,
+        training_opponent_1
+    ]
+
     training_config = {
         "speed" : 100,
         "print_board" : False,
@@ -52,7 +56,7 @@ def main(model_save_path, history_save_path, discord_webhook_url) -> None:
         ],
         "controllers" : [
             trainee_controller,
-            [training_opponent_0, training_opponent_1]            
+            training_opponents
         ],
         "observer" : observer,
         "trainer" : trainer
@@ -63,15 +67,6 @@ def main(model_save_path, history_save_path, discord_webhook_url) -> None:
     
     validation_trainer = Trainer(validation_controller, 0)
     validator = Validator()
-    
-    validation_config = {
-        "controllers" : [
-            validation_controller,
-            SimpleController()
-        ],
-        "controller_under_valuation" : validation_controller,
-        "trainer" : validation_trainer
-    }
 
     for i in range(NUM_GAMES_TO_PLAY):
         result = run_training_game(training_config, constants.DEFAULT_GAME_CONFIG)
@@ -80,12 +75,26 @@ def main(model_save_path, history_save_path, discord_webhook_url) -> None:
 
         # validate our model
         if ((i + 1) % VALIDATE_EVERY_N_GAMES == 0):
-            mean_validation_reward = validator.run_validation(validation_config, constants.DEFAULT_GAME_CONFIG, NUM_GAMES_PER_VALIDATION)
+            # run a series of validation games against each training opponent
+            for opponent_controller in training_opponents:
+                opponent_name = opponent_controller.name()
 
-            # report data
-            reporter.report(mean_validation_reward, trainer.curr_step)
+                validation_config = {
+                    "opponent" : opponent_name,
+                    "controllers" : [
+                        validation_controller,
+                        opponent_controller
+                    ],
+                    "controller_under_valuation" : validation_controller,
+                    "trainer" : validation_trainer
+                }
+
+                mean_validation_reward = validator.run_validation(validation_config, constants.DEFAULT_GAME_CONFIG, NUM_GAMES_PER_VALIDATION)
+
+                # report data
+                reporter.report(mean_validation_reward, opponent_name, trainer.curr_step)
             
-            # save the history for now (we can chart it later)
+                # save the history for now (we can chart it later)
             reporter.save_history()
 
             # save the trainer so we don't get out of sync (e.g. reporter saved but trainer didn't)

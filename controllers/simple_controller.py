@@ -13,6 +13,9 @@ class SimpleController (SnakeController):
         self.random = random.Random()
         self.random.seed(seed)
 
+    def name(self) -> str:
+        return "SimpleController"
+
     def act(self, data) -> dict:
         # Get all the data
         you = data['you']

@@ -16,6 +16,10 @@ class SnakeController(ABC):
     def get_last_local_direction(self, game) -> int:
         return self.moves_made[game.id][-1]['local_direction']
     
+    @abstractmethod
+    def name(self) -> str:
+        pass        
+    
     def store_move(self, game_id, move, local_direction, q_values=None) -> dict:
         move_obj = {
             'move': move,

@@ -4,7 +4,8 @@ from snake import Snake
 
 class Validator():    
     def run_validation(self, validation_config, game_config, num_validation_games) -> float:
-        print("\nVALIDATING MODEL...\n")
+        opponent_name = validation_config["opponent"]
+        print("\nVALIDATING MODEL AGAINST OPPONENT: " + opponent_name)
 
         validation_trainer = validation_config["trainer"]
         validation_trainer.reset()

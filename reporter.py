@@ -27,10 +27,11 @@ class Reporter():
 
         print(f"\n    SAVED history to {self.save_path}")
 
-    def report(self, mean_validation_reward, curr_step):
+    def report(self, mean_validation_reward, opponent, curr_step):
         print(f'\nMEAN VALIDATION REWARD = {mean_validation_reward}')        
         
         history_obj = {
+            "opponent" : opponent,
             "mean_validation_reward" : mean_validation_reward,
             "curr_step" : curr_step
         }

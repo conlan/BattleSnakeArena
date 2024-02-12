@@ -16,6 +16,9 @@ class DQNController (SnakeController):
 
         self.load_epsilon(self.epsilon_info)
 
+    def name(self) -> str:
+        return "DQNController (model=" + self.model.model_save_path + ", epsilon=" + str(self.epsilon) + ")"
+
     def get_epsilon_info(self) -> dict:
         return {
             "epsilon" : self.epsilon,

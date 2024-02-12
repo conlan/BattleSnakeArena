@@ -27,12 +27,14 @@ class Reporter():
 
         print(f"\n    SAVED history to {self.save_path}")
 
-    def report(self, mean_validation_reward, opponent, curr_step):
+    def report(self, validation_results, opponent, curr_step):
+        mean_validation_reward = validation_results["mean_validation_reward"]
+
         print(f'\nMEAN VALIDATION REWARD = {mean_validation_reward}')        
         
         history_obj = {
             "opponent" : opponent,
-            "mean_validation_reward" : mean_validation_reward,
+            "validation_results" : validation_results,
             "curr_step" : curr_step
         }
 
@@ -41,10 +43,13 @@ class Reporter():
         self.history.append(history_obj)
 
     def _report_to_discord(self, data):
-        mean_validation_reward = data["mean_validation_reward"]
+        validation_results = data["validation_results"]
+        
+        mean_validation_reward = validation_results["mean_validation_reward"]
 
         discord_message = "**Validation Report:**\n\n"
-        
+
+        discord_message += f":snake:   **Opponent**: {data['opponent']}\n\n"        
         discord_message += f":moneybag:   **Mean Reward**: {mean_validation_reward}\n\n"
         discord_message += f":stopwatch:   **Curr Step**: {data['curr_step']}\n\n"
         

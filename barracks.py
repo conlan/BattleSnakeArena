@@ -89,10 +89,10 @@ def main(model_save_path, history_save_path, discord_webhook_url) -> None:
                     "trainer" : validation_trainer
                 }
 
-                mean_validation_reward = validator.run_validation(validation_config, constants.DEFAULT_GAME_CONFIG, NUM_GAMES_PER_VALIDATION)
+                validation_results = validator.run_validation(validation_config, constants.DEFAULT_GAME_CONFIG, NUM_GAMES_PER_VALIDATION)
 
                 # report data
-                reporter.report(mean_validation_reward, opponent_name, trainer.curr_step)
+                reporter.report(validation_results, opponent_name, trainer.curr_step)
             
                 # save the history for now (we can chart it later)
             reporter.save_history()

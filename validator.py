@@ -5,7 +5,7 @@ from snake import Snake
 class Validator():    
     def run_validation(self, validation_config, game_config, num_validation_games) -> float:
         opponent_name = validation_config["opponent"]
-        print("\nVALIDATING MODEL AGAINST OPPONENT: " + opponent_name)
+        print("\nVALIDATING AGAINST OPPONENT: " + opponent_name)
 
         validation_trainer = validation_config["trainer"]
         validation_trainer.reset()
@@ -15,7 +15,12 @@ class Validator():
             
             validation_trainer.print_training_result(game_results, i, num_validation_games)
 
-        return validation_trainer.total_collected_reward * 1.0 / num_validation_games
+        mean_validation_reward = validation_trainer.total_collected_reward * 1.0 / num_validation_games
+
+        validation_results = {
+            "mean_validation_reward" : mean_validation_reward
+        }
+        return validation_results
     
     def _run_validation_round(self, validation_config, game_config) -> dict:
         parameters = GameParameters(game_config)

@@ -62,12 +62,6 @@ def main(model_save_path, history_save_path, discord_webhook_url) -> None:
         "observer" : observer,
         "trainer" : trainer
     }
-    
-    validation_controller = DDQNController(model_save_path, convert_data_to_image=observer.convert_data_to_image)
-    validation_controller.load_epsilon(constants.EPSILON_INFO_VALIDATION)
-    
-    validation_trainer = Trainer(validation_controller, 0)
-    validator = Validator()
 
     # Track when we last ran a validation (by default set it to the current step so we don't validate right away)
     last_step_validated = trainer.curr_step
@@ -80,6 +74,17 @@ def main(model_save_path, history_save_path, discord_webhook_url) -> None:
         # validate our model every N steps
         if (trainer.curr_step - last_step_validated >= VALIDATE_EVERY_N_STEPS):
             last_step_validated = trainer.curr_step
+            
+            # save the trainer state in case we end during validation round we don't lose progress
+            trainer.save_state()
+
+            # setup the validation controller
+            validation_controller = DDQNController(model_save_path, convert_data_to_image=observer.convert_data_to_image)
+            validation_controller.load_epsilon(constants.EPSILON_INFO_VALIDATION)
+    
+            # setup a trainer so we can determine rewards for the validation games
+            validation_trainer = Trainer(validation_controller, 0)
+            validator = Validator()
 
             # run a series of validation games against each training opponent
             for opponent_controller in training_opponents:
@@ -100,11 +105,8 @@ def main(model_save_path, history_save_path, discord_webhook_url) -> None:
                 # report data
                 reporter.report(validation_results, opponent_name, trainer.curr_step)
             
-                # save the history for now (we can chart it later)
+            # save the history for now (we can chart it later)
             reporter.save_history()
-
-            # save the trainer so we don't get out of sync (e.g. reporter saved but trainer didn't)
-            trainer.save_state()
 
         # recorder = Recorder()
         # game_id = result["id"]

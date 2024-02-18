@@ -23,7 +23,7 @@ def main(model_save_path, history_save_path, discord_webhook_url) -> None:
     # ========================================================================
     NUM_GAMES_TO_PLAY = 1_000_000
     NUM_GAMES_PER_VALIDATION = 2_000
-    VALIDATE_EVERY_N_GAMES = 10_000
+    VALIDATE_EVERY_N_STEPS = 150_000
     # ========================================================================
     
     observer = Observer()
@@ -69,13 +69,18 @@ def main(model_save_path, history_save_path, discord_webhook_url) -> None:
     validation_trainer = Trainer(validation_controller, 0)
     validator = Validator()
 
+    # Track when we last ran a validation (by default set it to the current step so we don't validate right away)
+    last_step_validated = trainer.curr_step
+
     for i in range(NUM_GAMES_TO_PLAY):
         result = run_training_game(training_config, constants.DEFAULT_GAME_CONFIG)
 
         trainer.print_training_result(result, i, NUM_GAMES_TO_PLAY)
 
-        # validate our model
-        if ((i + 1) % VALIDATE_EVERY_N_GAMES == 0):
+        # validate our model every N steps
+        if (trainer.curr_step - last_step_validated >= VALIDATE_EVERY_N_STEPS):
+            last_step_validated = trainer.curr_step
+
             # run a series of validation games against each training opponent
             for opponent_controller in training_opponents:
                 opponent_name = opponent_controller.name()

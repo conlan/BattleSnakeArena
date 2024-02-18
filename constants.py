@@ -38,6 +38,12 @@ REWARD_SETS = {
         REWARD_KEY_WIN : 500,
         REWARD_KEY_SURVIVE : 1,
         REWARD_KEY_EAT : 25
+    },
+    "reward-set-v3" : {
+        REWARD_KEY_LOSE : -1.0,
+        REWARD_KEY_WIN : 1.0,
+        REWARD_KEY_SURVIVE : 0.01,
+        REWARD_KEY_EAT : 0.025
     }
 }
 

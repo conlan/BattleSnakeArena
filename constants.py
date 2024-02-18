@@ -62,11 +62,12 @@ EPSILON_INFO_ALWAYS_GREEDY = {
     "epsilon_min" : 0
 }
 
-EPSILON_INFO_VALIDATION = {
-    "epsilon" : 0.05,
-    "epsilon_decay" : 0,
-    "epsilon_min" : 0.05
-}
+EPSILON_INFO_VALIDATION = EPSILON_INFO_ALWAYS_GREEDY
+# {
+#     "epsilon" : 0.05,
+#     "epsilon_decay" : 0,
+#     "epsilon_min" : 0.05
+# }
 
 class LocalDirection(IntEnum):
     STRAIGHT = 0,

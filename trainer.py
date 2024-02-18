@@ -187,10 +187,8 @@ class Trainer():
         ]
         
         for i in range(4):
-            image = obs_images[i]
-            next_image = next_obs_images[i]            
-            self.model.cache(image, next_image, action, reward, done)
-
+            self.model.cache(obs_images[i], next_obs_images[i], action, reward, done)
+        
         self.curr_step += 1
 
         # store max q values for moves made

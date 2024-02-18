@@ -27,7 +27,8 @@ class DDQNModel():
 
         self.targetNetwork = CNNLeaky(3)
         self.targetNetwork.to(self.device)
-        self.targetNetwork.load_state_dict(self.onlineNetwork.state_dict())
+
+        self.sync_Q_target()        
 
         # Freeze target network parameters
         for p in self.targetNetwork.parameters():
@@ -94,6 +95,11 @@ class DDQNModel():
         self.optimizer.step()
 
         return loss.item()
+    
+    def sync_Q_target(self):
+        print(f"    Syncing target network...")
+        
+        self.targetNetwork.load_state_dict(self.onlineNetwork.state_dict())
         
     def learn(self):        
         if (len(self.memory) < self.batch_size):
@@ -134,7 +140,9 @@ class DDQNModel():
         
     def save_model(self, training_info) -> None:        
         data_to_save = {
-            'model': self.onlineNetwork.state_dict(),
+            'online_model': self.onlineNetwork.state_dict(),
+            'target_model' : self.targetNetwork.state_dict(),
+
             'gamma': self.gamma,
             'reward_set_key': self.reward_set_key,
 
@@ -166,8 +174,8 @@ class DDQNModel():
         
         saved_dict = torch.load(path, map_location=torch.device(self.device))        
         
-        self.onlineNetwork.load_state_dict(saved_dict['model'])
-        self.targetNetwork.load_state_dict(self.onlineNetwork.state_dict())
+        self.onlineNetwork.load_state_dict(saved_dict['online_model'])
+        self.targetNetwork.load_state_dict(saved_dict['target_model'])
         
         self.gamma = saved_dict['gamma']
         self.reward_set_key = saved_dict['reward_set_key']

@@ -12,6 +12,7 @@ class Trainer():
 
         self.burnin = 10_000
         self.learn_every = 3
+        self.sync_every = 1_000
         self.save_every = 2_000
 
         self.reset()
@@ -201,6 +202,9 @@ class Trainer():
             self.q_values[game.id].append(max_q_value)
 
         # print(f'    Current step: {self.curr_step}')
+            
+        if (self.curr_step % self.sync_every == 0):
+            self.model.sync_Q_target()
     
         if (self.curr_step < self.burnin):
             return

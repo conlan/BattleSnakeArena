@@ -24,7 +24,7 @@ class Validator():
             validation_results = {
                 "mean_validation_reward" : mean_validation_reward,
 
-                "win_rate" : validation_trainer.calculate_win_rate("S-0") # TODO need to tie in opponent name instead of generic labels
+                "win_rate" : validation_trainer.calculate_win_rate(validation_trainer.controller.nickname)
             }
             return validation_results
     

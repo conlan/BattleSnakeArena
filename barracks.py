@@ -79,7 +79,7 @@ def main(model_save_path, history_save_path, discord_webhook_url) -> None:
             trainer.save_state()
 
             # setup the validation controller
-            validation_controller = DDQNController(model_save_path, convert_data_to_image=observer.convert_data_to_image)
+            validation_controller = DDQNController(model_save_path, "me", convert_data_to_image=observer.convert_data_to_image)
             validation_controller.load_epsilon(constants.EPSILON_INFO_VALIDATION)
     
             # setup a trainer so we can determine rewards for the validation games

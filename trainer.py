@@ -158,14 +158,14 @@ class Trainer():
         
         return total_reward
 
-    def cache(self, game, observation, next_observation, action_idx, reward, done, q_values) -> None:
-        if (action_idx == None):
+    def cache(self, game, observation, next_observation, action, reward, done, q_values) -> None:
+        if (action == None):
             # print(f'    Action is None, skipping cache...')
             return
         
         # convert action_idx to an action tensor
-        action = [0, 0, 0]        
-        action[action_idx] = 1
+        # action = action_idx#[0, 0, 0]        
+        # action[action_idx] = 1
 
         # cache the observation + next observation images rotated in all directions 
         # so that we get 4x the training data

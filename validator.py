@@ -2,27 +2,31 @@ from game import GameParameters, Game
 
 from snake import Snake
 
+import torch
+
 class Validator():    
     def run_validation(self, validation_config, game_config, num_validation_games) -> float:
-        opponent_name = validation_config["opponent"]
-        print("\nVALIDATING AGAINST OPPONENT: " + opponent_name)
+        # don't use gradients for validation runs for speed
+        with torch.no_grad():
+            opponent_name = validation_config["opponent"]
+            print("\nVALIDATING AGAINST OPPONENT: " + opponent_name)
 
-        validation_trainer = validation_config["trainer"]
-        validation_trainer.reset()
+            validation_trainer = validation_config["trainer"]
+            validation_trainer.reset()
 
-        for i in range(num_validation_games):
-            game_results = self._run_validation_round(validation_config, game_config)
-            
-            validation_trainer.print_training_result(game_results, i, num_validation_games)
+            for i in range(num_validation_games):
+                game_results = self._run_validation_round(validation_config, game_config)
+                
+                validation_trainer.print_training_result(game_results, i, num_validation_games)
 
-        mean_validation_reward = validation_trainer.total_collected_reward * 1.0 / num_validation_games
+            mean_validation_reward = validation_trainer.total_collected_reward * 1.0 / num_validation_games
 
-        validation_results = {
-            "mean_validation_reward" : mean_validation_reward,
+            validation_results = {
+                "mean_validation_reward" : mean_validation_reward,
 
-            "win_rate" : validation_trainer.calculate_win_rate("S-0") # TODO need to tie in opponent name instead of generic labels
-        }
-        return validation_results
+                "win_rate" : validation_trainer.calculate_win_rate("S-0") # TODO need to tie in opponent name instead of generic labels
+            }
+            return validation_results
     
     def _run_validation_round(self, validation_config, game_config) -> dict:
         parameters = GameParameters(game_config)

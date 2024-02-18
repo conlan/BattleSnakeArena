@@ -14,7 +14,6 @@ class CNN(nn.Module):
         # 64 x 5 x 5 -> 512
         self.fc1 = nn.Linear(1600, 512)
         self.fc2 = nn.Linear(512, output_size)
-        self.flatten = nn.Flatten()
 
     def forward(self, x):
         # 67 x 67 -> 16 x 16

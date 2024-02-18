@@ -10,7 +10,8 @@ from observer import Observer
 
 from trainer import Trainer
 
-from dqn.dqn_controller import DQNController
+# from dqn.dqn_controller import DQNController
+from ddqn.ddqn_controller import DDQNController
 
 from controllers.simple_controller import SimpleController
 
@@ -30,7 +31,7 @@ def main(model_save_path, history_save_path, discord_webhook_url) -> None:
     reporter = Reporter(discord_webhook_url)
     reporter.load_history(history_save_path)
 
-    trainee_controller = DQNController(model_save_path, convert_data_to_image=observer.convert_data_to_image)    
+    trainee_controller = DDQNController(model_save_path, convert_data_to_image=observer.convert_data_to_image)
     trainer = Trainer(trainee_controller, trainee_controller.epsilon_info["curr_step"])
 
     # ========================================================================
@@ -38,13 +39,13 @@ def main(model_save_path, history_save_path, discord_webhook_url) -> None:
     # Simple Controller
     training_opponent_0 = SimpleController()
     # Snapshotted DQN Controller that's always greedy
-    training_opponent_1 = DQNController("./trained_opponents/snake_v8.chkpt", convert_data_to_image=observer.convert_data_to_image)
-    training_opponent_1.load_epsilon(constants.EPSILON_INFO_ALWAYS_GREEDY)
+    # training_opponent_1 = DQNController("./trained_opponents/snake_v8.chkpt", convert_data_to_image=observer.convert_data_to_image)
+    # training_opponent_1.load_epsilon(constants.EPSILON_INFO_ALWAYS_GREEDY)
     # ========================================================================
 
     training_opponents = [
-        training_opponent_0,
-        training_opponent_1
+        training_opponent_0
+        # training_opponent_1
     ]
 
     training_config = {
@@ -62,7 +63,7 @@ def main(model_save_path, history_save_path, discord_webhook_url) -> None:
         "trainer" : trainer
     }
     
-    validation_controller = DQNController(model_save_path, convert_data_to_image=observer.convert_data_to_image)
+    validation_controller = DDQNController(model_save_path, convert_data_to_image=observer.convert_data_to_image)
     validation_controller.load_epsilon(constants.EPSILON_INFO_VALIDATION)
     
     validation_trainer = Trainer(validation_controller, 0)

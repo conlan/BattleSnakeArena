@@ -49,6 +49,7 @@ class Trainer():
         num_turns = game_results["turns"]
 
         collected_reward = game_results["training"]["collected_reward"]
+        collected_reward = round(collected_reward, 4)
         
         food_consumed = game_results["training"]["food_consumed"]
         
@@ -118,6 +119,7 @@ class Trainer():
 
         if (training_snake.collected_reward > self.max_reward_collected):
             self.max_reward_collected = training_snake.collected_reward
+            self.max_reward_collected = round(self.max_reward_collected, 4)
 
         # track turns survived
         num_turns = game_results["turns"]

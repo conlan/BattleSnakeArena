@@ -40,7 +40,7 @@ class Validator():
 
         for i in range(len(controllers)):
             controller = controllers[i]
-            snake = Snake("S-" + str(i), None, controller)    
+            snake = Snake(controller.nickname, None, controller)
             snakes.append(snake)
 
             if (controller == validation_config["controller_under_valuation"]):

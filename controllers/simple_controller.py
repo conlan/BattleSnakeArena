@@ -7,8 +7,8 @@ FOOD_THRESHOLD = 30
 FOOD_SEARCH_DIST = 10
 
 class SimpleController (SnakeController):
-    def __init__(self, seed=1):
-        super().__init__()
+    def __init__(self, nickname, seed=1):
+        super().__init__(nickname)
 
         self.random = random.Random()
         self.random.seed(seed)

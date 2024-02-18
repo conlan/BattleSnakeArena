@@ -31,15 +31,15 @@ def main(model_save_path, history_save_path, discord_webhook_url) -> None:
     reporter = Reporter(discord_webhook_url)
     reporter.load_history(history_save_path)
 
-    trainee_controller = DDQNController(model_save_path, convert_data_to_image=observer.convert_data_to_image)
+    trainee_controller = DDQNController(model_save_path, "me", convert_data_to_image=observer.convert_data_to_image)
     trainer = Trainer(trainee_controller, trainee_controller.epsilon_info["curr_step"])
 
     # ========================================================================
     # The opponent snakes we'll train against
     # Simple Controller
-    training_opponent_0 = SimpleController()
+    training_opponent_0 = SimpleController("sc")
     # Snapshotted DQN Controller that's always greedy
-    training_opponent_1 = DDQNController("./trained_opponents/snake_v9.chkpt", convert_data_to_image=observer.convert_data_to_image)
+    training_opponent_1 = DDQNController("./trained_opponents/snake_v9.chkpt", "v9", convert_data_to_image=observer.convert_data_to_image)
     training_opponent_1.load_epsilon(constants.EPSILON_INFO_ALWAYS_GREEDY)
     # ========================================================================
 
@@ -139,7 +139,7 @@ def run_training_game(training_config, game_config) -> dict:
         else:
             controller = controller_config
 
-        snake = Snake("S-" + str(i), colors[i], controller)    
+        snake = Snake(controller.nickname, colors[i], controller)
         snakes.append(snake)
 
         if (controller == trainer.controller):

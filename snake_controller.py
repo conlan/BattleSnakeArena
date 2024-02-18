@@ -3,8 +3,9 @@ from abc import ABC, abstractmethod
 import constants
 
 class SnakeController(ABC):
-    def __init__(self) -> None:
+    def __init__(self, nickname) -> None:
         self.moves_made:dict = {}
+        self.nickname = nickname
 
     @abstractmethod
     def act(self, data) -> dict:

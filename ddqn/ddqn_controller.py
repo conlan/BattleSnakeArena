@@ -5,8 +5,8 @@ from snake_controller import SnakeController
 from ddqn.ddqn_model import DDQNModel
 
 class DDQNController (SnakeController):
-    def __init__(self, model_save_path, convert_data_to_image):
-        super().__init__()
+    def __init__(self, model_save_path, nickname, convert_data_to_image):
+        super().__init__(nickname)
 
         self.convert_data_to_image = convert_data_to_image
 

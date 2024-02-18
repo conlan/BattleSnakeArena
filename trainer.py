@@ -167,7 +167,29 @@ class Trainer():
         action = [0, 0, 0]        
         action[action_idx] = 1
 
-        self.model.cache(observation["image"], next_observation["image"], action, reward, done)
+        # cache the observation + next observation images rotated in all directions 
+        # so that we get 4x the training data
+        raw_obs_image = observation["image"]
+        raw_next_obs_image = next_observation["image"]
+        
+        obs_images = [
+            raw_obs_image,
+            raw_obs_image.rotate(90),
+            raw_obs_image.rotate(180),
+            raw_obs_image.rotate(270)
+        ]
+
+        next_obs_images = [
+            raw_next_obs_image,
+            raw_next_obs_image.rotate(90),
+            raw_next_obs_image.rotate(180),
+            raw_next_obs_image.rotate(270)
+        ]
+        
+        for i in range(4):
+            image = obs_images[i]
+            next_image = next_obs_images[i]            
+            self.model.cache(image, next_image, action, reward, done)
 
         self.curr_step += 1
 

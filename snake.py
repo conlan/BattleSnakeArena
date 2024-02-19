@@ -21,6 +21,9 @@ class Snake():
     def reset(self) -> None:
         self.body:list[tuple] = []
         
+        # this gets set and then every snake acts simultaneously
+        self.prepared_move = None
+        
         self.health = constants.MAX_SNAKE_HEALTH
         self.ate_food = False
         self.num_food_consumed = 0
@@ -54,10 +57,17 @@ class Snake():
         self.is_dead = True
         self.death_reason = reason
 
-    def move(self, data) -> None:
+    # this gets called before move() so that all snakes can prepare their moves without affecting the game state
+    def prepare_move(self, data) -> dict:
         # query controller for move
-        move_obj = self.controller.act(data)
+        self.prepared_move = self.controller.act(data)
 
+    def execute_move(self) -> None:
+        if (self.prepared_move == None):
+            raise ValueError("Snake move not prepared")
+        
+        move_obj = self.prepared_move
+        
         mv = move_obj["move"]
         
         head = self.body[0]
@@ -76,6 +86,9 @@ class Snake():
 
         self.ate_food = False
         self.health = self.health -1
+
+        # reset this back to None
+        self.prepared_move = None
     
     def jsonize(self) -> JsonizedSnakeObj:
         jsonobj:JsonizedSnakeObj = {

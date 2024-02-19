@@ -101,20 +101,15 @@ class Game():
                 self.food.append(spot)
     
     def _move_snakes(self) -> None:
-        threads = []
-        
+        # prepare moves for snakes
         for snake in self.live_snakes:
             snake_pov_json = self.get_board_json(snake)
 
-            snake.move(snake_pov_json)          
-        #     process = Thread(target=snake.move, args=(snake_pov_json,))
-        #     threads.append(process)
-        
-        # for process in threads:
-        #     process.start()
-            
-        # for process in threads:
-        #     process.join()
+            snake.prepare_move(snake_pov_json)          
+
+        # execute moves for snakes
+        for snake in self.live_snakes:
+            snake.execute_move()        
 
     def _check_for_eaten_food(self):
         removed_food = []

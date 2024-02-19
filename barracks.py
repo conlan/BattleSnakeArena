@@ -38,14 +38,14 @@ def main(model_save_path, history_save_path, discord_webhook_url) -> None:
     # The opponent snakes we'll train against
     # Simple Controller
     training_opponent_0 = SimpleController("sc")
-    # Snapshotted DQN Controller that's always greedy
-    # training_opponent_1 = DDQNController("./trained_opponents/snake_v9.chkpt", "v9", convert_data_to_image=observer.convert_data_to_image)
-    # training_opponent_1.load_epsilon(constants.EPSILON_INFO_ALWAYS_GREEDY)
+    # Snapshotted DDQN Controller
+    training_opponent_1 = DDQNController("_________", "v10", convert_data_to_image=observer.convert_data_to_image)
+    training_opponent_1.load_epsilon(constants.EPSILON_INFO_ALWAYS_GREEDY)
     # ========================================================================
 
     training_opponents = [
         training_opponent_0
-        # ,training_opponent_1
+        ,training_opponent_1
     ]
 
     training_config = {

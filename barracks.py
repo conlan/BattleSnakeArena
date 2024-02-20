@@ -14,6 +14,7 @@ from trainer import Trainer
 from ddqn.ddqn_controller import DDQNController
 
 from controllers.simple_controller import SimpleController
+from controllers.strong_controller import StrongController
 
 from recorder import Recorder
 from validator import Validator
@@ -37,14 +38,16 @@ def main(model_save_path, history_save_path, discord_webhook_url) -> None:
     # ========================================================================
     # The opponent snakes we'll train against
     # Simple Controller
-    training_opponent_0 = SimpleController("sc")
+    training_opponent_0 = SimpleController("simple")
+    training_opponent_1 = StrongController("strong")
     # Snapshotted DDQN Controller
     # training_opponent_1 = DDQNController("_________", "v10", convert_data_to_image=observer.convert_data_to_image)
     # training_opponent_1.load_epsilon(constants.EPSILON_INFO_ALWAYS_GREEDY)
     # ========================================================================
 
     training_opponents = [
-        training_opponent_0
+        training_opponent_0,
+        training_opponent_1
         # ,training_opponent_1
     ]
 

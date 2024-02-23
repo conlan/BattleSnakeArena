@@ -6,6 +6,10 @@ class TensorObserver(Observer):
     def __init__(self):
         super().__init__()
 
+    # translates our XY (x is left to right, y is top to bottom) to the tensor's XY
+    def assign_tensor_val(self, tensor, layer, x, y, val):
+        tensor[layer][y][x] = val
+
     def convert_data_to_tensor(self, data) -> np.ndarray:
         # initialize a 13 x 11 x 11 ndarray        
 
@@ -33,7 +37,7 @@ class TensorObserver(Observer):
         # print(pov_snake)
         # print(data)
 
-        tensor = np.zeros((13, 11, 11), dtype=int)
+        board_tensor = np.zeros((13, 11, 11), dtype=int)
 
         for s in snakes:
             snake_id = s["id"]
@@ -43,11 +47,11 @@ class TensorObserver(Observer):
             snake_size = len(body)
 
             # layer0: snake health on heads {0,...,100}
-            tensor[0][head_x][head_y] = health
+            self.assign_tensor_val(board_tensor, 0, head_x, head_y, health)
 
             if (snake_id == pov_snake_id):
                 # layer5: head_mask {0,1}
-                tensor[5][head_x][head_y] = 1
+                self.assign_tensor_val(board_tensor, 5, head_x, head_y, 1)
 
             # snake body
             tail_1 = None
@@ -64,48 +68,49 @@ class TensorObserver(Observer):
                     
                     if (tail_1 == tail_2):
                         # layer6: double_tail_mask {0,1}
-                        tensor[6][segment_x][segment_y] = 1
+                        self.assign_tensor_val(board_tensor, 6, segment_x, segment_y, 1)
 
                 # layer1: snake bodies {0,1}
-                tensor[1][segment_x][segment_y] = 1
+                self.assign_tensor_val(board_tensor, 1, segment_x, segment_y, 1)
 
                 # layer2: body segment numbers {0,...,255}
-                tensor[2][segment_x][segment_y] = i
+                self.assign_tensor_val(board_tensor, 2, segment_x, segment_y, i)
 
                 if (snake_id != pov_snake_id):
                     if (snake_size >= player_size):
                         # layer7: snake bodies >= us {0,1}
-                        tensor[7][segment_x][segment_y] = 1 + snake_size - player_size
+                        self.assign_tensor_val(board_tensor, 7, segment_x, segment_y, 1 + snake_size - player_size)
                     else:
                         # layer8: snake bodies < us {0,1}
-                        tensor[8][segment_x][segment_y] = player_size - snake_size
+                        self.assign_tensor_val(board_tensor, 8, segment_x, segment_y, player_size - snake_size)
 
             # layer3: snake length >= player {0,1}
             if (snake_id != pov_snake_id):
                 if (snake_size >= player_size):
-                    tensor[3][head_x][head_y] = 1
+                    self.assign_tensor_val(board_tensor, 3, head_x, head_y, 1)
 
 
         for f in food:
             food_x, food_y = f['x'], f['y']
 
             # layer4: food {0,1}
-            tensor[4][food_x][food_y] = 1
+            self.assign_tensor_val(board_tensor, 4, food_x, food_y, 1)
 
         board_width = data["board"]["width"]
         board_height = data["board"]["height"]
 
         num_snakes_alive = len(snakes)
 
-        for x in range(board_width):
-            for y in range(board_height):
-                # layer9-12: alive count mask
-                tensor[9 + num_snakes_alive][x][y] = 1
+        if (num_snakes_alive > 0):
+            for x in range(board_width):
+                for y in range(board_height):
+                    # layer9-12: alive count mask
+                    self.assign_tensor_val(board_tensor, 8 + num_snakes_alive, x, y, 1)
 
         # np.set_printoptions(threshold=np.inf)
         # print(tensor)
         
-        return tensor
+        return board_tensor
         
 
     def observe(self, data : dict, should_store_observation : bool) -> dict:

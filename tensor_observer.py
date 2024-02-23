@@ -95,12 +95,12 @@ class TensorObserver(Observer):
         board_width = data["board"]["width"]
         board_height = data["board"]["height"]
 
-        alive_count = len(snakes) - 2
+        num_snakes_alive = len(snakes)
 
         for x in range(board_width):
             for y in range(board_height):
                 # layer9-12: alive count mask
-                tensor[10 + alive_count][x][y] = 1
+                tensor[9 + num_snakes_alive][x][y] = 1
 
         # np.set_printoptions(threshold=np.inf)
         # print(tensor)

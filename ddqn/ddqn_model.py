@@ -7,7 +7,8 @@ import numpy as np
 
 from tensordict import TensorDict
 from torchrl.data import TensorDictReplayBuffer, LazyMemmapStorage
-from torchvision import transforms
+# from torchvision import transforms
+import torch
 
 from ddqn.cnn_leaky import CNNLeaky
 
@@ -46,10 +47,13 @@ class DDQNModel():
 
         # print(f"    Caching: act=" + str(action) + ", reward=" + str(reward_int) + ", done=" + str(done_bool))        
 
-        to_tensor = transforms.ToTensor()
+        # to_tensor = transforms.ToTensor()
 
-        state = to_tensor(obs)
-        next_state = to_tensor(next_obs)
+        # state = to_tensor(obs)
+        # next_state = to_tensor(next_obs)
+
+        state = torch.tensor(obs, dtype=torch.float)
+        next_state = torch.tensor(next_obs, dtype=torch.float)
 
         # convert reward, action, done to tensors
         reward : torch.tensor = torch.tensor([reward_int], dtype=torch.float)
@@ -124,9 +128,10 @@ class DDQNModel():
         return state, next_state, action.squeeze(), reward.squeeze(), done.squeeze()       
 
     def predict(self, observation) -> tuple:
-        to_tensor = transforms.ToTensor()
+        # to_tensor = transforms.ToTensor()
 
-        state = to_tensor(observation).to(self.device)
+        # state = to_tensor(observation).to(self.device)
+        state = torch.tensor(observation, dtype=torch.float).to(self.device)
 
         q_values = self.onlineNetwork(state)
 

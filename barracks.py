@@ -6,7 +6,7 @@ import random
 from game import GameParameters, Game
 from snake import Snake
 
-from observer import Observer
+from tensor_observer import TensorObserver
 
 from trainer import Trainer
 
@@ -27,28 +27,29 @@ def main(model_save_path, history_save_path, discord_webhook_url) -> None:
     VALIDATE_EVERY_N_STEPS = 150_000
     # ========================================================================
     
-    observer = Observer()
+    observer = TensorObserver()
     
     reporter = Reporter(discord_webhook_url)
     reporter.load_history(history_save_path)
 
-    trainee_controller = DDQNController(model_save_path, "me", convert_data_to_image=observer.convert_data_to_image)
+    trainee_controller = DDQNController(model_save_path, "me", convert_data_to_image=observer.convert_data_to_tensor)
     trainer = Trainer(trainee_controller, trainee_controller.epsilon_info["curr_step"])
 
     # ========================================================================
     # The opponent snakes we'll train against
     # Simple Controller
     training_opponent_0 = SimpleController("simple")
-    training_opponent_1 = StrongController("strong")
+    # training_opponent_1 = StrongController("strong")
     # Snapshotted DQN Controller
-    training_opponent_2 = DQNController("/content/drive/MyDrive/ColabOutput/runs/snake_v11/snake_v8.chkpt", convert_data_to_image=observer.convert_data_to_image)
-    training_opponent_2.load_epsilon(constants.EPSILON_INFO_ALWAYS_GREEDY)
+    # training_opponent_2 = DQNController("/content/drive/MyDrive/ColabOutput/runs/snake_v11/snake_v8.chkpt", convert_data_to_image=observer.convert_data_to_image)
+    # training_opponent_2.load_epsilon(constants.EPSILON_INFO_ALWAYS_GREEDY)
     # ========================================================================
 
     training_opponents = [
-        training_opponent_0,
-        training_opponent_1,
-        training_opponent_2
+        training_opponent_0
+        # ,
+        # training_opponent_1,
+        # training_opponent_2
     ]
 
     training_config = {
@@ -82,7 +83,7 @@ def main(model_save_path, history_save_path, discord_webhook_url) -> None:
             trainer.save_state()
 
             # setup the validation controller
-            validation_controller = DDQNController(model_save_path, "me", convert_data_to_image=observer.convert_data_to_image)
+            validation_controller = DDQNController(model_save_path, "me", convert_data_to_image=observer.convert_data_to_tensor)
             validation_controller.load_epsilon(constants.EPSILON_INFO_VALIDATION)
     
             # setup a trainer so we can determine rewards for the validation games

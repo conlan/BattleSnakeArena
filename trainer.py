@@ -1,4 +1,5 @@
 import constants
+import numpy as np
 
 class Trainer():
     def __init__(self, controller, curr_step) -> None:
@@ -170,29 +171,27 @@ class Trainer():
         # action = action_idx#[0, 0, 0]        
         # action[action_idx] = 1
 
+        # observations are 13 x 11 x 11 tensor
         # cache the observation + next observation images rotated in all directions 
-        # so that we get 4x the training data
-        # raw_obs_image = observation["image"]
-        # raw_next_obs_image = next_observation["image"]
-        
-        # obs_images = [
-        #     raw_obs_image,
-        #     raw_obs_image.rotate(90),
-        #     raw_obs_image.rotate(180),
-        #     raw_obs_image.rotate(270)
-        # ]
+        # so that we get 4x the training data        
+        raw_obs_tensor = observation["tensor"]
+        raw_next_obs_tensor = next_observation["tensor"]
 
-        # next_obs_images = [
-        #     raw_next_obs_image,
-        #     raw_next_obs_image.rotate(90),
-        #     raw_next_obs_image.rotate(180),
-        #     raw_next_obs_image.rotate(270)
-        # ]
+        obs_array = [
+            raw_obs_tensor,
+            np.rot90(raw_obs_tensor, 1, axes=(1, 2)).copy(),
+            np.rot90(raw_obs_tensor, 2, axes=(1, 2)).copy(),
+            np.rot90(raw_obs_tensor, 3, axes=(1, 2)).copy()
+        ]
 
-        obs_array = [observation["tensor"]]
-        next_obs_array = [next_observation["tensor"]]
+        next_obs_array = [
+            raw_next_obs_tensor,
+            np.rot90(raw_next_obs_tensor, 1, axes=(1, 2)).copy(),
+            np.rot90(raw_next_obs_tensor, 2, axes=(1, 2)).copy(),
+            np.rot90(raw_next_obs_tensor, 3, axes=(1, 2)).copy()
+        ]
         
-        for i in range(1):
+        for i in range(len(obs_array)):
             self.model.cache(obs_array[i], next_obs_array[i], action, reward, done)
         
         self.curr_step += 1

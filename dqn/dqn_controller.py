@@ -6,7 +6,7 @@ from dqn.dqn_model import DQNModel
 
 class DQNController (SnakeController):
     def __init__(self, model_save_path, convert_data_to_image):
-        super().__init__()
+        super().__init__("dqn")
 
         self.convert_data_to_image = convert_data_to_image
 

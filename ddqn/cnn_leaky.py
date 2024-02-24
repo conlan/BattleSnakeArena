@@ -5,18 +5,31 @@ class CNNLeaky(nn.Module):
     def __init__(self, output_size):
         super(CNNLeaky, self).__init__()
 
-        # 11 x 11 -> 9 x 9
-        self.conv1 = nn.Conv2d(in_channels=13, out_channels=32, kernel_size=3)
-        # 9 x 9 -> 7 x 7
-        self.conv2 = nn.Conv2d(in_channels=32, out_channels=64, kernel_size=3)
-        # 7 x 7 -> 5 x 5
-        self.conv3 = nn.Conv2d(in_channels=64, out_channels=128, kernel_size=3)
-        # 5 x 5 -> 3 x 3
-        self.conv4 = nn.Conv2d(in_channels=128, out_channels=256, kernel_size=3)
-        # 256 * 3 * 3 -> 2304
-        self.fc1 = nn.Linear(2304, 512)
+        # 11 x 11 -> 11 x 11
+        self.conv1 = nn.Conv2d(in_channels=13, out_channels=32, kernel_size=1)
+        # 11 x 11 -> 11 x 11
+        self.conv2 = nn.Conv2d(in_channels=32, out_channels=64, kernel_size=1)
+        # 11 x 11 -> 11 x 11
+        self.conv3 = nn.Conv2d(in_channels=64, out_channels=128, kernel_size=1)
+        # 11 x 11 -> 11 x 11
+        self.conv4 = nn.Conv2d(in_channels=128, out_channels=256, kernel_size=1)
+        # 256 * 11 * 11 -> 2304
+        self.fc1 = nn.Linear(30976, 512)
 
         self.fc2 = nn.Linear(512, output_size)
+
+        # # 11 x 11 -> 9 x 9
+        # self.conv1 = nn.Conv2d(in_channels=13, out_channels=32, kernel_size=3)
+        # # 9 x 9 -> 7 x 7
+        # self.conv2 = nn.Conv2d(in_channels=32, out_channels=64, kernel_size=3)
+        # # 7 x 7 -> 5 x 5
+        # self.conv3 = nn.Conv2d(in_channels=64, out_channels=128, kernel_size=3)
+        # # 5 x 5 -> 3 x 3
+        # self.conv4 = nn.Conv2d(in_channels=128, out_channels=256, kernel_size=3)
+        # # 256 * 3 * 3 -> 2304
+        # self.fc1 = nn.Linear(2304, 512)
+
+        # self.fc2 = nn.Linear(512, output_size)
 
         # # (67-3)/2 + 1 -> 33 x 33
         # self.conv1 = nn.Conv2d(in_channels=1, out_channels=32, kernel_size=3, stride=2)
@@ -40,9 +53,11 @@ class CNNLeaky(nn.Module):
         x = F.leaky_relu(self.conv3(x))
         # 5 x 5 -> 3 x 3
         x = F.leaky_relu(self.conv4(x))
-        # 256 * 3 * 3 -> 2304
-        x = x.view(-1, 2304)
-        # 2304 -> 512
+        # # 256 * 3 * 3 -> 2304
+        # x = x.view(-1, 2304)
+        # 256 * 11 * 11 -> 30976
+        x = x.view(-1, 30976)
+
         x = F.leaky_relu(self.fc1(x))
         # don't relu the last layer
         x = self.fc2(x)

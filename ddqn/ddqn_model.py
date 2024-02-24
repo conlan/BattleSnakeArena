@@ -35,7 +35,7 @@ class DDQNModel():
         for p in self.targetNetwork.parameters():
             p.requires_grad = False
 
-        self.gamma = 0.9 # Discount factor
+        self.gamma = 0.99 # Discount factor
 
         self.optimizer = optim.Adam(self.onlineNetwork.parameters(), lr=constants.DEFAULT_LEARNING_RATE)
         self.criterion = nn.MSELoss()

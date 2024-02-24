@@ -146,7 +146,6 @@ class DDQNModel():
     def save_model(self, training_info) -> None:        
         data_to_save = {
             'online_model': self.onlineNetwork.state_dict(),
-            'target_model' : self.targetNetwork.state_dict(),
 
             'gamma': self.gamma,
             'reward_set_key': self.reward_set_key,
@@ -180,7 +179,7 @@ class DDQNModel():
         saved_dict = torch.load(path, map_location=torch.device(self.device))        
         
         self.onlineNetwork.load_state_dict(saved_dict['online_model'])
-        self.targetNetwork.load_state_dict(saved_dict['target_model'])
+        self.sync_Q_target()
         
         self.gamma = saved_dict['gamma']
         self.reward_set_key = saved_dict['reward_set_key']

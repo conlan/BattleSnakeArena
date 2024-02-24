@@ -126,6 +126,8 @@ class TensorObserver(Observer):
         }
 
         if (should_store_observation):
+            observation["image"] = self.convert_data_to_image(data)
+            
             self.observations[game_id].append(observation)
 
         return observation

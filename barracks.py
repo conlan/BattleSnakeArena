@@ -20,7 +20,7 @@ from recorder import Recorder
 from validator import Validator
 from reporter import Reporter
 
-def main(model_save_path, history_save_path, discord_webhook_url) -> None:
+def main(model_save_path, history_save_path, discord_webhook_url, should_record_gameplay) -> None:
     # ========================================================================
     NUM_GAMES_TO_PLAY = 1_000_000
     NUM_GAMES_PER_VALIDATION = 2_000
@@ -55,6 +55,7 @@ def main(model_save_path, history_save_path, discord_webhook_url) -> None:
     training_config = {
         "speed" : 100,
         "print_board" : False,
+        "should_record_gameplay" : should_record_gameplay,
         "colors" : [
             constants.COLORS["red"],
             constants.COLORS["blue"]
@@ -112,10 +113,12 @@ def main(model_save_path, history_save_path, discord_webhook_url) -> None:
             # save the history for now (we can chart it later)
             reporter.save_history()
 
-        # recorder = Recorder()
-        # game_id = result["id"]
-        # recorder.output_to_frames(observer.observations[game_id], "output_frames")
-        # recorder.output_to_video(observer.observations[game_id], "output_video.mp4")
+        if (should_record_gameplay):
+            recorder = Recorder()
+            game_id = result["id"]
+            # recorder.output_to_frames(observer.observations[game_id], "output_frames")
+            recorder.output_to_video(observer.observations[game_id], "output_video.mp4")
+            break
 
 def run_training_game(training_config, game_config) -> dict:
     speed = training_config["speed"]
@@ -126,6 +129,7 @@ def run_training_game(training_config, game_config) -> dict:
     trainer = training_config["trainer"]
     
     observer = training_config["observer"]
+    should_record_gameplay = training_config["should_record_gameplay"]
 
     parameters = GameParameters(game_config)
 
@@ -162,13 +166,13 @@ def run_training_game(training_config, game_config) -> dict:
         if (print_board): observer.print_game(game)
 
         # Grab the current observation
-        observation = observer.observe(game.get_board_json(training_snake), True)
+        observation = observer.observe(game.get_board_json(training_snake), should_record_gameplay)
 
         # Perform a game step
         is_done = game.step()
 
         # Grab an observation after the step
-        next_observation = observer.observe(game.get_board_json(training_snake), is_done)
+        next_observation = observer.observe(game.get_board_json(training_snake), (is_done and should_record_gameplay))
 
         # get move made from the controller
         training_snake_action = trainer.controller.get_last_local_direction(game)
@@ -214,11 +218,13 @@ if __name__ == "__main__":
     history_save_path = args.history_save_path[0] if args.history_save_path is not None else None
     discord_webhook_url = args.discord_webhook_url[0] if args.discord_webhook_url is not None else None    
 
+    should_record_gameplay = False
+
     # exit if not all required arguments are provided
     if (model_save_path is None or history_save_path is None):
         print("Missing required arguments")
         exit(1)
 
-    main(model_save_path, history_save_path, discord_webhook_url)
+    main(model_save_path, history_save_path, discord_webhook_url, should_record_gameplay)
 
     

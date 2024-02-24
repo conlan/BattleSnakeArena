@@ -5,16 +5,16 @@ class CNNLeaky(nn.Module):
     def __init__(self, output_size):
         super(CNNLeaky, self).__init__()
 
-        # 11 x 11 -> 11 x 11
-        self.conv1 = nn.Conv2d(in_channels=13, out_channels=32, kernel_size=1)
-        # 11 x 11 -> 11 x 11
-        self.conv2 = nn.Conv2d(in_channels=32, out_channels=64, kernel_size=1)
-        # 11 x 11 -> 11 x 11
-        self.conv3 = nn.Conv2d(in_channels=64, out_channels=128, kernel_size=1)
-        # 11 x 11 -> 11 x 11
+        # 11 x 11 -> 10 x 10
+        self.conv1 = nn.Conv2d(in_channels=13, out_channels=32, kernel_size=2)
+        # 10 x 10 -> 9 x 9
+        self.conv2 = nn.Conv2d(in_channels=32, out_channels=64, kernel_size=2)
+        # 9 x 9 -> 8 x 8
+        self.conv3 = nn.Conv2d(in_channels=64, out_channels=128, kernel_size=2)
+        # 8 x 8 -> 8 x 8
         self.conv4 = nn.Conv2d(in_channels=128, out_channels=256, kernel_size=1)
-        # 256 * 11 * 11 -> 2304
-        self.fc1 = nn.Linear(30976, 512)
+        # 256 * 7 * 7 -> 2304
+        self.fc1 = nn.Linear(16384, 512)
 
         self.fc2 = nn.Linear(512, output_size)
 
@@ -56,7 +56,7 @@ class CNNLeaky(nn.Module):
         # # 256 * 3 * 3 -> 2304
         # x = x.view(-1, 2304)
         # 256 * 11 * 11 -> 30976
-        x = x.view(-1, 30976)
+        x = x.view(-1, 16384)
 
         x = F.leaky_relu(self.fc1(x))
         # don't relu the last layer

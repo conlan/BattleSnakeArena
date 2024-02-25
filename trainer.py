@@ -210,7 +210,10 @@ class Trainer():
         if (self.curr_step % self.sync_every == 0):
             self.model.sync_Q_target()
     
-        if (self.curr_step < self.burnin):
+        # ensure that we've accumulated enough data before starting to learn
+        # reduce burnin by 1 to maximum of zero
+        self.burnin = max(0, self.burnin - 1)
+        if (self.burnin > 0):
             return
         
         # learn every few steps

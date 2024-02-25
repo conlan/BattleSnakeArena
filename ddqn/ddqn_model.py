@@ -187,7 +187,7 @@ class DDQNModel():
         training_info = {
             "epsilon" : saved_dict["epsilon"],
             "epsilon_decay" : saved_dict["epsilon_decay"],
-            "epsilon_min" : saved_dict["epsilon_min"],
+            "epsilon_min" : 0.01,#saved_dict["epsilon_min"],
             "curr_step" : saved_dict["curr_step"]
         }
 

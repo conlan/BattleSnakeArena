@@ -172,7 +172,7 @@ class DDQNModel():
             return {
                 "epsilon" : 1,
                 "epsilon_decay" : 0.0000009, # 1.0 -> 0.1 in 1,000,000 steps
-                "epsilon_min" : 0.1,
+                "epsilon_min" : 0.001,
                 "curr_step" : 0
             }
         

@@ -178,17 +178,17 @@ class Trainer():
         raw_next_obs_tensor = next_observation["tensor"]
 
         obs_array = [
-            raw_obs_tensor,
-            np.rot90(raw_obs_tensor, 1, axes=(1, 2)).copy(),
-            np.rot90(raw_obs_tensor, 2, axes=(1, 2)).copy(),
-            np.rot90(raw_obs_tensor, 3, axes=(1, 2)).copy()
+            raw_obs_tensor
+            # np.rot90(raw_obs_tensor, 1, axes=(1, 2)).copy(),
+            # np.rot90(raw_obs_tensor, 2, axes=(1, 2)).copy(),
+            # np.rot90(raw_obs_tensor, 3, axes=(1, 2)).copy()
         ]
 
         next_obs_array = [
-            raw_next_obs_tensor,
-            np.rot90(raw_next_obs_tensor, 1, axes=(1, 2)).copy(),
-            np.rot90(raw_next_obs_tensor, 2, axes=(1, 2)).copy(),
-            np.rot90(raw_next_obs_tensor, 3, axes=(1, 2)).copy()
+            raw_next_obs_tensor
+            # np.rot90(raw_next_obs_tensor, 1, axes=(1, 2)).copy(),
+            # np.rot90(raw_next_obs_tensor, 2, axes=(1, 2)).copy(),
+            # np.rot90(raw_next_obs_tensor, 3, axes=(1, 2)).copy()
         ]
         
         for i in range(len(obs_array)):

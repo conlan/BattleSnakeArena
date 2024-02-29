@@ -7,11 +7,17 @@ FOOD_THRESHOLD = 30
 FOOD_SEARCH_DIST = 10
 
 class SimpleController (SnakeController):
-    def __init__(self, nickname, seed=1):
+    def __init__(self, nickname, include_single_tails_for_snakes_together=False, seed=1):
         super().__init__(nickname)
 
         self.random = random.Random()
         self.random.seed(seed)
+
+        # whether or not to include single tails when checking for snakes together
+        # if TRUE then controller will be more conservative and consider single tails as 
+        # blocking. If FALSE then controller will be smarter and know that single tails
+        # will be empty next turn
+        self.include_single_tails_for_snakes_together = include_single_tails_for_snakes_together
 
     def name(self) -> str:
         return "SimpleController"
@@ -25,7 +31,7 @@ class SimpleController (SnakeController):
         # health = you["health"]
         walls = (data['board']['width'], data['board']['height'])
         
-        snakesTogether = self.get_snakes_together(data['board']['snakes'], False)
+        snakesTogether = self.get_snakes_together(data['board']['snakes'], self.include_single_tails_for_snakes_together)
 
         snakes = data["board"]['snakes']
         for s in snakes:

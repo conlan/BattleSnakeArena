@@ -39,16 +39,15 @@ def main(model_save_path, history_save_path, discord_webhook_url, should_record_
     # The opponent snakes we'll train against
     # Simple Controller
     training_opponent_0 = SimpleController("simple")
-    # training_opponent_1 = StrongController("strong")
+    training_opponent_1 = StrongController("strong")
     # Snapshotted DQN Controller
     # training_opponent_2 = DQNController("/content/drive/MyDrive/ColabOutput/runs/snake_v11/snake_v8.chkpt", convert_data_to_image=observer.convert_data_to_image)
     # training_opponent_2.load_epsilon(constants.EPSILON_INFO_ALWAYS_GREEDY)
     # ========================================================================
 
     training_opponents = [
-        training_opponent_0
-        # ,
-        # training_opponent_1,
+        training_opponent_0,
+        training_opponent_1, training_opponent_1, training_opponent_1, training_opponent_1  # play strong 4 times more often
         # training_opponent_2
     ]
 
@@ -91,8 +90,11 @@ def main(model_save_path, history_save_path, discord_webhook_url, should_record_
             validation_trainer = Trainer(validation_controller, 0)
             validator = Validator()
 
+            # get unique opponents to validate against
+            unique_opponents_to_validate_against = list(set(training_opponents))
+
             # run a series of validation games against each training opponent
-            for opponent_controller in training_opponents:
+            for opponent_controller in unique_opponents_to_validate_against:
                 opponent_name = opponent_controller.name()
 
                 validation_config = {

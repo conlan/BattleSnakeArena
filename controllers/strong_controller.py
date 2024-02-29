@@ -19,13 +19,14 @@ SIZE_THRESHOLD = 0
 # TODO factor reused opponent controller logic into a base controller class
 
 class StrongController (SnakeController):
-    def __init__(self, nickname, seed=1):
+    def __init__(self, nickname, include_single_tails_for_snakes_together=False, seed=1):
         super().__init__(nickname)
 
         self.random = random.Random()
         self.random.seed(seed)
 
         self.ate_food_last_turn = False
+        self.include_single_tails_for_snakes_together = include_single_tails_for_snakes_together
         
     def name(self) -> str:
         return "StrongController"
@@ -39,7 +40,7 @@ class StrongController (SnakeController):
         # health = you["health"]
         walls = (data['board']['width'], data['board']['height'])
         
-        snakesTogether = self.get_snakes_together(data['board']['snakes'], False)
+        snakesTogether = self.get_snakes_together(data['board']['snakes'], self.include_single_tails_for_snakes_together)
 
         snakes = data["board"]['snakes']
         for s in snakes:

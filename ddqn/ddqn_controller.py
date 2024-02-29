@@ -1,4 +1,5 @@
 import random
+import constants
 
 from snake_controller import SnakeController
 
@@ -43,6 +44,12 @@ class DDQNController (SnakeController):
         else:
             you = data['you']
 
+            snakeHead = you['body'][0]
+            snakeHead = (snakeHead['x'], snakeHead['y'])
+            
+            snakeNeck = you['body'][1]
+            snakeNeck = (snakeNeck['x'], snakeNeck['y'])
+
             if (random.uniform(0.0, 1.0) < self.epsilon):
                 local_dir = random.choice([0, 1, 2])
             else:
@@ -50,11 +57,8 @@ class DDQNController (SnakeController):
 
                 local_dir, q_values = self.model.predict(obs)
 
-            snakeHead = you['body'][0]
-            snakeHead = (snakeHead['x'], snakeHead['y'])
-            
-            snakeNeck = you['body'][1]
-            snakeNeck = (snakeNeck['x'], snakeNeck['y'])
+                # apply action mask (override q-value with LOSE score for guaranteed losing moving directions)
+                local_dir, q_values = self.apply_action_mask(q_values, data)
 
             move = self.getLocalDirectionAsMove(local_dir, snakeHead, snakeNeck)
 
@@ -64,3 +68,54 @@ class DDQNController (SnakeController):
         game_id = data["game"]["id"]
         
         return self.store_move(game_id, move, local_dir, q_values)
+    
+    def apply_action_mask(self, q_values, data):
+        MIN_Q_VALUE = constants.REWARD_SETS[self.model.reward_set_key][constants.REWARD_KEY_LOSE]
+
+        you = data['you']
+
+        board_width = data['board']['width']
+        board_height = data['board']['height']
+
+        snakeHead = you['body'][0]
+        snakeHead = (snakeHead['x'], snakeHead['y'])
+        
+        snakeNeck = you['body'][1]
+        snakeNeck = (snakeNeck['x'], snakeNeck['y'])
+    
+        # determine the absolute moves for each local direction
+        next_moves_absolute = [
+            self.getLocalDirectionAsMove(constants.LocalDirection.STRAIGHT, snakeHead, snakeNeck),
+            self.getLocalDirectionAsMove(constants.LocalDirection.LEFT, snakeHead, snakeNeck),
+            self.getLocalDirectionAsMove(constants.LocalDirection.RIGHT, snakeHead, snakeNeck)
+        ]
+
+        next_moves_coordinates = []
+
+        # determine the coordinates for each absolute move direction
+        for move in next_moves_absolute:
+            if (move == 'up'):
+                next_moves_coordinates.append((snakeHead[0], snakeHead[1] - 1))
+            elif (move == 'down'):
+                next_moves_coordinates.append((snakeHead[0], snakeHead[1] + 1))
+            elif (move == 'left'):
+                next_moves_coordinates.append((snakeHead[0] - 1, snakeHead[1]))
+            else:
+                next_moves_coordinates.append((snakeHead[0] + 1, snakeHead[1]))
+
+        snakes_together = self.get_snakes_together(data['board']['snakes'], False)
+        
+        # for each move, check if the move is out of bounds or collides with a snake body
+        for idx in range(len(next_moves_coordinates)):
+            next_move = next_moves_coordinates[idx]
+
+            # dont hit walls
+            if (next_move[0] < 0 or next_move[0] >= board_width or next_move[1] < 0 or next_move[1] >= board_height):
+                q_values[idx] = MIN_Q_VALUE
+            elif (next_move in snakes_together):
+                # dont hit snake bodies
+                q_values[idx] = MIN_Q_VALUE
+
+        local_dir = q_values.index(max(q_values))
+
+        return local_dir, q_values

@@ -97,3 +97,18 @@ class SnakeController(ABC):
             moves.remove('down')
 
         return moves
+    
+    def dont_hit_snakes(self, moves, head, snakesTogether):
+        if self.get_space(head, 'left') in snakesTogether and 'left' in moves:
+            moves.remove('left')
+
+        if self.get_space(head, 'right') in snakesTogether and 'right' in moves:
+            moves.remove('right')
+
+        if self.get_space(head, 'up') in snakesTogether and 'up' in moves:
+            moves.remove('up')
+
+        if self.get_space(head, 'down') in snakesTogether and 'down' in moves:
+            moves.remove('down')
+
+        return moves

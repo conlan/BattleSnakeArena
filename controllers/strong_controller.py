@@ -57,12 +57,12 @@ class StrongController (SnakeController):
         if self.ate_food_last_turn:
             moves = self.dont_hit_wall(moves, you['head'], walls)
             
-            moves = self.dont_hit_snakes(moves, you['head'], snakesTogether, [])
+            moves = self.dont_hit_snakes(moves, you['head'], snakesTogether)
             
             moves = self.dont_get_eaten(moves, you, snakes)            
         else:
             moves = self.dont_hit_wall(moves, you['head'], walls)
-            moves = self.dont_hit_snakes(moves, you['head'], snakesTogether, [you['body'][-1]])
+            moves = self.dont_hit_snakes(moves, you['head'], snakesTogether)
             moves = self.dont_get_eaten(moves, you, snakes)
 
         # Don't choose nothing that'll kill you next time
@@ -72,7 +72,7 @@ class StrongController (SnakeController):
                 nextHead = self.get_space(you['head'], m)
                 nextMoves = ['left', 'right', 'up', 'down']
                 nextMoves = self.dont_hit_wall(nextMoves, nextHead, walls)
-                nextMoves = self.dont_hit_snakes(nextMoves, nextHead, snakesTogether + [you['head']], [])
+                nextMoves = self.dont_hit_snakes(nextMoves, nextHead, snakesTogether + [you['head']])
                 if nextMoves == []:
                     tmpMoves.remove(m)
             if tmpMoves != []:
@@ -138,7 +138,7 @@ class StrongController (SnakeController):
                     moves = ['left', 'right', 'up', 'down']
                     moves = self.dont_hit_wall(moves, you['head'], walls)
 
-                    moves = self.dont_hit_snakes(moves, you['head'], snakesTogether, [])
+                    moves = self.dont_hit_snakes(moves, you['head'], snakesTogether)
                     moves = self.dont_get_eaten(moves, you, snakes, sameSize=False)
 
                     if moves == []:
@@ -335,21 +335,6 @@ class StrongController (SnakeController):
                     validMoves.append('up')
 
         return validMoves
-
-    def dont_hit_snakes(self, moves, head, snakesTogether, ignore):
-        if self.get_space(head, 'left') in snakesTogether and 'left' in moves:
-            moves.remove('left')
-
-        if self.get_space(head, 'right') in snakesTogether and 'right' in moves:
-            moves.remove('right')
-
-        if self.get_space(head, 'up') in snakesTogether and 'up' in moves:
-            moves.remove('up')
-
-        if self.get_space(head, 'down') in snakesTogether and 'down' in moves:
-            moves.remove('down')
-
-        return moves
     
     def get_space(self, space, move):
         if move == 'left':

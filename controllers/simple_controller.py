@@ -44,7 +44,7 @@ class SimpleController (SnakeController):
             moves = movesTmp
 
         # Don't hit other snakes
-        movesTmp = self.dont_hit_snakes(moves, you['head'], snakesTogether, [])
+        movesTmp = self.dont_hit_snakes(moves, you['head'], snakesTogether)
         if movesTmp != []:
             moves = movesTmp
 
@@ -74,7 +74,7 @@ class SimpleController (SnakeController):
             # if we've eliminated all possible moves then
             # default to a move where you have at least a chance at survival
             # e.g. don't hit a snake
-            chance_of_survival_moves = self.dont_hit_snakes(['left', 'right', 'up', 'down'], you['head'], snakesTogether, [])
+            chance_of_survival_moves = self.dont_hit_snakes(['left', 'right', 'up', 'down'], you['head'], snakesTogether)
             # and don't hit a wall
             chance_of_survival_moves = self.dont_hit_wall(chance_of_survival_moves, you['head'], walls)
             
@@ -113,22 +113,6 @@ class SimpleController (SnakeController):
                     validMoves.append('up')
 
         return validMoves
-
-
-    def dont_hit_snakes(self, moves, head, snakesTogether, ignore):
-        if self.get_space(head, 'left') in snakesTogether and 'left' in moves:
-            moves.remove('left')
-
-        if self.get_space(head, 'right') in snakesTogether and 'right' in moves:
-            moves.remove('right')
-
-        if self.get_space(head, 'up') in snakesTogether and 'up' in moves:
-            moves.remove('up')
-
-        if self.get_space(head, 'down') in snakesTogether and 'down' in moves:
-            moves.remove('down')
-
-        return moves
     
     def get_space(self, space, move):
         if move == 'left':

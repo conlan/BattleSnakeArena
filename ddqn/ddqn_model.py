@@ -11,7 +11,6 @@ from torchrl.data import TensorDictReplayBuffer, LazyMemmapStorage
 import torch
 
 from ddqn.cnn_leaky import CNNLeaky
-from ddqn.cnn_tanh import CNNTanh
 
 import constants
 
@@ -26,10 +25,10 @@ class DDQNModel():
         
         print(f"Using {self.device} device")
 
-        self.onlineNetwork = CNNTanh(3)
+        self.onlineNetwork = CNNLeaky(3)
         self.onlineNetwork.to(self.device)
 
-        self.targetNetwork = CNNTanh(3)
+        self.targetNetwork = CNNLeaky(3)
         self.targetNetwork.to(self.device)
 
         self.sync_Q_target()        

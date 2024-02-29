@@ -113,21 +113,6 @@ class SimpleController (SnakeController):
                     validMoves.append('up')
 
         return validMoves
-    
-    def dont_hit_wall(self, moves, head, walls):
-        if head[0] == walls[0]-1 and 'right' in moves:
-            moves.remove('right')
-
-        elif head[0] == 0 and 'left' in moves:
-            moves.remove('left')
-
-        if head[1] == 0 and 'up' in moves:
-            moves.remove('up')
-
-        elif head[1] == walls[1]-1 and 'down' in moves:
-            moves.remove('down')
-
-        return moves
 
 
     def dont_hit_snakes(self, moves, head, snakesTogether, ignore):

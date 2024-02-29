@@ -73,13 +73,26 @@ class SnakeController(ABC):
                 return 'up'
         
         return 'up'
-    
-    def get_snakes_together(self, snakes):
+        
+    # include_single_tails: if True, include single-tile tails in the list of snakes
+    # if False, then we only include tails if they're coiled and doubled up
+    def get_snakes_together(self, snakes, include_single_tails):
         snakesTogether = []
 
         for s in snakes:
-             for b in s["body"]:
-                snakesTogether.append(( b['x'], b['y'] ))
+            tail_1 = s["body"][-1]
+            tail_2 = s["body"][-2]
+            
+            has_double_tail = (tail_1 == tail_2) # if the snake has a double (coiled) tail
+            
+            for b in s["body"]:
+                if (b == tail_1):
+                    if has_double_tail or include_single_tails:
+                        snakesTogether.append(( b['x'], b['y'] ))
+                    else:
+                        continue
+                else:
+                    snakesTogether.append(( b['x'], b['y'] ))
 
         return snakesTogether
     

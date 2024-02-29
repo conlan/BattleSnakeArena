@@ -39,7 +39,7 @@ class StrongController (SnakeController):
         # health = you["health"]
         walls = (data['board']['width'], data['board']['height'])
         
-        snakesTogether = self.get_snakes_together(data['board']['snakes'])
+        snakesTogether = self.get_snakes_together(data['board']['snakes'], False)
 
         snakes = data["board"]['snakes']
         for s in snakes:

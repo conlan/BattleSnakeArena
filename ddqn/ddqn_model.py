@@ -19,7 +19,9 @@ class DDQNModel():
         self.memory = TensorDictReplayBuffer(storage=LazyMemmapStorage(400_000, \
                                                             device=torch.device("cpu")))
         self.batch_size = 256
-        self.device = "cuda" if torch.cuda.is_available() else "cpu"        
+        self.gamma = 0.999 # Discount factor
+
+        self.device = "cuda" if torch.cuda.is_available() else "cpu"                
         
         print(f"Using {self.device} device")
 
@@ -34,8 +36,6 @@ class DDQNModel():
         # Freeze target network parameters
         for p in self.targetNetwork.parameters():
             p.requires_grad = False
-
-        self.gamma = 0.99 # Discount factor
 
         self.optimizer = optim.Adam(self.onlineNetwork.parameters(), lr=constants.DEFAULT_LEARNING_RATE)
         self.criterion = nn.MSELoss()

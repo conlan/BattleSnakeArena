@@ -32,22 +32,22 @@ def main(model_save_path, history_save_path, discord_webhook_url, should_record_
     reporter = Reporter(discord_webhook_url)
     reporter.load_history(history_save_path)
 
-    trainee_controller = DDQNController(model_save_path, "me", convert_data_to_image=observer.convert_data_to_tensor)
+    trainee_controller = DDQNController(model_save_path, "me", convert_data_to_image=observer.convert_data_to_tensor, should_action_mask=True)
     trainer = Trainer(trainee_controller, trainee_controller.epsilon_info["curr_step"])
 
     # ========================================================================
     # The opponent snakes we'll train against
     # Simple Controller
     training_opponent_0 = SimpleController("simple")
-    training_opponent_1 = StrongController("strong")
+    # training_opponent_1 = StrongController("strong")
     # Snapshotted DQN Controller
     # training_opponent_2 = DQNController("/content/drive/MyDrive/ColabOutput/runs/snake_v11/snake_v8.chkpt", convert_data_to_image=observer.convert_data_to_image)
     # training_opponent_2.load_epsilon(constants.EPSILON_INFO_ALWAYS_GREEDY)
     # ========================================================================
 
     training_opponents = [
-        training_opponent_0,
-        training_opponent_1, training_opponent_1, training_opponent_1, training_opponent_1  # play strong 4 times more often
+        training_opponent_0
+        # training_opponent_1, training_opponent_1, training_opponent_1, training_opponent_1  # play strong 4 times more often
         # training_opponent_2
     ]
 

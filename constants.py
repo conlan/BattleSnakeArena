@@ -50,11 +50,17 @@ REWARD_SETS = {
         REWARD_KEY_WIN : 1.0,
         REWARD_KEY_SURVIVE : 0.0,
         REWARD_KEY_EAT : 0.0
+    },
+    "reward-set-v5" : {
+        REWARD_KEY_LOSE : 0.0,
+        REWARD_KEY_WIN : 1.0,
+        REWARD_KEY_SURVIVE : 0.0,
+        REWARD_KEY_EAT : 0.0
     }
 }
 
 DEFAULT_REWARD_SET_KEY = "reward-set-v4"
-DEFAULT_LEARNING_RATE = 0.001#0.00025
+DEFAULT_LEARNING_RATE = 0.001
 
 DEFAULT_GAME_CONFIG = {
     "food_spawn_chance" : DEFAULT_FOOD_SPAN_CHANCE,

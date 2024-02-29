@@ -25,11 +25,7 @@ class SimpleController (SnakeController):
         # health = you["health"]
         walls = (data['board']['width'], data['board']['height'])
         
-        snakesTogether = []
-        
-        for s in data['board']['snakes']:
-             for b in s["body"]:
-                snakesTogether.append(( b['x'], b['y'] ))
+        snakesTogether = self.get_snakes_together(data['board']['snakes'])
 
         snakes = data["board"]['snakes']
         for s in snakes:

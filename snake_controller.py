@@ -73,3 +73,12 @@ class SnakeController(ABC):
                 return 'up'
         
         return 'up'
+    
+    def get_snakes_together(self, snakes):
+        snakesTogether = []
+
+        for s in snakes:
+             for b in s["body"]:
+                snakesTogether.append(( b['x'], b['y'] ))
+
+        return snakesTogether

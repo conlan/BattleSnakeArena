@@ -6,10 +6,12 @@ from snake_controller import SnakeController
 from ddqn.ddqn_model import DDQNModel
 
 class DDQNController (SnakeController):
-    def __init__(self, model_save_path, nickname, convert_data_to_image):
+    def __init__(self, model_save_path, nickname, convert_data_to_image, should_action_mask):
         super().__init__(nickname)
 
         self.convert_data_to_image = convert_data_to_image
+        
+        self.should_action_mask = should_action_mask
 
         self.model = DDQNModel()
 
@@ -57,8 +59,9 @@ class DDQNController (SnakeController):
 
                 local_dir, q_values = self.model.predict(obs)
 
-                # apply action mask (override q-value with LOSE score for guaranteed losing moving directions)
-                local_dir, q_values = self.apply_action_mask(q_values, data)
+                if (self.should_action_mask):
+                    # apply action mask (override q-value with LOSE score for guaranteed losing moving directions)
+                    local_dir, q_values = self.apply_action_mask(q_values, data)
 
             move = self.getLocalDirectionAsMove(local_dir, snakeHead, snakeNeck)
 

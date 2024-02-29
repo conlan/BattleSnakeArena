@@ -52,8 +52,14 @@ class DDQNController (SnakeController):
             snakeNeck = you['body'][1]
             snakeNeck = (snakeNeck['x'], snakeNeck['y'])
 
-            if (random.uniform(0.0, 1.0) < self.epsilon):
-                local_dir = random.choice([0, 1, 2])
+            if (random.uniform(0.0, 1.0) < self.epsilon):                
+                if (self.should_action_mask):
+                    # initialize a vector of 3 random starting values
+                    q_values = [random.uniform(0, 1), random.uniform(0, 1), random.uniform(0, 1)]
+                    # then apply the action mask
+                    local_dir, q_values = self.apply_action_mask(q_values, data)
+                else:
+                    local_dir = random.choice([0, 1, 2])
             else:
                 obs = self.convert_data_to_image(data)
 

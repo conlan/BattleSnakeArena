@@ -141,6 +141,9 @@ class Trainer():
         return game_results
 
     def determine_reward(self, training_snake, game_results) -> int:
+        if (self.model == None):
+            return 0
+        
         total_reward = 0
                 
         if (training_snake.is_dead):
@@ -163,6 +166,9 @@ class Trainer():
         return total_reward
 
     def cache(self, game, observation, next_observation, action, reward, done, q_values) -> None:
+        if (self.model == None):
+            return
+        
         if (action == None):
             # print(f'    Action is None, skipping cache...')
             return

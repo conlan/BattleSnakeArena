@@ -44,13 +44,7 @@ class DDQNModel():
         self.reward_set_key = constants.DEFAULT_REWARD_SET_KEY       
 
     def cache(self, obs, next_obs : int, action : int, reward_int : int, done_bool : bool):
-
-        # print(f"    Caching: act=" + str(action) + ", reward=" + str(reward_int) + ", done=" + str(done_bool))        
-
-        # to_tensor = transforms.ToTensor()
-
-        # state = to_tensor(obs)
-        # next_state = to_tensor(next_obs)
+        # print(f"    Caching: act=" + str(action) + ", reward=" + str(reward_int) + ", done=" + str(done_bool))
 
         state = torch.tensor(obs, dtype=torch.float)
         next_state = torch.tensor(next_obs, dtype=torch.float)

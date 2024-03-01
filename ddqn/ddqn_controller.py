@@ -83,9 +83,14 @@ class DDQNController (SnakeController):
         MIN_Q_VALUE = -99999999999999999
 
         you = data['you']
+        you_health = you['health']
 
         board_width = data['board']['width']
         board_height = data['board']['height']
+        
+        # convert board food to tuples
+        board_food = data['board']['food']        
+        board_food = [(food['x'], food['y']) for food in board_food]
 
         snakeHead = you['body'][0]
         snakeHead = (snakeHead['x'], snakeHead['y'])
@@ -116,6 +121,7 @@ class DDQNController (SnakeController):
         snakes_together = self.get_snakes_together(data['board']['snakes'], False)
         
         # for each move, check if the move is out of bounds or collides with a snake body
+        
         for idx in range(len(next_moves_coordinates)):
             next_move = next_moves_coordinates[idx]
 
@@ -124,7 +130,11 @@ class DDQNController (SnakeController):
                 q_values[idx] = MIN_Q_VALUE
             elif (next_move in snakes_together):
                 # dont hit snake bodies
-                q_values[idx] = MIN_Q_VALUE
+                q_values[idx] = MIN_Q_VALUE            
+            elif (you_health <= 1):
+                # if health is at 1 and next move is not a food, then don't go there
+                if (next_move not in board_food):
+                    q_values[idx] = MIN_Q_VALUE            
 
         local_dir = q_values.index(max(q_values))
 

@@ -79,7 +79,8 @@ class DDQNController (SnakeController):
         return self.store_move(game_id, move, local_dir, q_values)
     
     def apply_action_mask(self, q_values, data):
-        MIN_Q_VALUE = constants.REWARD_SETS[self.model.reward_set_key][constants.REWARD_KEY_LOSE]
+        # min float value
+        MIN_Q_VALUE = -99999999999999999
 
         you = data['you']
 

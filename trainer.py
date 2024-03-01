@@ -166,33 +166,12 @@ class Trainer():
         if (action == None):
             # print(f'    Action is None, skipping cache...')
             return
-        
-        # convert action_idx to an action tensor
-        # action = action_idx#[0, 0, 0]        
-        # action[action_idx] = 1
 
         # observations are 13 x 11 x 11 tensor
-        # cache the observation + next observation images rotated in all directions 
-        # so that we get 4x the training data        
         raw_obs_tensor = observation["tensor"]
         raw_next_obs_tensor = next_observation["tensor"]
-
-        obs_array = [
-            raw_obs_tensor
-            # np.rot90(raw_obs_tensor, 1, axes=(1, 2)).copy(),
-            # np.rot90(raw_obs_tensor, 2, axes=(1, 2)).copy(),
-            # np.rot90(raw_obs_tensor, 3, axes=(1, 2)).copy()
-        ]
-
-        next_obs_array = [
-            raw_next_obs_tensor
-            # np.rot90(raw_next_obs_tensor, 1, axes=(1, 2)).copy(),
-            # np.rot90(raw_next_obs_tensor, 2, axes=(1, 2)).copy(),
-            # np.rot90(raw_next_obs_tensor, 3, axes=(1, 2)).copy()
-        ]
         
-        for i in range(len(obs_array)):
-            self.model.cache(obs_array[i], next_obs_array[i], action, reward, done)
+        self.model.cache(raw_obs_tensor, raw_next_obs_tensor, action, reward, done)
         
         self.curr_step += 1
 

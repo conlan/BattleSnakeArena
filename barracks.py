@@ -32,7 +32,7 @@ def main(model_save_path, history_save_path, discord_webhook_url, should_record_
     reporter = Reporter(discord_webhook_url)
     reporter.load_history(history_save_path)
 
-    trainee_controller = DDQNController(model_save_path, "me", convert_data_to_image=observer.convert_data_to_tensor, should_action_mask=True)
+    trainee_controller = DDQNController(model_save_path, "me", convert_data_to_image=observer.convert_data_to_tensor, should_action_mask=False)
     trainer = Trainer(trainee_controller, trainee_controller.epsilon_info["curr_step"])
 
     # ========================================================================

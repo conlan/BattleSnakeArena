@@ -1,4 +1,5 @@
 import numpy as np
+import constants
 
 from observer import Observer
 
@@ -37,7 +38,7 @@ class TensorObserver(Observer):
         # print(pov_snake)
         # print(data)
 
-        board_tensor = np.zeros((13, 11, 11), dtype=int)
+        board_tensor = np.zeros((13, 11, 11), dtype=float)
         
         # which direction the snake is pointing in
         pov_snake_orientation = None
@@ -59,7 +60,7 @@ class TensorObserver(Observer):
             snake_size = len(body)
 
             # layer0: snake health on heads {0,...,100}
-            self.assign_tensor_val(board_tensor, 0, head_x, head_y, health)
+            self.assign_tensor_val(board_tensor, 0, head_x, head_y, health * 1.0 / constants.MAX_SNAKE_HEALTH)
 
             if (snake_id == pov_snake_id):
                 # layer5: head_mask {0,1}
@@ -98,15 +99,15 @@ class TensorObserver(Observer):
                 self.assign_tensor_val(board_tensor, 1, segment_x, segment_y, 1)
 
                 # layer2: body segment numbers {0,...,255}
-                self.assign_tensor_val(board_tensor, 2, segment_x, segment_y, i)
+                self.assign_tensor_val(board_tensor, 2, segment_x, segment_y, i * 0.001)
 
                 if (snake_id != pov_snake_id):
                     if (snake_size >= player_size):
                         # layer7: snake bodies >= us {0,1}
-                        self.assign_tensor_val(board_tensor, 7, segment_x, segment_y, 1 + snake_size - player_size)
+                        self.assign_tensor_val(board_tensor, 7, segment_x, segment_y, 1)# + snake_size - player_size)
                     else:
                         # layer8: snake bodies < us {0,1}
-                        self.assign_tensor_val(board_tensor, 8, segment_x, segment_y, player_size - snake_size)
+                        self.assign_tensor_val(board_tensor, 8, segment_x, segment_y, 1)#player_size - snake_size)
 
             # layer3: snake length >= player {0,1}
             if (snake_id != pov_snake_id):
@@ -145,6 +146,7 @@ class TensorObserver(Observer):
             # rotate twice so it's flipped upside down
             board_tensor = np.rot90(board_tensor, 2, axes=(1, 2)).copy()
 
+        # print('-------------------')
         # np.set_printoptions(threshold=np.inf)
         # print(board_tensor)
         

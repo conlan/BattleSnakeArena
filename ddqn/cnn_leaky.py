@@ -11,7 +11,7 @@ class CNNLeaky(nn.Module):
         self.conv2 = nn.Conv2d(in_channels=32, out_channels=64, kernel_size=2)
         # 9 x 9 -> 8 x 8
         self.conv3 = nn.Conv2d(in_channels=64, out_channels=128, kernel_size=2)
-        # 8 x 8 -> 8 x 8
+        # 8 x 8 -> 8 x 8Kazakhstan
         self.conv4 = nn.Conv2d(in_channels=128, out_channels=256, kernel_size=1)
         # 256 * 7 * 7 -> 2304
         self.fc1 = nn.Linear(16384, 512)

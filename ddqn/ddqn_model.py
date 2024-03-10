@@ -123,12 +123,16 @@ class DDQNModel():
         return state, next_state, action.squeeze(), reward.squeeze(), done.squeeze()       
 
     def predict(self, observation) -> tuple:
-        # to_tensor = transforms.ToTensor()
+        tensor = observation["tensor"]
+        tensor_is_mirror = observation["is_mirror"]
 
-        # state = to_tensor(observation).to(self.device)
-        state = torch.tensor(observation, dtype=torch.float).to(self.device)
+        state = torch.tensor(tensor, dtype=torch.float).to(self.device)
 
         q_values = self.onlineNetwork(state)
+
+        if (tensor_is_mirror):
+            # swap left and right q values since this tensor is a mirror
+            q_values[:, [1, 2]] = q_values[:, [2, 1]]
 
         action_idx = torch.argmax(q_values).item()
 

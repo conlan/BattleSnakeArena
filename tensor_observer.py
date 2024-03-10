@@ -49,7 +49,10 @@ class TensorObserver(Observer):
         # if the pov snake is dead, we don't need to do anything else
         # Terminal state is an all-zero tensor
         if not pov_snake_is_alive:
-            return board_tensor
+            return {
+                "tensor" : board_tensor,
+                "is_mirror" : False
+            }
 
         for s in snakes:
             snake_id = s["id"]
@@ -131,9 +134,6 @@ class TensorObserver(Observer):
                 for y in range(board_height):
                     # layer9-12: alive count mask
                     self.assign_tensor_val(board_tensor, 8 + num_snakes_alive, x, y, 1)
-
-        # np.set_printoptions(threshold=np.inf)
-        # print(board_tensor)
             
         # rotate the board so that the POV snake is always facing UP
         if (pov_snake_orientation == 'right'):
@@ -149,11 +149,25 @@ class TensorObserver(Observer):
         # print('-------------------')
         # np.set_printoptions(threshold=np.inf)
         # print(board_tensor)
+            
+        # get column from head mask where equals 1        
+        head_mask_column = np.where(board_tensor[5] == 1)[1]
         
-        return board_tensor        
+        is_mirror = False
+        # if snake head is on the right side of the board
+        if (head_mask_column > int(board_width / 2)):            
+            # flip the board horizontally (that way our training is equally applicable to both sides of the board)
+            board_tensor = np.flip(board_tensor, 2).copy()
+            
+            is_mirror = True
+        
+        return {
+                "tensor" : board_tensor,
+                "is_mirror" : is_mirror
+            }   
 
     def observe(self, data : dict, should_store_observation : bool) -> dict:
-        tensor = self.convert_data_to_tensor(data)
+        converted_obj = self.convert_data_to_tensor(data)
 
         game_id = data["game"]["id"]
 
@@ -161,7 +175,8 @@ class TensorObserver(Observer):
             self.observations[game_id] = []
 
         observation = {
-            "tensor" : tensor
+            "tensor" : converted_obj["tensor"],
+            "is_mirror" : converted_obj["is_mirror"]
         }
 
         if (should_store_observation):

@@ -61,9 +61,9 @@ class DDQNController (SnakeController):
                 else:
                     local_dir = random.choice([0, 1, 2])
             else:
-                obs = self.convert_data_to_image(data)
+                obs_data = self.convert_data_to_image(data)
 
-                local_dir, q_values = self.model.predict(obs)
+                local_dir, q_values = self.model.predict(obs_data)
 
                 if (self.should_action_mask):
                     # apply action mask (override q-value with LOSE score for guaranteed losing moving directions)

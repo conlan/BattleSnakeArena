@@ -181,6 +181,16 @@ def run_training_game(training_config, game_config) -> dict:
         training_snake_move = trainer.controller.get_last_move(game)
         training_snake_q_values = training_snake_move["q_values"]
 
+        if (observation["is_mirror"]):  
+            # flip the action and q values if we went right or left
+            if (training_snake_action == constants.LocalDirection.LEFT):
+                training_snake_action = constants.LocalDirection.RIGHT
+                training_snake_q_values = [training_snake_q_values[0], training_snake_q_values[2], training_snake_q_values[1]]
+
+            elif (training_snake_action == constants.LocalDirection.RIGHT):
+                training_snake_action = constants.LocalDirection.LEFT
+                training_snake_q_values = [training_snake_q_values[0], training_snake_q_values[2], training_snake_q_values[1]]
+
         # put the last move details in the initial observation        
         observation["action"] = training_snake_action
         observation["move"] = training_snake_move["move"]

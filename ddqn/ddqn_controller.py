@@ -59,6 +59,7 @@ class DDQNController (SnakeController):
                     # then apply the action mask
                     local_dir, q_values = self.apply_action_mask(q_values, data)
                 else:
+                    q_values = [0, 0, 0]
                     local_dir = random.choice([0, 1, 2])
             else:
                 obs_data = self.convert_data_to_image(data)

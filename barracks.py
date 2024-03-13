@@ -25,6 +25,7 @@ def main(model_save_path, history_save_path, discord_webhook_url, should_record_
     NUM_GAMES_TO_PLAY = 1_000_000
     NUM_GAMES_PER_VALIDATION = 2_500
     VALIDATE_EVERY_N_STEPS = 150_000
+    PAUSE_TRAINING_WIN_RATE_THRESHOLD = 85.0
     # ========================================================================
     
     observer = TensorObserver()
@@ -70,6 +71,10 @@ def main(model_save_path, history_save_path, discord_webhook_url, should_record_
     # Track when we last ran a validation (by default set it to the current step so we don't validate right away)
     last_step_validated = trainer.curr_step
 
+    # set this once validation win rate surpasses a certain threshold so we can evaluate 
+    # and potentially decrease learning rate, etc
+    should_pause_training = False
+
     for i in range(NUM_GAMES_TO_PLAY):
         result = run_training_game(training_config, constants.DEFAULT_GAME_CONFIG)
 
@@ -109,6 +114,8 @@ def main(model_save_path, history_save_path, discord_webhook_url, should_record_
 
                 validation_results = validator.run_validation(validation_config, constants.DEFAULT_GAME_CONFIG, NUM_GAMES_PER_VALIDATION)
 
+                should_pause_training = (validation_results['win_rate'] >= PAUSE_TRAINING_WIN_RATE_THRESHOLD)
+
                 # report data
                 reporter.report(validation_results, opponent_name, trainer.curr_step)
             
@@ -120,6 +127,9 @@ def main(model_save_path, history_save_path, discord_webhook_url, should_record_
             game_id = result["id"]
             # recorder.output_to_frames(observer.observations[game_id], "output_frames")
             recorder.output_to_video(observer.observations[game_id], "output_video.mp4")
+            break
+
+        if (should_pause_training):
             break
 
 def run_training_game(training_config, game_config) -> dict:

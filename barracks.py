@@ -39,7 +39,7 @@ def main(model_save_path, history_save_path, discord_webhook_url, should_record_
     # ========================================================================
     # The opponent snakes we'll train against
     # Simple Controller
-    # training_opponent_0 = SimpleController("simple")
+    training_opponent_0 = SimpleController("simple")
     training_opponent_1 = StrongController("strong")
     # Snapshotted DQN Controller
     # training_opponent_2 = DQNController("/content/drive/MyDrive/ColabOutput/runs/snake_v11/snake_v8.chkpt", convert_data_to_image=observer.convert_data_to_image)
@@ -47,8 +47,8 @@ def main(model_save_path, history_save_path, discord_webhook_url, should_record_
     # ========================================================================
 
     training_opponents = [
-        # training_opponent_0,
-        training_opponent_1#, training_opponent_1, training_opponent_1, training_opponent_1
+        training_opponent_0,
+        training_opponent_1
         # training_opponent_2
     ]
 

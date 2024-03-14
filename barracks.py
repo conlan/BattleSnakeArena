@@ -114,7 +114,7 @@ def main(model_save_path, history_save_path, discord_webhook_url, should_record_
 
                 validation_results = validator.run_validation(validation_config, constants.DEFAULT_GAME_CONFIG, NUM_GAMES_PER_VALIDATION)
 
-                should_pause_training = (validation_results['win_rate'] >= PAUSE_TRAINING_WIN_RATE_THRESHOLD)
+                # should_pause_training = (validation_results['win_rate'] >= PAUSE_TRAINING_WIN_RATE_THRESHOLD)
 
                 # report data
                 reporter.report(validation_results, opponent_name, trainer.curr_step)

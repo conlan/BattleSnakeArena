@@ -11,7 +11,10 @@ class TensorObserver(Observer):
     def assign_tensor_val(self, tensor, layer, x, y, val):
         tensor[layer][y][x] = val
 
-    def convert_data_to_tensor(self, data) -> np.ndarray:
+    def convert_data_to_tensor_no_mirror(self, data) -> np.ndarray:
+        return self.convert_data_to_tensor(data, False)
+
+    def convert_data_to_tensor(self, data, can_mirror) -> np.ndarray:
         # initialize a 13 x 11 x 11 ndarray        
 
         # layer0: snake health on heads {0,...,100}
@@ -149,17 +152,20 @@ class TensorObserver(Observer):
         # print('-------------------')
         # np.set_printoptions(threshold=np.inf)
         # print(board_tensor)
-            
-        # get column from head mask where equals 1        
-        head_mask_column = np.where(board_tensor[5] == 1)[1]
-        
+
         is_mirror = False
-        # if snake head is on the right side of the board
-        if (head_mask_column > int(board_width / 2)):            
-            # flip the board horizontally (that way our training is equally applicable to both sides of the board)
-            board_tensor = np.flip(board_tensor, 2).copy()
-            
-            is_mirror = True
+
+        # get column from head mask where equals 1        
+        if (can_mirror):
+            head_mask_column = np.where(board_tensor[5] == 1)[1]
+        
+        
+            # if snake head is on the right side of the board
+            if (head_mask_column > int(board_width / 2)):            
+                # flip the board horizontally (that way our training is equally applicable to both sides of the board)
+                board_tensor = np.flip(board_tensor, 2).copy()
+                
+                is_mirror = True
         
         return {
                 "tensor" : board_tensor,

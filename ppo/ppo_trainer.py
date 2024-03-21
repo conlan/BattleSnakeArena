@@ -1,27 +1,23 @@
 import constants
 import numpy as np
 
-class Trainer():
-    def __init__(self, controller, curr_step) -> None:
+from ppo.ppo_model import PPOModel
+
+class PPOTrainer():
+    def __init__(self, controller) -> None:
         if controller is None:
             raise Exception("controller cannot be None")
         
         self.controller = controller
-        self.model = controller.model
-
-        self.curr_step = curr_step
-
-        self.burnin = 20_000
-        self.learn_every = 3
-        self.sync_every = 10_000
-        self.save_every = 3_000
+        
+        self.model = PPOModel()
 
         self.reset()
 
     def reset(self):
         self.learning_losses = {}
-        self.q_values = {}
         self.winner_counts = {}
+        self.curr_step = 0
 
         self.max_food_consumed = 0
         self.max_reward_collected = -99999999999999
@@ -57,10 +53,6 @@ class Trainer():
         mean_learning_loss = game_results["training"]["mean_learning_loss"]
         # reduce to 4 decimal places
         mean_learning_loss = round(mean_learning_loss, 4)
-        
-        mean_max_q_value = game_results["training"]["mean_max_q_value"]
-        # reduce to 2 decimal places
-        mean_max_q_value = round(mean_max_q_value, 2)
 
         training_snake_death_reason = game_results["training"]["death_reason"]
 
@@ -69,9 +61,6 @@ class Trainer():
         output_string += ", W={} ({}%)".format(winner_name, win_rate) # winner"
         output_string += ", F={}, MaxF={}".format(food_consumed, self.max_food_consumed) # food
         output_string += ", R={}, MaxR={}".format(collected_reward, self.max_reward_collected) # reward
-
-        if (mean_max_q_value != 0):
-            output_string += ", MeanMaxQ={}".format(mean_max_q_value) # q value
             
         output_string += ", Death={}".format(training_snake_death_reason)
         
@@ -104,13 +93,6 @@ class Trainer():
         else:
             mean_learning_loss = sum(learning_losses_for_game) / len(learning_losses_for_game)
 
-        # store q values for moves made
-        q_values_for_game = self.q_values[game_id] if game_id in self.q_values else []
-        if (len(q_values_for_game) == 0):
-            mean_max_q_value = 0
-        else:
-            mean_max_q_value = sum(q_values_for_game) / len(q_values_for_game)
-
         # track food consumed
         if (training_snake.num_food_consumed > self.max_food_consumed):
             self.max_food_consumed = training_snake.num_food_consumed
@@ -129,13 +111,11 @@ class Trainer():
 
         game_results["training"] = {
             "curr_step" : self.curr_step,
-            "curr_epsilon" : self.controller.get_epsilon_info()["epsilon"],
             "collected_reward" : training_snake.collected_reward,
             "food_consumed" : training_snake.num_food_consumed,
             "num_turns" : num_turns,
             "death_reason" : training_snake.death_reason,
-            "mean_learning_loss" : mean_learning_loss,
-            "mean_max_q_value" : mean_max_q_value
+            "mean_learning_loss" : mean_learning_loss
         }
 
         return game_results
@@ -163,62 +143,7 @@ class Trainer():
 
         training_snake.collect_reward(total_reward)
         
-        return total_reward
-
-    def cache(self, game, observation, next_observation, action, reward, done, q_values) -> None:
-        if (self.model == None):
-            return
-        
-        if (action == None):
-            # print(f'    Action is None, skipping cache...')
-            return
-
-        # observations are 13 x 11 x 11 tensor
-        raw_obs_tensor = observation["tensor"]
-        raw_next_obs_tensor = next_observation["tensor"]
-        
-        self.model.cache(raw_obs_tensor, raw_next_obs_tensor, action, reward, done)
-        
-        self.curr_step += 1
-
-        # store max q values for moves made
-        if (q_values is not None):
-            if game.id not in self.q_values:
-                self.q_values[game.id] = []
-                
-            max_q_value = max(q_values)
-
-            self.q_values[game.id].append(max_q_value)
-
-        # print(f'    Current step: {self.curr_step}')
-            
-        if (self.curr_step % self.sync_every == 0):
-            self.model.sync_Q_target()
-    
-        # ensure that we've accumulated enough data before starting to learn
-        # reduce burnin by 1 to maximum of zero
-        self.burnin = max(0, self.burnin - 1)
-        if (self.burnin > 0):
-            return
-        
-        # learn every few steps
-        if (self.curr_step % self.learn_every == 0):
-            loss = self.model.learn()
-            
-            if (loss is not None):
-                self.num_training_updates_made += 1
-
-                if game.id not in self.learning_losses:
-                    self.learning_losses[game.id] = []
-
-                self.learning_losses[game.id].append(loss)
-
-        # save every N steps
-        if (self.curr_step % self.save_every == 0):
-            self.save_state()            
+        return total_reward           
 
     def save_state(self):
-        training_info = self.controller.get_epsilon_info()
-        training_info['curr_step'] = self.curr_step
-
-        self.model.save_model(training_info)
+        raise NotImplementedError("save_state not implemented")

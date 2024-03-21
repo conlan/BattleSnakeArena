@@ -8,10 +8,10 @@ from snake import Snake
 
 from tensor_observer import TensorObserver
 
-from trainer import Trainer
-
-from dqn.dqn_controller import DQNController
-from ddqn.ddqn_controller import DDQNController
+# from trainer import Trainer
+# from ddqn.ddqn_controller import DDQNController
+from ppo.ppo_trainer import PPOTrainer
+from ppo.ppo_controller import PPOController
 
 from controllers.simple_controller import SimpleController
 from controllers.strong_controller import StrongController
@@ -22,7 +22,7 @@ from reporter import Reporter
 
 def main(model_save_path, history_save_path, discord_webhook_url, should_record_gameplay) -> None:
     # ========================================================================
-    NUM_GAMES_TO_PLAY = 1_000_000
+    NUM_GAMES_TO_PLAY = 1
     NUM_GAMES_PER_VALIDATION = 2_500
     VALIDATE_EVERY_N_STEPS = 150_000
     PAUSE_TRAINING_WIN_RATE_THRESHOLD = 85.0
@@ -33,8 +33,12 @@ def main(model_save_path, history_save_path, discord_webhook_url, should_record_
     reporter = Reporter(discord_webhook_url)
     reporter.load_history(history_save_path)
 
-    trainee_controller = DDQNController(model_save_path, "me", convert_data_to_image=observer.convert_data_to_tensor, should_action_mask=False)
-    trainer = Trainer(trainee_controller, trainee_controller.epsilon_info["curr_step"])
+    # DDQN
+    # trainee_controller = DDQNController(model_save_path, "me", convert_data_to_image=observer.convert_data_to_tensor, should_action_mask=False)
+    # trainer = Trainer(trainee_controller, trainee_controller.epsilon_info["curr_step"])
+    # PPO
+    trainee_controller = PPOController(model_save_path, "me", convert_data_to_image=observer.convert_data_to_tensor_no_mirror, should_action_mask=False)
+    trainer = PPOTrainer(trainee_controller)
 
     # ========================================================================
     # The opponent snakes we'll train against
@@ -53,8 +57,8 @@ def main(model_save_path, history_save_path, discord_webhook_url, should_record_
     ]
 
     training_config = {
-        "speed" : 100,
-        "print_board" : False,
+        "speed" : 90,
+        "print_board" : True,
         "should_record_gameplay" : should_record_gameplay,
         "colors" : [
             constants.COLORS["red"],
@@ -88,11 +92,15 @@ def main(model_save_path, history_save_path, discord_webhook_url, should_record_
             trainer.save_state()
 
             # setup the validation controller
-            validation_controller = DDQNController(model_save_path, "me", convert_data_to_image=observer.convert_data_to_tensor, should_action_mask=True)
-            validation_controller.load_epsilon(constants.EPSILON_INFO_VALIDATION)
+            # DDQN
+            # validation_controller = DDQNController(model_save_path, "me", convert_data_to_image=observer.convert_data_to_tensor, should_action_mask=True)
+            # validation_controller.load_epsilon(constants.EPSILON_INFO_VALIDATION)
+            # validation_trainer = Trainer(validation_controller, 0)
+            # PPO
+            validation_controller = PPOController(model_save_path, "me", convert_data_to_image=observer.convert_data_to_tensor_no_mirror, should_action_mask=True)
+            validation_trainer = PPOTrainer(validation_controller)
     
-            # setup a trainer so we can determine rewards for the validation games
-            validation_trainer = Trainer(validation_controller, 0)
+            # setup a trainer so we can determine rewards for the validation games            
             validator = Validator()
 
             # get unique opponents to validate against
@@ -171,50 +179,68 @@ def run_training_game(training_config, game_config) -> dict:
 
     game_results = None
 
+    #DDQN
+    # while not is_done:
+    #     t1 = time.time()
+
+    #     # print the board if necessary
+    #     if (print_board): observer.print_game(game)
+
+    #     # Grab the current observation
+    #     observation = observer.observe(game.get_board_json(training_snake), should_record_gameplay)
+
+    #     # Perform a game step
+    #     is_done = game.step()
+
+    #     # Grab an observation after the step
+    #     next_observation = observer.observe(game.get_board_json(training_snake), (is_done and should_record_gameplay))
+
+    #     # get move made from the controller
+    #     training_snake_action = trainer.controller.get_last_local_direction(game)
+    #     training_snake_move_obj = trainer.controller.get_last_move(game)
+    #     training_snake_q_values = training_snake_move_obj["q_values"]
+
+    #     # put the last move details in the observation for recording purposes
+    #     observation["action"] = training_snake_action
+    #     observation["move"] = training_snake_move_obj["move"]
+    #     observation["q_values"] = training_snake_q_values
+
+    #     if (observation["is_mirror"]):  
+    #         # flip the action and q values if we went right or left
+    #         if (training_snake_action == constants.LocalDirection.LEFT):
+    #             training_snake_action = constants.LocalDirection.RIGHT
+    #             training_snake_q_values = [training_snake_q_values[0], training_snake_q_values[2], training_snake_q_values[1]]
+
+    #         elif (training_snake_action == constants.LocalDirection.RIGHT):
+    #             training_snake_action = constants.LocalDirection.LEFT
+    #             training_snake_q_values = [training_snake_q_values[0], training_snake_q_values[2], training_snake_q_values[1]]
+
+    #     if (is_done):
+    #         # get final game results
+    #         game_results = game.get_game_results()
+        
+    #     # determine reward for the controller        
+    #     reward = trainer.determine_reward(training_snake, game_results)
+
+    #     # cache and possibly train on results
+    #     trainer.cache(game, observation, next_observation, training_snake_action, reward, is_done, training_snake_q_values)
+
+    #     # delay if necessary
+    #     if (speed < 100):
+    #         while(time.time()-t1 <= float(100-speed)/float(100)): pass
+    # PPO
     while not is_done:
         t1 = time.time()
 
         # print the board if necessary
         if (print_board): observer.print_game(game)
 
-        # Grab the current observation
-        observation = observer.observe(game.get_board_json(training_snake), should_record_gameplay)
-
         # Perform a game step
         is_done = game.step()
-
-        # Grab an observation after the step
-        next_observation = observer.observe(game.get_board_json(training_snake), (is_done and should_record_gameplay))
-
-        # get move made from the controller
-        training_snake_action = trainer.controller.get_last_local_direction(game)
-        training_snake_move_obj = trainer.controller.get_last_move(game)
-        training_snake_q_values = training_snake_move_obj["q_values"]
-
-        # put the last move details in the observation for recording purposes
-        observation["action"] = training_snake_action
-        observation["move"] = training_snake_move_obj["move"]
-        observation["q_values"] = training_snake_q_values
-
-        if (observation["is_mirror"]):  
-            # flip the action and q values if we went right or left
-            if (training_snake_action == constants.LocalDirection.LEFT):
-                training_snake_action = constants.LocalDirection.RIGHT
-                training_snake_q_values = [training_snake_q_values[0], training_snake_q_values[2], training_snake_q_values[1]]
-
-            elif (training_snake_action == constants.LocalDirection.RIGHT):
-                training_snake_action = constants.LocalDirection.LEFT
-                training_snake_q_values = [training_snake_q_values[0], training_snake_q_values[2], training_snake_q_values[1]]
 
         if (is_done):
             # get final game results
             game_results = game.get_game_results()
-        
-        # determine reward for the controller        
-        reward = trainer.determine_reward(training_snake, game_results)
-
-        # cache and possibly train on results
-        trainer.cache(game, observation, next_observation, training_snake_action, reward, is_done, training_snake_q_values)
 
         # delay if necessary
         if (speed < 100):

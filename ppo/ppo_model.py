@@ -53,7 +53,7 @@ class PPOMemory:
         self.dones = []
 
 class PPOModel():
-    def __init__(self, label) -> None:        
+    def __init__(self, label, model_save_path) -> None:        
         self.gamma = 0.999 # Discount factor
         self.gae_lambda = 0.95
         self.batch_size = 20
@@ -71,7 +71,7 @@ class PPOModel():
         self.actor_optimizer = optim.Adam(self.actor.parameters(), lr=constants.DEFAULT_ACTOR_LEARNING_RATE)
         self.critic_optimizer = optim.Adam(self.critic.parameters(), lr=constants.DEFAULT_CRITIC_LEARNING_RATE)
     
-        self.model_save_path : str
+        self.model_save_path = model_save_path
         self.reward_set_key = constants.DEFAULT_REWARD_SET_KEY
 
     def learn(self):
@@ -153,35 +153,27 @@ class PPOModel():
 
         return action, probs, value
         
-    def save_model(self) -> None:        
-        pass
-        # data_to_save = {
-        #     'online_model': self.onlineNetwork.state_dict(),
+    def save_model(self, curr_step) -> None: 
+        data_to_save = {
+            'actor': self.actor.state_dict(),
+            'critic': self.critic.state_dict(),
+            'curr_step': curr_step
+        }       
 
-        #     'gamma': self.gamma,
-        #     'reward_set_key': self.reward_set_key,
-
-        #     'epsilon': training_info["epsilon"],
-        #     'epsilon_decay': training_info["epsilon_decay"],
-        #     'epsilon_min': training_info["epsilon_min"],
-
-        #     'curr_step': training_info['curr_step']
-        # }
-
-        # torch.save(data_to_save, self.model_save_path)
-
-        # print(f"\n    SAVED model and training state {training_info} to {self.model_save_path}\n")
+        T.save(data_to_save, self.model_save_path)
+        print(f"\n    SAVED model to {self.model_save_path}\n")
 
     def load_model(self, path) -> dict:
-        self.model_save_path = path
+        pass
+        # self.model_save_path = path
 
-        # check if file exists first
-        if (os.path.exists(path) == False):
-            print(f"Model not found at {path}, skipping...")
+        # # check if file exists first
+        # if (os.path.exists(path) == False):
+        #     print(f"Model not found at {path}, skipping...")
             
-            # return defaults for epsilon
-            return {            
-            }
+        #     # return defaults for epsilon
+        #     return {            
+        #     }
         
         # saved_dict = torch.load(path, map_location=torch.device(self.device))        
         

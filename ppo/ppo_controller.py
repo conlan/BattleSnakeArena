@@ -5,17 +5,17 @@ from snake_controller import SnakeController
 from ppo.ppo_model import PPOModel
 
 class PPOController (SnakeController):
-    def __init__(self, model_save_path, nickname, label, convert_data_to_image, should_action_mask):
+    def __init__(self, model_save_dir, nickname, label, convert_data_to_image, should_action_mask):
         super().__init__(nickname)
 
         self.convert_data_to_image = convert_data_to_image
         
         self.should_action_mask = should_action_mask
 
-        self.model = PPOModel(label)
+        self.model = PPOModel(label, model_save_dir)
 
     def name(self) -> str:
-        return "PPOController (model=" + self.model.model_save_path + ")"
+        return "PPOController (model=" + self.model.model_save_dir + ")"
 
     def act(self, data) -> dict:
         move = None

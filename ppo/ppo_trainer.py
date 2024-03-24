@@ -17,11 +17,12 @@ class PPOTrainer():
         self.max_reward_collected = -99999999999999
         self.max_turns_survived = 0
         
-        self.num_training_updates_made = 0
+        self.num_training_updates_made = 0        
 
     def clear_game_history(self):
         self.learning_losses = {}
         self.winner_counts = {}
+        self.total_collected_reward = 0
 
     def learn(self, game):
         self.num_training_updates_made += self.controller.model.n_epochs
@@ -55,8 +56,9 @@ class PPOTrainer():
     def print_training_result(self, game_results, game_index, num_games) -> None:
         # determine winner and win rate
         winner = game_results["winner"] if game_results["winner"] is not None else None
-        winner_name = winner.name if winner is not None else "DRAW"        
-        win_rate = self.calculate_win_rate(winner_name)
+        winner_name = winner.name if winner is not None else "DRAW"  
+
+        training_snake_win_rate = self.calculate_win_rate(self.controller.nickname)              
                 
         num_turns = game_results["turns"]
 
@@ -73,7 +75,8 @@ class PPOTrainer():
 
         output_string = "[{}/{}]".format(game_index + 1, num_games) # game count
         output_string += " T={}, MaxT={}".format(num_turns, self.max_turns_survived) # turns
-        output_string += ", W={} ({}%)".format(winner_name, win_rate) # winner"
+        # winner of this game + rolling win rate for training snake
+        output_string += ", W={} ({}%)".format(winner_name, training_snake_win_rate) 
         output_string += ", F={}, MaxF={}".format(food_consumed, self.max_food_consumed) # food
         output_string += ", R={}, MaxR={}".format(collected_reward, self.max_reward_collected) # reward
             
@@ -107,6 +110,9 @@ class PPOTrainer():
             mean_learning_loss = 0
         else:
             mean_learning_loss = sum(learning_losses_for_game) / len(learning_losses_for_game)
+
+        # track reward collected
+        self.total_collected_reward += training_snake.collected_reward
 
         # track food consumed
         if (training_snake.num_food_consumed > self.max_food_consumed):
@@ -158,4 +164,4 @@ class PPOTrainer():
         return total_reward           
 
     def save_state(self):
-        raise NotImplementedError("save_state not implemented")
+        self.controller.model.save_model(self.curr_step)

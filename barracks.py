@@ -17,12 +17,15 @@ from controllers.simple_controller import SimpleController
 from controllers.strong_controller import StrongController
 
 from recorder import Recorder
-from validator import Validator
+# from validator import Validator
 from reporter import Reporter
 
 def main(model_save_path, history_save_path, discord_webhook_url, should_record_gameplay) -> None:
     # ========================================================================
     NUM_GAMES_TO_PLAY = 1_000_000
+
+    # how many games we track our win rate over
+    ROLLING_WIN_RATE_LENGTH_FOR_MODEL_SAVE = 1000
 
     # DDQN
     # NUM_GAMES_PER_VALIDATION = 2_500
@@ -55,7 +58,6 @@ def main(model_save_path, history_save_path, discord_webhook_url, should_record_
     training_opponents = [
         training_opponent_0,
         training_opponent_1
-        # training_opponent_2
     ]
 
     training_config = {
@@ -80,14 +82,28 @@ def main(model_save_path, history_save_path, discord_webhook_url, should_record_
     # set this once validation win rate surpasses a certain threshold so we can evaluate 
     # and potentially decrease learning rate, etc
     # should_pause_training = False
+    best_running_score = -99999999999999
 
     for i in range(NUM_GAMES_TO_PLAY):
         result = run_training_game(training_config, constants.DEFAULT_GAME_CONFIG)
 
         trainer.print_training_result(result, i, NUM_GAMES_TO_PLAY)
+            
+        # running_score = trainer.calculate_win_rate(trainee_controller.nickname)
+        
 
         # PPO
         # TODO save model if running average score is better than previous best
+        if ((i + 1) % ROLLING_WIN_RATE_LENGTH_FOR_MODEL_SAVE == 0):            
+            if (trainer.total_collected_reward > best_running_score):
+                print(f"{trainer.total_collected_reward} > {best_running_score}")
+
+                best_running_score = trainer.total_collected_reward
+
+                trainer.save_state()
+
+            trainer.clear_game_history()
+
 
         # DDQN
         # validate our model every N steps
@@ -269,7 +285,7 @@ def run_training_game(training_config, game_config) -> dict:
     # print the final board if necessary
     if (print_board): observer.print_game(game)
 
-    trainer.learn(game)
+    # trainer.learn(game) TODO
 
     trainer.finalize(game_results, training_snake)
 

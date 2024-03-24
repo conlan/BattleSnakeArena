@@ -285,7 +285,7 @@ def run_training_game(training_config, game_config) -> dict:
     # print the final board if necessary
     if (print_board): observer.print_game(game)
 
-    # trainer.learn(game) TODO
+    trainer.learn(game)
 
     trainer.finalize(game_results, training_snake)
 

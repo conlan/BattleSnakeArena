@@ -20,6 +20,21 @@ class SnakeController(ABC):
     @abstractmethod
     def name(self) -> str:
         pass        
+
+    def store_ppo_move(self, game_id, move, local_direction, probs, value) -> dict:
+        move_obj = {
+            'move': move,
+            'local_direction': local_direction,
+            'probs': probs,
+            'val': value
+        }
+
+        if (game_id not in self.moves_made):
+            self.moves_made[game_id] = []
+
+        self.moves_made[game_id].append(move_obj)
+
+        return move_obj
     
     def store_move(self, game_id, move, local_direction, q_values=None) -> dict:
         move_obj = {

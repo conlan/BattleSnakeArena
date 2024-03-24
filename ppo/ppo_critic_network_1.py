@@ -1,9 +1,9 @@
 import torch.nn as nn
 import torch.nn.functional as F
 
-class CNNLeakySameV3(nn.Module):
-    def __init__(self, output_size):
-        super(CNNLeakySameV3, self).__init__()
+class PPOCriticNetworkV1(nn.Module):
+    def __init__(self):
+        super(PPOCriticNetworkV1, self).__init__()
 
         # 11 x 11 -> 11 x 11
         self.conv1 = nn.Conv2d(in_channels=13, out_channels=32, kernel_size=3, padding=1)
@@ -17,8 +17,8 @@ class CNNLeakySameV3(nn.Module):
         self.fc1 = nn.Linear(20736, 1024)
         # 1024 -> 512
         self.fc2 = nn.Linear(1024, 512)
-        # 512 -> output_size
-        self.fc3 = nn.Linear(512, output_size)
+        # 512 -> 1
+        self.fc3 = nn.Linear(512, 1)
 
     def forward(self, x):
         x = F.leaky_relu(self.conv1(x))
@@ -33,4 +33,4 @@ class CNNLeakySameV3(nn.Module):
 
         x = self.fc3(x)
 
-        return F.softmax(x, dim=1)
+        return x

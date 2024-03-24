@@ -22,10 +22,12 @@ from reporter import Reporter
 
 def main(model_save_path, history_save_path, discord_webhook_url, should_record_gameplay) -> None:
     # ========================================================================
-    NUM_GAMES_TO_PLAY = 1
-    NUM_GAMES_PER_VALIDATION = 2_500
-    VALIDATE_EVERY_N_STEPS = 150_000
-    PAUSE_TRAINING_WIN_RATE_THRESHOLD = 85.0
+    NUM_GAMES_TO_PLAY = 1_000_000
+
+    # DDQN
+    # NUM_GAMES_PER_VALIDATION = 2_500
+    # VALIDATE_EVERY_N_STEPS = 150_000
+    # PAUSE_TRAINING_WIN_RATE_THRESHOLD = 85.0
     # ========================================================================
     
     observer = TensorObserver()
@@ -37,7 +39,7 @@ def main(model_save_path, history_save_path, discord_webhook_url, should_record_
     # trainee_controller = DDQNController(model_save_path, "me", convert_data_to_image=observer.convert_data_to_tensor, should_action_mask=False)
     # trainer = Trainer(trainee_controller, trainee_controller.epsilon_info["curr_step"])
     # PPO
-    trainee_controller = PPOController(model_save_path, "me", convert_data_to_image=observer.convert_data_to_tensor_no_mirror, should_action_mask=False)
+    trainee_controller = PPOController(model_save_path, "me", "train", convert_data_to_image=observer.convert_data_to_tensor_no_mirror, should_action_mask=False)
     trainer = PPOTrainer(trainee_controller)
 
     # ========================================================================
@@ -57,8 +59,8 @@ def main(model_save_path, history_save_path, discord_webhook_url, should_record_
     ]
 
     training_config = {
-        "speed" : 90,
-        "print_board" : True,
+        "speed" : 100,
+        "print_board" : False,
         "should_record_gameplay" : should_record_gameplay,
         "colors" : [
             constants.COLORS["red"],
@@ -73,62 +75,66 @@ def main(model_save_path, history_save_path, discord_webhook_url, should_record_
     }
 
     # Track when we last ran a validation (by default set it to the current step so we don't validate right away)
-    last_step_validated = trainer.curr_step
+    # last_step_validated = trainer.curr_step
 
     # set this once validation win rate surpasses a certain threshold so we can evaluate 
     # and potentially decrease learning rate, etc
-    should_pause_training = False
+    # should_pause_training = False
 
     for i in range(NUM_GAMES_TO_PLAY):
         result = run_training_game(training_config, constants.DEFAULT_GAME_CONFIG)
 
         trainer.print_training_result(result, i, NUM_GAMES_TO_PLAY)
 
+        # PPO
+        # TODO save model if running average score is better than previous best
+
+        # DDQN
         # validate our model every N steps
-        if (trainer.curr_step - last_step_validated >= VALIDATE_EVERY_N_STEPS):
-            last_step_validated = trainer.curr_step
+        # if (trainer.curr_step - last_step_validated >= VALIDATE_EVERY_N_STEPS):
+        #     last_step_validated = trainer.curr_step
             
-            # save the trainer state in case we end during validation round we don't lose progress
-            trainer.save_state()
+        #     # save the trainer state in case we end during validation round we don't lose progress
+        #     trainer.save_state()
 
-            # setup the validation controller
-            # DDQN
-            # validation_controller = DDQNController(model_save_path, "me", convert_data_to_image=observer.convert_data_to_tensor, should_action_mask=True)
-            # validation_controller.load_epsilon(constants.EPSILON_INFO_VALIDATION)
-            # validation_trainer = Trainer(validation_controller, 0)
-            # PPO
-            validation_controller = PPOController(model_save_path, "me", convert_data_to_image=observer.convert_data_to_tensor_no_mirror, should_action_mask=True)
-            validation_trainer = PPOTrainer(validation_controller)
+        #     # setup the validation controller
+        #     # DDQN
+        #     # validation_controller = DDQNController(model_save_path, "me", convert_data_to_image=observer.convert_data_to_tensor, should_action_mask=True)
+        #     # validation_controller.load_epsilon(constants.EPSILON_INFO_VALIDATION)
+        #     # validation_trainer = Trainer(validation_controller, 0)
+        #     # PPO
+        #     validation_controller = PPOController(model_save_path, "me", "validate", convert_data_to_image=observer.convert_data_to_tensor_no_mirror, should_action_mask=True)
+        #     validation_trainer = PPOTrainer(validation_controller)
     
-            # setup a trainer so we can determine rewards for the validation games            
-            validator = Validator()
+        #     # setup a trainer so we can determine rewards for the validation games            
+        #     validator = Validator()
 
-            # get unique opponents to validate against
-            unique_opponents_to_validate_against = list(set(training_opponents))
+        #     # get unique opponents to validate against
+        #     unique_opponents_to_validate_against = list(set(training_opponents))
 
-            # run a series of validation games against each training opponent
-            for opponent_controller in unique_opponents_to_validate_against:
-                opponent_name = opponent_controller.name()
+        #     # run a series of validation games against each training opponent
+        #     for opponent_controller in unique_opponents_to_validate_against:
+        #         opponent_name = opponent_controller.name()
 
-                validation_config = {
-                    "opponent" : opponent_name,
-                    "controllers" : [
-                        validation_controller,
-                        opponent_controller
-                    ],
-                    "controller_under_valuation" : validation_controller,
-                    "trainer" : validation_trainer
-                }
+        #         validation_config = {
+        #             "opponent" : opponent_name,
+        #             "controllers" : [
+        #                 validation_controller,
+        #                 opponent_controller
+        #             ],
+        #             "controller_under_valuation" : validation_controller,
+        #             "trainer" : validation_trainer
+        #         }
 
-                validation_results = validator.run_validation(validation_config, constants.DEFAULT_GAME_CONFIG, NUM_GAMES_PER_VALIDATION)
+        #         validation_results = validator.run_validation(validation_config, constants.DEFAULT_GAME_CONFIG, NUM_GAMES_PER_VALIDATION)
 
-                # should_pause_training = (validation_results['win_rate'] >= PAUSE_TRAINING_WIN_RATE_THRESHOLD)
+        #         # should_pause_training = (validation_results['win_rate'] >= PAUSE_TRAINING_WIN_RATE_THRESHOLD)
 
-                # report data
-                reporter.report(validation_results, opponent_name, trainer.curr_step)
+        #         # report data
+        #         reporter.report(validation_results, opponent_name, trainer.curr_step)
             
-            # save the history for now (we can chart it later)
-            reporter.save_history()
+        #     # save the history for now (we can chart it later)
+        #     reporter.save_history()
 
         if (should_record_gameplay):
             recorder = Recorder()
@@ -137,8 +143,8 @@ def main(model_save_path, history_save_path, discord_webhook_url, should_record_
             recorder.output_to_video(observer.observations[game_id], "output_video.mp4")
             break
 
-        if (should_pause_training):
-            break
+        # if (should_pause_training):
+        #     break
 
 def run_training_game(training_config, game_config) -> dict:
     speed = training_config["speed"]
@@ -235,6 +241,9 @@ def run_training_game(training_config, game_config) -> dict:
         # print the board if necessary
         if (print_board): observer.print_game(game)
 
+        # Grab the current observation
+        observation = observer.observe(game.get_board_json(training_snake), should_record_gameplay, False)
+
         # Perform a game step
         is_done = game.step()
 
@@ -242,12 +251,25 @@ def run_training_game(training_config, game_config) -> dict:
             # get final game results
             game_results = game.get_game_results()
 
+        training_move_obj = trainer.controller.get_last_move(game)
+        training_state = observation["tensor"]
+        training_action = training_move_obj["local_direction"]
+        training_probs = training_move_obj["probs"]
+        training_vals = training_move_obj["val"]
+
+        # determine reward for the controller        
+        training_reward = trainer.determine_reward(training_snake, game_results)
+        
+        trainer.remember(training_state, training_action, training_probs, training_vals, training_reward, is_done)
+
         # delay if necessary
         if (speed < 100):
             while(time.time()-t1 <= float(100-speed)/float(100)): pass
         
     # print the final board if necessary
     if (print_board): observer.print_game(game)
+
+    trainer.learn(game)
 
     trainer.finalize(game_results, training_snake)
 

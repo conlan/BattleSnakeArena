@@ -1,7 +1,4 @@
 import constants
-import numpy as np
-
-from ppo.ppo_model import PPOModel
 
 class PPOTrainer():
     def __init__(self, controller) -> None:
@@ -9,8 +6,6 @@ class PPOTrainer():
             raise Exception("controller cannot be None")
         
         self.controller = controller
-        
-        self.model = PPOModel()
 
         self.reset()
 
@@ -26,8 +21,26 @@ class PPOTrainer():
         self.num_training_updates_made = 0
         self.total_collected_reward = 0
 
+    def learn(self, game):
+        self.num_training_updates_made += self.controller.model.n_epochs
+
+        loss = self.controller.model.learn()
+
+        if game.id not in self.learning_losses:
+            self.learning_losses[game.id] = []
+
+        self.learning_losses[game.id].append(loss)
+
+    def remember(self, state, action, probs, vals, reward, done):
+        if (action == None):
+            return
+        
+        self.curr_step += 1
+        
+        self.controller.model.store_memory(state, action, probs, vals, reward, done)
+
     def _lookup_reward(self, key) -> int:
-        return constants.REWARD_SETS[self.model.reward_set_key][key]
+        return constants.REWARD_SETS[self.controller.model.reward_set_key][key]
     
     def calculate_win_rate(self, winner_name) -> float:
         num_games_won_by_winner = self.winner_counts[winner_name] if winner_name in self.winner_counts else 0
@@ -121,7 +134,7 @@ class PPOTrainer():
         return game_results
 
     def determine_reward(self, training_snake, game_results) -> int:
-        if (self.model == None):
+        if (self.controller.model == None):
             return 0
         
         total_reward = 0

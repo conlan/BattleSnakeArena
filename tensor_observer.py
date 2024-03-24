@@ -172,8 +172,8 @@ class TensorObserver(Observer):
                 "is_mirror" : is_mirror
             }   
 
-    def observe(self, data : dict, should_store_observation : bool) -> dict:
-        converted_obj = self.convert_data_to_tensor(data)
+    def observe(self, data : dict, should_store_observation : bool, can_mirror : bool) -> dict:
+        converted_obj = self.convert_data_to_tensor(data, can_mirror)
 
         game_id = data["game"]["id"]
 

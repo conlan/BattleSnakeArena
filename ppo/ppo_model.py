@@ -64,8 +64,8 @@ class PPOModel():
         
         print(f"{label} using device {self.device}")
 
-        self.actor = PPOActorNetworkV1(3)
-        self.critic = PPOCriticNetworkV1()
+        self.actor = PPOActorNetworkV1(3).to(self.device)
+        self.critic = PPOCriticNetworkV1().to(self.device)
         self.memory = PPOMemory(self.batch_size)
 
         self.actor_optimizer = optim.Adam(self.actor.parameters(), lr=constants.DEFAULT_ACTOR_LEARNING_RATE)

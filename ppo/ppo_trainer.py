@@ -10,8 +10,7 @@ class PPOTrainer():
         self.reset()
 
     def reset(self):
-        self.learning_losses = {}
-        self.winner_counts = {}
+        self.clear_game_history()
         self.curr_step = 0
 
         self.max_food_consumed = 0
@@ -19,7 +18,10 @@ class PPOTrainer():
         self.max_turns_survived = 0
         
         self.num_training_updates_made = 0
-        self.total_collected_reward = 0
+
+    def clear_game_history(self):
+        self.learning_losses = {}
+        self.winner_counts = {}
 
     def learn(self, game):
         self.num_training_updates_made += self.controller.model.n_epochs
@@ -77,7 +79,7 @@ class PPOTrainer():
             
         output_string += ", Death={}".format(training_snake_death_reason)
         
-        if (mean_learning_loss > 0):
+        if (mean_learning_loss != 0):
             output_string += ", L={}".format(mean_learning_loss) # learning loss
 
         if (self.curr_step > 0):
@@ -109,9 +111,6 @@ class PPOTrainer():
         # track food consumed
         if (training_snake.num_food_consumed > self.max_food_consumed):
             self.max_food_consumed = training_snake.num_food_consumed
-
-        # track reward collected
-        self.total_collected_reward += training_snake.collected_reward
 
         if (training_snake.collected_reward > self.max_reward_collected):
             self.max_reward_collected = training_snake.collected_reward

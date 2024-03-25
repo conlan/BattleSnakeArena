@@ -94,7 +94,6 @@ class PPOModel():
                     discount *= self.gamma * self.gae_lambda
 
                 advantage[t] = a_t
-                break
 
             advantage = T.tensor(advantage).to(self.device)
             values = T.tensor(values).to(self.device)

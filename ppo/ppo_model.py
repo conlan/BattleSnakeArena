@@ -71,8 +71,9 @@ class PPOModel():
         self.actor_optimizer = optim.Adam(self.actor.parameters(), lr=constants.DEFAULT_ACTOR_LEARNING_RATE)
         self.critic_optimizer = optim.Adam(self.critic.parameters(), lr=constants.DEFAULT_CRITIC_LEARNING_RATE)
     
-        self.model_save_path = model_save_path
         self.reward_set_key = constants.DEFAULT_REWARD_SET_KEY
+
+        self.load_model(model_save_path)        
 
     def learn(self):
         print("learning..")
@@ -107,10 +108,10 @@ class PPOModel():
                 critic_value = T.squeeze(self.critic(states))
 
                 new_probs = dist.log_prob(actions)
-                prob_ratio = new_probs.exp() / old_probs.exp()
+                prob_ratio = new_probs.exp() / old_probs.exp() # put back into exponential form
                 weighted_probs = advantage[batch] * prob_ratio
                 weighted_clipped_probs = T.clamp(prob_ratio, 1-self.policy_clip, 1+self.policy_clip) * advantage[batch]
-                actor_loss = -T.min(weighted_probs, weighted_clipped_probs).mean()
+                actor_loss = -T.min(weighted_probs, weighted_clipped_probs).mean()                
 
                 returns = advantage[batch] + values[batch]
                 critic_loss = (returns - critic_value)**2
@@ -163,19 +164,19 @@ class PPOModel():
         print(f"\n    SAVED model to {self.model_save_path}\n")
 
     def load_model(self, path) -> dict:
-        pass
-        # self.model_save_path = path
+        self.model_save_path = path
+        self.curr_step = 0
 
-        # # check if file exists first
-        # if (os.path.exists(path) == False):
-        #     print(f"Model not found at {path}, skipping...")
+        # check if file exists first
+        if (os.path.exists(path) == False):
+            print(f"Model not found at {path}, skipping...")
             
-        #     # return defaults for epsilon
-        #     return {            
-        #     }
+            return        
         
-        # saved_dict = torch.load(path, map_location=torch.device(self.device))        
+        saved_dict = torch.load(path, map_location=torch.device(self.device))        
+
+        self.actor.load_state_dict(saved_dict['actor'])
+        self.critic.load_state_dict(saved_dict['critic'])
+        self.curr_step = saved_dict['curr_step']
         
-        # self.onlineNetwork.load_state_dict(saved_dict['online_model'])
-        
-        # self.gamma = saved_dict['gamma']
+        print(f"Model loaded from {path}")    

@@ -11,7 +11,7 @@ class PPOTrainer():
 
     def reset(self):
         self.clear_game_history()
-        self.curr_step = 0
+        self.curr_step = self.controller.model.curr_step if self.controller.model is not None else 0
 
         self.max_food_consumed = 0
         self.max_reward_collected = -99999999999999

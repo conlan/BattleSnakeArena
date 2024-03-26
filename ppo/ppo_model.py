@@ -59,6 +59,7 @@ class PPOModel():
         self.batch_size = 20
         self.n_epochs = 4
         self.policy_clip = 0.2
+        self.entropy_coef = 0.01
 
         self.device = "cuda" if torch.cuda.is_available() else "cpu"                
         
@@ -107,6 +108,8 @@ class PPOModel():
                 dist = self.actor(states)
                 critic_value = T.squeeze(self.critic(states))
 
+                entropy = dist.entropy().mean()
+
                 new_probs = dist.log_prob(actions)
                 prob_ratio = new_probs.exp() / old_probs.exp() # put back into exponential form
                 weighted_probs = advantage[batch] * prob_ratio
@@ -117,7 +120,7 @@ class PPOModel():
                 critic_loss = (returns - critic_value)**2
                 critic_loss = critic_loss.mean()
 
-                total_loss = actor_loss + 0.5 * critic_loss
+                total_loss = actor_loss + 0.5 * critic_loss - self.entropy_coef * entropy
 
                 avg_loss += total_loss.item()                
 

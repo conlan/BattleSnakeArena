@@ -69,7 +69,7 @@ class PPOTrainer():
         
         mean_learning_loss = game_results["training"]["mean_learning_loss"]
         # reduce to 4 decimal places
-        mean_learning_loss = round(mean_learning_loss, 4)
+        mean_learning_loss = round(mean_learning_loss, 8)
 
         training_snake_death_reason = game_results["training"]["death_reason"]
 

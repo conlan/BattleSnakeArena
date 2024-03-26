@@ -56,7 +56,7 @@ class PPOModel():
     def __init__(self, label, model_save_path) -> None:        
         self.gamma = 0.999 # Discount factor
         self.gae_lambda = 0.95
-        self.batch_size = 20
+        self.batch_size = 16
         self.n_epochs = 4
         self.policy_clip = 0.2
         self.entropy_coef = 0.01

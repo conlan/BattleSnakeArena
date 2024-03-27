@@ -82,25 +82,26 @@ def main(model_save_path, history_save_path, discord_webhook_url, should_record_
     # set this once validation win rate surpasses a certain threshold so we can evaluate 
     # and potentially decrease learning rate, etc
     # should_pause_training = False
-    best_running_score = -99999999999999
+    best_running_avg_score = -1
 
     for i in range(NUM_GAMES_TO_PLAY):
         result = run_training_game(training_config, constants.DEFAULT_GAME_CONFIG)
 
         trainer.print_training_result(result, i, NUM_GAMES_TO_PLAY)
-            
-        # running_score = trainer.calculate_win_rate(trainee_controller.nickname)
-        
 
         # PPO
-        # TODO save model if running average score is better than previous best
-        if ((i + 1) % ROLLING_WIN_RATE_LENGTH_FOR_MODEL_SAVE == 0):            
-            if (trainer.total_collected_reward > best_running_score):
-                print(f"{trainer.total_collected_reward} > {best_running_score}")
+        # save model if running average score is better than previous best
+        if ((i + 1) % ROLLING_WIN_RATE_LENGTH_FOR_MODEL_SAVE == 0):
+            avg_collected_reward = trainer.total_collected_reward * 1.0 / ROLLING_WIN_RATE_LENGTH_FOR_MODEL_SAVE
 
-                best_running_score = trainer.total_collected_reward
+            if (avg_collected_reward > best_running_avg_score):
+                print(f"Improvement! Avg Collected Reward = {avg_collected_reward} > {best_running_avg_score}")
+
+                best_running_avg_score = avg_collected_reward
 
                 trainer.save_state()
+            else:
+                print(f"Not Saving: Avg Collected Reward = {avg_collected_reward} <= {best_running_avg_score}")
 
             trainer.clear_game_history()
 

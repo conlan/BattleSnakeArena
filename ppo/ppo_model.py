@@ -93,7 +93,7 @@ class PPOModel():
                 return_t = reward_arr[t]
 
                 if (dones_arr[t] == False):
-                    return_t += self.gamma * advantage[t + 1]
+                    return_t += self.gamma * values[t + 1]
 
                 advantage[t] = return_t
 
@@ -105,16 +105,17 @@ class PPOModel():
 
             for batch in batches:                
                 states = T.tensor(state_arr[batch], dtype=T.float).to(self.device)
-                old_probs = T.tensor(old_prob_arr[batch]).to(self.device)
+                old_log_probs = T.tensor(old_prob_arr[batch]).to(self.device)
                 actions = T.tensor(action_arr[batch]).to(self.device)
 
                 dist = self.actor(states)
                 critic_value = T.squeeze(self.critic(states))
 
                 entropy = dist.entropy().mean()
+            
+                new_log_probs = dist.log_prob(actions)
 
-                new_probs = dist.log_prob(actions)
-                prob_ratio = new_probs.exp() / old_probs.exp() # put back into exponential form
+                prob_ratio = new_log_probs.exp() / old_log_probs.exp() # put back into exponential form
                 weighted_probs = advantage[batch] * prob_ratio
                 weighted_clipped_probs = T.clamp(prob_ratio, 1-self.policy_clip, 1+self.policy_clip) * advantage[batch]
                 actor_loss = -T.min(weighted_probs, weighted_clipped_probs).mean()                
@@ -125,7 +126,7 @@ class PPOModel():
 
                 total_loss = actor_loss + 0.5 * critic_loss - self.entropy_coef * entropy
 
-                avg_loss += total_loss.item()                
+                avg_loss += total_loss.item()
 
                 self.actor_optimizer.zero_grad()
                 self.critic_optimizer.zero_grad()

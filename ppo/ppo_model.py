@@ -55,8 +55,9 @@ class PPOMemory:
 class PPOModel():
     def __init__(self, label, model_save_path) -> None:        
         self.gamma = 0.999 # Discount factor
-        self.batch_size = 1000
-        self.n_epochs = 1
+        self.batch_size = 32
+        self.buffer_size = 2048
+        self.n_epochs = 4
         self.policy_clip = 0.2
         self.entropy_coef = 0.01
 
@@ -77,7 +78,12 @@ class PPOModel():
         self.load_model(model_save_path)        
 
     def learn(self):
-        print("learning..")
+        # check if memory is large enough
+        if (len(self.memory.states) < self.buffer_size):
+            print(f"Not enough memory to learn: {len(self.memory.states)} < {self.buffer_size}")
+            return 0
+        else:
+            print("learning..")
 
         avg_loss = 0
 
@@ -90,12 +96,12 @@ class PPOModel():
 
             # calculate the advantage of each state by iterate from end to start
             for t in reversed(range(len(reward_arr))):
-                return_t = reward_arr[t]
+                discounted_return_t = reward_arr[t]
 
                 if (dones_arr[t] == False):
-                    return_t += self.gamma * values[t + 1]
+                    discounted_return_t += self.gamma * advantage[t + 1]
 
-                advantage[t] = return_t
+                advantage[t] = discounted_return_t
 
             advantage = advantage - values
 

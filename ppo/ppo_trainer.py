@@ -25,14 +25,18 @@ class PPOTrainer():
         self.total_collected_reward = 0
 
     def learn(self, game):
-        self.num_training_updates_made += self.controller.model.n_epochs
-
         loss = self.controller.model.learn()
 
-        if game.id not in self.learning_losses:
-            self.learning_losses[game.id] = []
+        # we didn't learn
+        if (loss == 0):
+            return    
+        else:
+            self.num_training_updates_made += self.controller.model.n_epochs
 
-        self.learning_losses[game.id].append(loss)
+            if game.id not in self.learning_losses:
+                self.learning_losses[game.id] = []
+
+            self.learning_losses[game.id].append(loss)
 
     def remember(self, state, action, probs, vals, reward, done):
         if (action == None):

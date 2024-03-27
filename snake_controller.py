@@ -21,11 +21,11 @@ class SnakeController(ABC):
     def name(self) -> str:
         pass        
 
-    def store_ppo_move(self, game_id, move, local_direction, probs, value) -> dict:
+    def store_ppo_move(self, game_id, move, local_direction, action_prob, value) -> dict:
         move_obj = {
             'move': move,
             'local_direction': local_direction,
-            'probs': probs,
+            'action_prob': action_prob,
             'val': value
         }
 

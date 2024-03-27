@@ -151,13 +151,16 @@ class PPOModel():
 
         dist = self.actor(state)
         value = self.critic(state)
-
+        
         action = dist.sample()
-        probs = T.squeeze(dist.log_prob(action)).item()
+        action_prob = T.squeeze(dist.log_prob(action)).item()
         action = T.squeeze(action).item()
         value = T.squeeze(value).item()
 
-        return action, probs, value
+        # get dist probs as list
+        actor_probs = dist.probs.squeeze().tolist()
+
+        return action, action_prob, value, actor_probs
         
     def save_model(self, curr_step) -> None: 
         data_to_save = {

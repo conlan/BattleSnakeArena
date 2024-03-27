@@ -20,7 +20,7 @@ class PPOController (SnakeController):
     def act(self, data) -> dict:
         move = None
         local_dir = None
-        probs = None
+        action_prob = None
         value = None
 
         if (data['turn'] == 0):
@@ -36,10 +36,10 @@ class PPOController (SnakeController):
 
             obs_data = self.convert_data_to_image(data)
 
-            local_dir, probs, value = self.model.predict(obs_data)
+            local_dir, action_prob, value, actor_probs = self.model.predict(obs_data)
 
             move = self.getLocalDirectionAsMove(local_dir, snakeHead, snakeNeck)
             
         game_id = data["game"]["id"]
         
-        return self.store_ppo_move(game_id, move, local_dir, probs, value)
+        return self.store_ppo_move(game_id, move, local_dir, action_prob, value)

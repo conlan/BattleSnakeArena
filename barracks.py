@@ -271,13 +271,18 @@ def run_training_game(training_config, game_config) -> dict:
         training_move_obj = trainer.controller.get_last_move(game)
         training_state = observation["tensor"]
         training_action = training_move_obj["local_direction"]
-        training_probs = training_move_obj["probs"]
+        training_action_prob = training_move_obj["action_prob"]
         training_vals = training_move_obj["val"]
+
+        # put the last move details in the observation for recording purposes
+        observation["action"] = training_action
+        observation["move"] = training_move_obj["move"]
+        # observation["actor_probs"] = training_probs        
 
         # determine reward for the controller        
         training_reward = trainer.determine_reward(training_snake, game_results)
         
-        trainer.remember(training_state, training_action, training_probs, training_vals, training_reward, is_done)
+        trainer.remember(training_state, training_action, training_action_prob, training_vals, training_reward, is_done)
 
         # delay if necessary
         if (speed < 100):

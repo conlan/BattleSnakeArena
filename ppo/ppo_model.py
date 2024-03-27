@@ -55,9 +55,8 @@ class PPOMemory:
 class PPOModel():
     def __init__(self, label, model_save_path) -> None:        
         self.gamma = 0.999 # Discount factor
-        self.gae_lambda = 0.95
-        self.batch_size = 16
-        self.n_epochs = 4
+        self.batch_size = 1000
+        self.n_epochs = 1
         self.policy_clip = 0.2
         self.entropy_coef = 0.01
 
@@ -69,8 +68,9 @@ class PPOModel():
         self.critic = PPOCriticNetworkV1().to(self.device)
         self.memory = PPOMemory(self.batch_size)
 
-        self.actor_optimizer = optim.Adam(self.actor.parameters(), lr=constants.DEFAULT_ACTOR_LEARNING_RATE)
-        self.critic_optimizer = optim.Adam(self.critic.parameters(), lr=constants.DEFAULT_CRITIC_LEARNING_RATE)
+        self.actor_optimizer = optim.Adam(self.actor.parameters(), lr=constants.DEFAULT_ACTOR_LEARNING_RATE, eps=1e-5)
+        self.critic_optimizer = optim.Adam(self.critic.parameters(), lr=constants.DEFAULT_CRITIC_LEARNING_RATE, eps=1e-5)
+            
     
         self.reward_set_key = constants.DEFAULT_REWARD_SET_KEY
 
@@ -87,16 +87,19 @@ class PPOModel():
             
             values = vals_arr
             advantage = np.zeros(len(reward_arr), dtype=np.float32)
-            
-            for t in range(len(reward_arr) - 1):
-                discount = 1
-                a_t = 0
-                for k in range(t, len(reward_arr) - 1):
-                    a_t += discount * (reward_arr[k] + self.gamma * values[k + 1] * (1 - int(dones_arr[k])) - values[k])
-                    discount *= self.gamma * self.gae_lambda
 
-                advantage[t] = a_t
+            # calculate the advantage of each state by iterate from end to start
+            for t in reversed(range(len(reward_arr))):
+                return_t = reward_arr[t]
 
+                if (dones_arr[t] == False):
+                    return_t += self.gamma * advantage[t + 1]
+
+                advantage[t] = return_t
+
+            advantage = advantage - values
+
+            # convert advantage and values to tensors
             advantage = T.tensor(advantage).to(self.device)
             values = T.tensor(values).to(self.device)
 

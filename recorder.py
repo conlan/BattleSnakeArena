@@ -69,9 +69,14 @@ class Recorder():
             image = frame_obj['image']
 
             q_values = frame_obj['q_values'] if 'q_values' in frame_obj else None
+            actor_probs = frame_obj['actor_probs'] if 'actor_probs' in frame_obj else None
             local_dir_of_move_made = frame_obj['action'] if 'action' in frame_obj else 0
             move_made = frame_obj['move'] if 'move' in frame_obj else None
 
+            # if we don't have q_values (DDQN) but we have actor_probs (PPO) then use that instead
+            if (q_values is None) and (actor_probs is not None):
+                q_values = actor_probs
+            
             # paste image onto bigger image
             final_image = Image.new("RGB", (image.width + FRAME_PADDING * 2, image.height + FRAME_PADDING * 2), (255, 255, 255))
             

@@ -273,11 +273,12 @@ def run_training_game(training_config, game_config) -> dict:
         training_action = training_move_obj["local_direction"]
         training_action_prob = training_move_obj["action_prob"]
         training_vals = training_move_obj["val"]
+        training_actor_probs = training_move_obj["actor_probs"]
 
         # put the last move details in the observation for recording purposes
         observation["action"] = training_action
         observation["move"] = training_move_obj["move"]
-        # observation["actor_probs"] = training_probs        
+        observation["actor_probs"] = training_actor_probs        
 
         # determine reward for the controller        
         training_reward = trainer.determine_reward(training_snake, game_results)
@@ -303,6 +304,9 @@ if __name__ == "__main__":
     parser.add_argument("-dis", "--discord_webhook_url", nargs='+', help="Discord webhook for reporting", type=str, default=None)
     parser.add_argument("-mod", "--model_save_path", nargs='+', help="Model save path", type=str, default=None)
     parser.add_argument("-his", "--history_save_path", nargs='+', help="History save path", type=str, default=None)
+    # boolean flag for recording gameplay
+    parser.add_argument("-rec", "--should_record_gameplay", action='store_true', help="Record gameplay", default=False)
+    
 
     args = parser.parse_args()
     
@@ -310,7 +314,7 @@ if __name__ == "__main__":
     history_save_path = args.history_save_path[0] if args.history_save_path is not None else None
     discord_webhook_url = args.discord_webhook_url[0] if args.discord_webhook_url is not None else None    
 
-    should_record_gameplay = False
+    should_record_gameplay = args.should_record_gameplay
 
     # exit if not all required arguments are provided
     if (model_save_path is None or history_save_path is None):

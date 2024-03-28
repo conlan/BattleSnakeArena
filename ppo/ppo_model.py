@@ -105,6 +105,9 @@ class PPOModel():
 
             advantage = advantage - values
 
+            # normalize advantage
+            advantage = (advantage - np.mean(advantage)) / (np.std(advantage) + 1e-10)
+
             # convert advantage and values to tensors
             advantage = T.tensor(advantage).to(self.device)
             values = T.tensor(values).to(self.device)
